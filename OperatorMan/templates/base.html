@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>运营管理平台</title>
+    <link rel="stylesheet" type="text/css" href="/static/themes/base.css">
+    <script type="text/javascript" src="/static/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/lib/jquery.easyui.min.js"></script>
+</head>
+<body>
+    <div class="easyui-layout">
+        <div data-options="region:'north'" style="height:40px;text-align: right;padding-right: 10px;">
+            welcome, <label>{{user_name}}</label>|<a href="#" class="easyui-linkbutton">注销</a>
+        </div>
+        <div data-options="region:'west',split:true, iconCls:'icon-cut'" title="菜单栏" style="width:200px;"></div>
+        <div data-options="region:'center',title:'主窗口',iconCls:'icon-large-chart'">
+            <table class="easyui-datagrid"
+                    data-options="url:'/get/data/',method:'get',border:false,singleSelect:true,fit:true,fitColumns:true">
+                <thead>
+                    <tr>
+                        <th data-options="field:'itemid'" width="80">Item ID</th>
+                        <th data-options="field:'productid'" width="100">Product ID</th>
+                        <th data-options="field:'listprice',align:'right'" width="80">List Price</th>
+                        <th data-options="field:'unitcost',align:'right'" width="80">Unit Cost</th>
+                        <th data-options="field:'attr1'" width="150">Attribute</th>
+                        <th data-options="field:'status',align:'center'" width="60">Status</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+ 
+</body>
+</html>
