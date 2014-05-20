@@ -3,13 +3,14 @@
 import time
 import datetime
 import sys
+sys.path.append("..") 
 
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy import (Column, BigInteger, Integer, Boolean, Float, Numeric, 
                         String, DateTime, ForeignKey, create_engine, Float,
                         UniqueConstraint, event, and_)
 from sqlalchemy.orm import sessionmaker, relationship
-from OperatorCore.configs import settings
+from configs import settings
 
 
 operator_engine = create_engine('%s?charset=utf8' % settings.DB_SPOTLIGHT_URI, encoding='utf-8',
