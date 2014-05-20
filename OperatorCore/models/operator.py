@@ -91,7 +91,7 @@ class PubCity(OperatorBase):
 class PubBlackPhone(OperatorBase):
 
     """docstring for PubBlackPhone"""
-    __tablename__ = 'pub_balckphone'
+    __tablename__ = 'pub_blackphone'
     __table_args__ = ({'mysql_engine': 'InnoDB'}, )
 
     id = Column(Integer, primary_key=True)
@@ -229,7 +229,7 @@ class UsrCPLog(OperatorBase):
 
 class UsrChannel(OperatorBase):
 
-    """docstring for UsrCPLog"""
+    """docstring for UsrChannel"""
     __tablename__ = 'usr_channel'
     __table_args__ = ({'mysql_engine': 'InnoDB'}, )
 
