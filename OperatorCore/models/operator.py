@@ -9,7 +9,7 @@ from sqlalchemy import (Column, BigInteger, Integer, Boolean, Float, Numeric,
                         String, DateTime, ForeignKey, create_engine, Float,
                         UniqueConstraint, event, and_)
 from sqlalchemy.orm import sessionmaker, relationship
-from TowerSpotlightCore.configs import settings
+from OperatorCore.configs import settings
 
 
 operator_engine = create_engine('%s?charset=utf8' % settings.DB_SPOTLIGHT_URI, encoding='utf-8',
@@ -423,3 +423,13 @@ _Session = sessionmaker(bind=operator_engine, expire_on_commit=False)
 
 def create_tower_session():
     return _Session()
+
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        sys.exit(0)
+
+    if sys.argv[1] == 'create':
+        OperatorBase.metadata.create_all()
+    elif sys.argv[1] == 'drop':
+        OperatorBase.metadata.drop_all()
