@@ -3,14 +3,14 @@
 import time
 import datetime
 import sys
-sys.path.append("..") 
+#sys.path.append("..")  #windows paths settings.
 
 from sqlalchemy.ext.declarative import declarative_base 
 from sqlalchemy import (Column, BigInteger, Integer, Boolean, Float, Numeric, 
                         String, DateTime, ForeignKey, create_engine, Float,
                         UniqueConstraint, event, and_)
 from sqlalchemy.orm import sessionmaker, relationship
-from configs import settings
+from OperatorCore.configs import settings
 
 
 operator_engine = create_engine('%s?charset=utf8' % settings.DB_SPOTLIGHT_URI, encoding='utf-8',
@@ -44,6 +44,26 @@ class SysAdmin(OperatorBase):
     is_show = Column(Boolean, nullable=False)
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
+
+    def __init__(self, username, userpwd, realname):
+        self.username = username
+        self.userpwd = userpwd
+        self.realname = realname
+
+    def __repr__(self):
+        return '<SysAdmin %s>' % self.username
+
+    def is_authenticated(self):
+        return True
+    
+    def is_active(self):
+        return True
+    
+    def is_anonymous(self):
+        return False
+    
+    def get_id(self):
+        return unicode(self.id)
 
 class SysAdminLog(OperatorBase):
     __tablename__ = 'sys_adminlog'
@@ -422,7 +442,7 @@ class AccountCP(OperatorBase):
 
 _Session = sessionmaker(bind=operator_engine, expire_on_commit=False)
 
-def create_tower_session():
+def create_operator_session():
     return _Session()
 
 

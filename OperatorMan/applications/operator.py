@@ -1,33 +1,48 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from flask import Flask, g
 
+import os
+from hashlib import md5
+from flask import Flask, g
+from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 from OperatorMan.views.operator import operator_view
+from OperatorMan.utils.User import User
 from OperatorMan.configs import settings
-#from OperatorCore.models.operator import create_tower_session
-#from OperatorMan.utils.filters import JINJA2_GLOBALS, JINJA2_FILTERS
+from OperatorCore.models.operator import create_operator_session
+
 
 def create_app(debug=settings.DEBUG):
     app = Flask(__name__, template_folder='../templates/', static_folder="../static")
     app.register_blueprint(operator_view)
-    #app.jinja_env.globals.update(JINJA2_GLOBALS)
-    #app.jinja_env.filters.update(JINJA2_FILTERS)
-    #app.config['UPLOAD_FOLDER'] = settings.UPLOAD_FOLDER
     app.secret_key = 'PS#yio`%_!((f_or(%)))s'
     app.debug = debug
 
     @app.before_request
     def before_request():
-        #g.session = create_tower_session()
-        print True
+        g.session = create_operator_session()
+
+        if current_user.is_authenticated() and not current_user.is_anonymous():
+            print '-------------------', current_user
+            g.user = current_user
 
     @app.teardown_request
     def teardown_request(exception):
-        #g.session.close()
-        print True
+        g.session.close()
+
     return app 
 
 app = create_app(settings.DEBUG)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'operator_view.login'
+
+@login_manager.user_loader
+def load_user(userid):
+    user = User()
+    if user:
+        return user.get_user_id(userid)
+    return None
 
 if __name__ == '__main__':
     host = settings.OPERATOR_SERVER_IP #TOWER_MAN_SERVER_IP

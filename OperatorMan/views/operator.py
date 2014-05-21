@@ -7,6 +7,7 @@ import simplejson
 import os
 import sys
 import md5
+
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -14,58 +15,47 @@ from sqlalchemy import or_, desc, func
 from sqlalchemy.orm import subqueryload
 from datetime import timedelta
 from flask import request, render_template, jsonify, g, Blueprint, Response, redirect, session, url_for
+from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
+import flask.ext.wtf as wtf
+
 from werkzeug import secure_filename
 from OperatorMan.configs import settings
-from OperatorMan.views import ok_json, fail_json, check_login, check_administrator
-
-
+from OperatorMan.views import ok_json, fail_json, hash_password
+from OperatorCore.models.operator import SysAdmin, create_operator_session
+from OperatorMan.utils import User
 
 operator_view = Blueprint('operator_view', __name__)
 
-@operator_view.route('/', methods=["GET"])
-@check_login(leave=False)
-def index():
-    if request._is_auth:
-        user = request._user
-        return redirect(url_for("operator_view.manager_home"))
+@operator_view.route('/login/', methods=['GET', 'POST'])
+def login():
+    req = request.args if request.method == 'GET' else request.form
+
+    if request.method == 'GET':
+        return render_template('login.html')
     else:
-        return redirect(url_for('operator_view.login'))
+        username = req.get('username', None)
+        password = req.get('password', None)
+        user = g.session.query(SysAdmin).filter(SysAdmin.username==username).\
+                filter(SysAdmin.userpwd==hash_password(password)).\
+                filter(SysAdmin.is_show==True).first()
+        print user
+        if user:
+            print True
+            login_user(user)
+            return jsonify({'ok': True, 'username': username, 'pwd': password})
+            #return redirect(request.args.get("next") or url_for('index'))
+
+        return jsonify({'ok': False, 'username': username, 'pwd': password})
+
+@operator_view.route('/', methods=["GET"])
+@login_required
+def index():
+    return render_template("base.html", user_name = g.user)
 
 @operator_view.route('/manager/', methods=['GET'])
-@check_login(redir='/')
-@check_administrator
+@login_required
 def manager_home():
-    user = request._user
-    return render_template("base.html", user_name = user)
-
-@operator_view.route('/login/', methods=['GET', 'POST'])
-@check_login(leave=False)
-def login():
-    if request._is_auth:
-        return redirect('/')
-    else:
-        if request.method == 'GET':
-            return render_template('login.html')
-        else:
-            args = request.form
-            username = args.get('username')
-            password = args.get('password')
-            if not username or not password:
-                return u'用户名或密码均不能为空%s' %go_back
-            req = rest.Request(settings.P_LOGIN_URI, 'post')
-            req.username = username
-            req.password = password
-            req.ip = request.remote_addr
-            resp = req.fetch()
-            if resp.ok:
-                session_id = resp.data['token']
-                session['sid'] = session_id
-                response = make_response(redirect('/'))
-                session_id = encrypt_token(session_id, request.remote_addr)
-                response.set_cookie('token', value=session_id, path='/', domain=settings.COOKIES_DOMAIN, max_age=60*60*20)
-                return response
-            return u'登陆失败：%s %s' %(resp.data, go_back)
-    return 'user login'
+    return render_template("base.html", user_name = g.user)
 
 @operator_view.route("/get/data/", methods=['GET'])
 def get_data():

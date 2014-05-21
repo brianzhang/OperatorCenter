@@ -1,50 +1,63 @@
 # -*- coding: utf-8 -*-
 import os
 
+import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import (LoginManager, current_user, login_required,
                             login_user, logout_user, UserMixin, AnonymousUserMixin,
                             confirm_login, fresh_login_required)
+from flask import g
 
-import models
+from OperatorCore.models.operator import SysAdmin, create_operator_session
 
 
 class User(UserMixin):
-    def __init__(self, email=None, password=None, active=True, id=None):
+    def __init__(self, userpwd=None, active=True, id=None, username=None, realname=None, role_id=None, phone=None, qq=None, email=None, is_show=True, content='', create_time=datetime.datetime.now()):
+
         self.email = email
-        self.password = password
-        self.active = active
+        self.username = username
+        self.userpwd = userpwd
+        self.is_show = is_show
         self.isAdmin = False
         self.id = None
 
 
     def save(self): 
-        newUser = models.User(email=self.email, password=self.password, active=self.active)
-        newUser.save()
-        print "new user id = %s " % newUser.id
-        self.id = newUser.id
-        return self.id
+        new_user = SysAdmin()
+        new_user.username = self.username
+        new_user.userpwd = self.userpwd
+        new_user.realname = self.realname
+        new_user.role_id = self.role_id
+        new_user.phone = self.phone
+        new_user.qq = self.qq
+        new_user.email = self.email
+        new_user.is_show = self.is_show
+        new_user.content = self.content
+        new_user.create_time = self.create_time
 
-    def get_by_email(self, email):
+        
+        try:
+            g.session.add(new_user)
+            g.session.commit()
+            return new_user.id
 
-    	dbUser = models.User.objects.get(email=email)
-    	if dbUser:
-            self.email = dbUser.email
-            self.active = dbUser.active
-            self.id = dbUser.id
-            return self
-        else:
-            return None
-    
-    def get_by_email_w_password(self, email):
+        except Exception, e:
+
+            g.session.rollback()
+
+            return False
+
+    def get_user(self, username, userpwd):
 
         try:
-            dbUser = models.User.objects.get(email=email)
-            
+            dbUser = g.session.query(SysAdmin).filter(SysAdmin.username==username).\
+                filter(SysAdmin.userpwd==userpwd).\
+                filter(SysAdmin.is_show==True).first()
+
             if dbUser:
                 self.email = dbUser.email
-                self.active = dbUser.active
-                self.password = dbUser.password
+                self.userpwd = dbUser.userpwd
+                self.realname = dbUser.realname
                 self.id = dbUser.id
                 return self
             else:
@@ -53,24 +66,37 @@ class User(UserMixin):
             print "there was an error"
             return None
 
-    def get_mongo_doc(self):
-        if self.id:
-            return models.User.objects.with_id(self.id)
-        else:
+    def get_user_id(self, id):
+
+        try:
+            dbUser = g.session.query(SysAdmin).filter(SysAdmin.id==id).first()
+
+            if dbUser:
+                self.email = dbUser.email
+                self.userpwd = dbUser.userpwd
+                self.realname = dbUser.realname
+                self.id = dbUser.id
+                return self
+            else:
+                return None
+        except:
+            print "there was an error"
+            return None            
+    
+    def get_by_email_w_password(self, email):
+
+        try:
+            dbUser = g.session.query(SysAdmin).filter(SysAdmin.email==email).first()
+            if dbUser:
+                self.email = dbUser.email
+                self.userpwd = dbUser.userpwd
+                self.id = dbUser.id
+                return self
+            else:
+                return None
+        except:
+            print "there was an error"
             return None
-
-    def get_by_id(self, id):
-    	dbUser = models.User.objects.with_id(id)
-    	if dbUser:
-    		self.email = dbUser.email
-    		self.active = dbUser.active
-    		self.id = dbUser.id
-
-    		return self
-    	else:
-    		return None
-
-
 
 class Anonymous(AnonymousUserMixin):
     name = u"Anonymous"
