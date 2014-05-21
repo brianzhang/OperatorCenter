@@ -227,7 +227,6 @@ class UsrCPBank(OperatorBase):
 
     id = Column(Integer, primary_key=True)
     cpid = Column(Integer, ForeignKey('usr_cpinfo.id'))
-    bank = Column(String(50), nullable=False)
     bankname =  Column(String(50), nullable=False)
     username = Column(String(50), nullable=False)
     bankcard = Column(String(50), nullable=False) 
