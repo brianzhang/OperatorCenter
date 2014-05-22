@@ -65,10 +65,8 @@ def login():
         user = g.session.query(SysAdmin).filter(SysAdmin.username==username).\
                 filter(SysAdmin.userpwd==hash_password(password)).\
                 filter(SysAdmin.is_show==True).first()
-        if user:
-            
+        if user:            
             login_user(user)
-            #return jsonify({'ok': True, 'username': username, 'pwd': password})
             return redirect(request.args.get("next") or '/')
 
         return jsonify({'ok': False, 'username': username, 'pwd': password})
