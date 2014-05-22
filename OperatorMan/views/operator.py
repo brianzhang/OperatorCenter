@@ -26,26 +26,7 @@ from OperatorMan.utils import User
 
 operator_view = Blueprint('operator_view', __name__)
 
-@operator_view.route('/login/', methods=['GET', 'POST'])
-def login():
-    req = request.args if request.method == 'GET' else request.form
 
-    if request.method == 'GET':
-        return render_template('login.html')
-    else:
-        username = req.get('username', None)
-        password = req.get('password', None)
-        user = g.session.query(SysAdmin).filter(SysAdmin.username==username).\
-                filter(SysAdmin.userpwd==hash_password(password)).\
-                filter(SysAdmin.is_show==True).first()
-        print user
-        if user:
-            print True
-            login_user(user)
-            return jsonify({'ok': True, 'username': username, 'pwd': password})
-            #return redirect(request.args.get("next") or url_for('index'))
-
-        return jsonify({'ok': False, 'username': username, 'pwd': password})
 
 @operator_view.route('/', methods=["GET"])
 @login_required
@@ -71,6 +52,35 @@ def get_data():
     {"productid":"FL-DLH-02","productname":"Persian","unitcost":12.00,"status":"P","listprice":89.50,"attr1":"Adult Male","itemid":"EST-17"},
     {"productid":"AV-CB-01","productname":"Amazon Parrot","unitcost":92.00,"status":"P","listprice":63.50,"attr1":"Adult Male","itemid":"EST-18"}
     ]})
+
+@operator_view.route('/login/', methods=['GET', 'POST'])
+def login():
+    req = request.args if request.method == 'GET' else request.form
+
+    if request.method == 'GET':
+        return render_template('login.html')
+    else:
+        username = req.get('username', None)
+        password = req.get('password', None)
+        user = g.session.query(SysAdmin).filter(SysAdmin.username==username).\
+                filter(SysAdmin.userpwd==hash_password(password)).\
+                filter(SysAdmin.is_show==True).first()
+        if user:
+            
+            login_user(user)
+            #return jsonify({'ok': True, 'username': username, 'pwd': password})
+            return redirect(request.args.get("next") or '/')
+
+        return jsonify({'ok': False, 'username': username, 'pwd': password})
+
+
+@operator_view.route('/logout/', methods=["GET"])
+@login_required
+def logout():
+    logout_user()
+    
+    return redirect('/login/')
+
 
 def encrypt_token(token, ip):
     '''token加密算法

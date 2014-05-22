@@ -22,7 +22,6 @@ def create_app(debug=settings.DEBUG):
         g.session = create_operator_session()
 
         if current_user.is_authenticated() and not current_user.is_anonymous():
-            print '-------------------', current_user
             g.user = current_user
 
     @app.teardown_request
