@@ -53,10 +53,9 @@ a:hover{ color:Red; text-decoration:underline;}
 .icon-purpose{background-position:-220px -140px;}
 .icon-ok{background-position:0px 0px;}
 .icon-error{background-position:-180px -120px;}
-/*220-140*/
-/*340-140*/
-/*260-85*/
-/*240-300*/
-/*380-320*/
-/*80-80*/
+.icon-channel-list{background-position: 0px -320px;}
+.icon-channel-setting{background-position: 0px -220px;}
+.icon-channel-sync{background-position: -40px -40px;}
+.icon-channel-cover{background-position: -215px -420px;}
+
 .icon-arrow{ background:url('../images/arrow.gif') no-repeat right;}
