@@ -146,7 +146,7 @@ function addTab(subtitle,url,icon){
 	if(!$('#tabs').tabs('exists',subtitle)){
 		$('#tabs').tabs('add',{
 			title:subtitle,
-			content:createFrame(url),
+			href:url,
 			closable:true,
 			icon:icon
 		});
@@ -157,10 +157,11 @@ function addTab(subtitle,url,icon){
 	tabClose();
 }
 
-function createFrame(url)
-{
-	var s = '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:100%;height:100%;"></iframe>';
-	return s;
+function createFrame(url, el) {
+	//var s = '<iframe scrolling="auto" frameborder="0"  src="'+url+'" style="width:100%;height:100%;"></iframe>';
+	$.get(url, function(resp) {
+		return resp
+	});
 }
 
 function tabClose()

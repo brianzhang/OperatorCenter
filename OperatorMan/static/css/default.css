@@ -38,6 +38,25 @@ a:hover{ color:Red; text-decoration:underline;}
 .icon-edit{ background-position:-380px -320px;}
 .icon-magic{ background-position:0px -500px;}
 .icon-database{ background-position:-20px -140px;}
-
-
+.icon-black{ background-position:-200px -480px;}
+.icon-user-info{background-position:-80px -420px;}
+.icon-logs{background-position:-380px -320px;}
+.icon-system{background-position:-20px -100px;}
+.icon-account{background-position:-360px -200px;}
+.icon-financial-settIement{background-position:-80px -80px;}
+.icon-cooperation{background-position:-180px -100px;}
+.icon-operator{background-position:-320px 0px;}
+.icon-upwards{background-position:-240px -300px;}
+.icon-exploits{background-position:-260px -80px;}
+.icon-demand{background-position:-340px -140px;}
+.icon-region{background-position:-300px -80px;}
+.icon-purpose{background-position:-220px -140px;}
+.icon-ok{background-position:0px 0px;}
+.icon-error{background-position:-180px -120px;}
+/*220-140*/
+/*340-140*/
+/*260-85*/
+/*240-300*/
+/*380-320*/
+/*80-80*/
 .icon-arrow{ background:url('../images/arrow.gif') no-repeat right;}

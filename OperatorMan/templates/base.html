@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head id="Head1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>jQuery.EasyUI- 1.2.6 后台经典框架使用DEMO</title>
+    <title>管理中心</title>
     <link href="/static/css/default.css" rel="stylesheet" type="text/css" />
 
     <link rel="stylesheet" type="text/css" href="/static/themes/default/easyui.css" />
@@ -13,162 +13,151 @@
 
     <script type="text/javascript">
 
-    var _menus = {
-    "menus": [{
-        "menuid": "1",
-        "icon": "icon-sys",
-        "menuname": "控件使用",
-        "menus": [{
-            "menuid": "12",
-            "menuname": "疯狂秀才",
-            "icon": "icon-add",
-            "url": "http://hxling.cnblogs.com",
-            "child": [{
-                "menuid": "140",
-                "menuname": "角色管理 3",
-                "icon": "icon-role",
-                "url": "demo2.html"
+        var _menus = {
+            "menus": [{
+                "menuid": "1",
+                "icon": "icon-operator",
+                "menuname": "运营管理",
+                "menus": [
+                    {
+                        "menuid": "121",
+                        "menuname": "状态报告",
+                        "icon": "icon-upwards",
+                        "url": "/operator/status/"
+                    },
+                    {
+                        "menuid": "122",
+                        "menuname": "点播上行",
+                        "icon": "icon-demand",
+                        "url": "/operator/demand/"
+                    },
+                    {
+                        "menuid": "123",
+                        "menuname": "业绩分析",
+                        "icon": "icon-exploits",
+                        "url": "/operator/exploits/"
+                    },
+                    {
+                        "menuid": "124",
+                        "menuname": "各省分析",
+                        "icon": "icon-region",
+                        "url": "/operator/region/"
+                    },
+                    {
+                        "menuid": "125",
+                        "menuname": "效果分析",
+                        "icon": "icon-purpose",
+                        "url": "/operator/purpose/"
+                    }]
+            },{
+                "menuid": "13",
+                "menuname": "通道管理",
+                "icon": "icon-users",
+                "menus": [{
+                    "menuid": "131",
+                    "menuname": "通道列表",
+                    "icon": "icon-role",
+                    "url": "/channel/list/"
+                },
+                {
+                    "menuid": "132",
+                    "menuname": "接口配置",
+                    "icon": "icon-set",
+                    "url": "/channel/settings/"
+                },
+                {
+                    "menuid": "133",
+                    "menuname": "同步地址",
+                    "icon": "icon-set",
+                    "url": "/channel/sync/"
+                },
+                {
+                    "menuid": "134",
+                    "menuname": "省份覆盖",
+                    "icon": "icon-set",
+                    "url": "/channel/cover/"
+                }]
+            },{
+                "menuid": "14",
+                "menuname": "财务结算",
+                "icon": "icon-financial-settIement",
+                "menus": [{
+                    "menuid": "141",
+                    "menuname": "合作方明细",
+                    "icon": "icon-role",
+                    "url": "/financial/cooperate/detail/"
+                },
+                {
+                    "menuid": "142",
+                    "menuname": "渠道商明细",
+                    "icon": "icon-set",
+                    "url": "/financial/channel/detail/"
+                },
+                {
+                    "menuid": "143",
+                    "menuname": "合作方汇总",
+                    "icon": "icon-set",
+                    "url": "/financial/cooperate/summary/"
+                },
+                {
+                    "menuid": "144",
+                    "menuname": "渠道商汇总",
+                    "icon": "icon-set",
+                    "url": "/financial/channel/summary/"
+                }]
+            },{
+                "menuid": "8",
+                "icon": "icon-cooperation",
+                "menuname": "合作信息",
+                "menus": [{
+                    "menuid": "81",
+                    "menuname": "运营商",
+                    "icon": "icon-nav",
+                    "url": "/cooperate/operator/page/"
+                },{
+                    "menuid": "82",
+                    "menuname": "渠道商",
+                    "icon": "icon-nav",
+                    "url": "/cooperate/channel/page/"
+                },{
+                    "menuid": "83",
+                    "menuname": "运营商日志",
+                    "icon": "icon-nav",
+                    "url": "/cooperate/operator/log/"
+                },{
+                    "menuid": "84",
+                    "menuname": "渠道商日志",
+                    "icon": "icon-nav",
+                    "url": "/cooperate/channel/log/"
+                }]
             },
             {
-                "menuid": "150",
-                "menuname": "权限设置 3",
-                "icon": "icon-set",
-                "url": "demo.html"
+                "menuid": "600",
+                "icon": "icon-system",
+                "menuname": "系统配置",
+                "menus": [{
+                    "menuid": "601",
+                    "menuname": "账号管理",
+                    "icon": "icon-account",
+                    "url": "/sys/account/"
+                },{
+                    "menuid": "602",
+                    "menuname": "个人信息",
+                    "icon": "icon-user-info",
+                    "url": "/sys/user/"
+                },{
+                    "menuid": "603",
+                    "menuname": "操作日志",
+                    "icon": "icon-log",
+                    "url": "/sys/log/"
+                },{
+                    "menuid": "604",
+                    "menuname": "黑名单库",
+                    "icon": "icon-black",
+                    "url": "/sys/balck/"
+                }]
             }]
-        },
-        {
-            "menuid": "13",
-            "menuname": "用户管理",
-            "icon": "icon-users",
-            "url": "demo2.html",
-            "child": [{
-                "menuid": "141",
-                "menuname": "角色管理 3",
-                "icon": "icon-role",
-                "url": "demo2.html"
-            },
-            {
-                "menuid": "151",
-                "menuname": "权限设置 3",
-                "icon": "icon-set",
-                "url": "demo.html"
-            }]
-        },
-        {
-            "menuid": "14",
-            "menuname": "角色管理",
-            "icon": "icon-role",
-            "url": "demo2.html",
-            "child": [{
-                "menuid": "142",
-                "menuname": "角色管理 3",
-                "icon": "icon-role",
-                "url": "demo2.html"
-            },
-            {
-                "menuid": "152",
-                "menuname": "权限设置 3",
-                "icon": "icon-set",
-                "url": "demo.html"
-            }]
-        },
-        {
-            "menuid": "15",
-            "menuname": "权限设置",
-            "icon": "icon-set",
-            "url": "demo.html",
-            "child": [{
-                "menuid": "143",
-                "menuname": "角色管理 3",
-                "icon": "icon-role",
-                "url": "demo2.html"
-            },
-            {
-                "menuid": "153",
-                "menuname": "权限设置 3",
-                "icon": "icon-set",
-                "url": "demo.html"
-            }]
-        },
-        {
-            "menuid": "16",
-            "menuname": "系统日志",
-            "icon": "icon-log",
-            "url": "demo1.html",
-            "child": [{
-                "menuid": "144",
-                "menuname": "角色管理 3",
-                "icon": "icon-role",
-                "url": "demo2.html"
-            },
-            {
-                "menuid": "154",
-                "menuname": "权限设置 3",
-                "icon": "icon-set",
-                "url": "demo.html"
-            }]
-        }]
-    },
-    {
-        "menuid": "8",
-        "icon": "icon-sys",
-        "menuname": "管理1",
-        "menus": [{
-            "menuid": "21",
-            "menuname": "员工列表",
-            "icon": "icon-nav",
-            "url": "demo.html"
-        },
-        {
-            "menuid": "22",
-            "menuname": "视频监控",
-            "icon": "icon-nav",
-            "url": "demo1.html",
-            "child": [{
-                "menuid": "221",
-                "menuname": "员工列表 3",
-                "icon": "icon-nav",
-                "url": "demo.html"
-            },
-            {
-                "menuid": "222",
-                "menuname": "视频监控 3",
-                "icon": "icon-nav",
-                "url": "demo1.html"
-            }]
-        }]
-    },
-    {
-        "menuid": "56",
-        "icon": "icon-sys",
-        "menuname": "管理2",
-        "menus": [{
-            "menuid": "31",
-            "menuname": "添加部门",
-            "icon": "icon-nav",
-            "url": "demo1.html"
-        },
-        {
-            "menuid": "321",
-            "menuname": "部门列表",
-            "icon": "icon-nav",
-            "url": "demo2.html",
-            "child": [{
-                "menuid": "311",
-                "menuname": "添加部门 4",
-                "icon": "icon-nav",
-                "url": "demo1.html"
-            },
-            {
-                "menuid": "312",
-                "menuname": "部门列表 4",
-                "icon": "icon-nav",
-                "url": "demo2.html"
-            }]
-        }]
-    }]
-};
-
+        };
         //设置登录窗口
         function openPwd() {
             $('#w').window({
@@ -220,7 +209,8 @@
 
             openPwd();
 
-            $('#editpass').click(function() {
+            $('#editpass').click(function(e) {
+                e.preventDefault();
                 $('#w').window('open');
             });
 
@@ -230,7 +220,8 @@
 
             $('#btnCancel').click(function(){closePwd();})
 
-            $('#loginOut').click(function() {
+            $('#loginOut').click(function(e) {
+                e.preventDefault();
                 $.messager.confirm('系统提示', '您确定要退出本次登录吗?', function(r) {
 
                     if (r) {
@@ -259,23 +250,20 @@
     <div region="north" split="true" border="false" style="overflow: hidden; height: 30px;
         background: url(images/layout-browser-hd-bg.gif) #7f99be repeat-x center 50%;
         line-height: 20px;color: #fff; font-family: Verdana, 微软雅黑,黑体">
-        <span style="float:right; padding-right:20px;" class="head">欢迎 萝卜头 <a href="#" id="editpass">修改密码</a> <a href="/logout/" id="loginOut">安全退出</a></span>
+        <span style="float:right; padding-right:20px;" class="head">欢迎 {{user.realname}} <a href="#" id="editpass">修改密码</a> <a href="/logout/" id="loginOut">安全退出</a></span>
         <span style="padding-left:10px; font-size: 16px; "><img src="/static/images/blocks.gif" width="20" height="20" align="absmiddle" /> 萝卜运营管理后台</span>
     </div>
     <div region="south" split="true" style="height: 30px; background: #D2E0F2; ">
         <div class="footer">By Brian</div>
     </div>
     <div region="west" split="true"  title="导航菜单" style="width:180px;" id="west">
-            <div id="nav">
-        <!--  导航内容 -->
-                
-            </div>
+            <div id="nav"></div>
 
     </div>
     <div id="mainPanle" region="center" style="background: #eee; overflow-y:hidden">
         <div id="tabs" class="easyui-tabs"  fit="true" border="false" >
             <div title="欢迎使用" style="padding:20px;overflow:hidden; color:red; " >
-                <h1 style="font-size:24px;">*hi 萝卜头，欢迎光临</h1>
+                <h1 style="font-size:24px;">*hi {{user.realname}}，欢迎光临</h1>
             </div>
         </div>
     </div>
@@ -305,7 +293,7 @@
         </div>
     </div>
 
-    <div id="mm" class="easyui-menu" style="width:150px;">
+    <div id="mm" class="easyui-menu" style="width:160px;height: 90px">
         <div id="tabupdate">刷新</div>
         <div class="menu-sep"></div>
         <div id="close">关闭</div>

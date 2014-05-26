@@ -3,7 +3,7 @@
 import datetime
 import time
 import urllib2, urllib
-import simplejson
+import simplejson as json
 import os
 import sys
 import md5
@@ -21,7 +21,9 @@ import flask.ext.wtf as wtf
 from werkzeug import secure_filename
 from OperatorMan.configs import settings
 from OperatorMan.views import ok_json, fail_json, hash_password
-from OperatorCore.models.operator import SysAdmin, create_operator_session
+from OperatorCore.models.operator import SysAdmin, SysAdminLog, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
+                create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UserSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
+                UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP
 from OperatorMan.utils import User
 
 operator_view = Blueprint('operator_view', __name__)
@@ -31,12 +33,12 @@ operator_view = Blueprint('operator_view', __name__)
 @operator_view.route('/', methods=["GET"])
 @login_required
 def index():
-    return render_template("base.html", user_name = g.user)
+    return render_template("base.html", user = g.user)
 
 @operator_view.route('/manager/', methods=['GET'])
 @login_required
 def manager_home():
-    return render_template("base.html", user_name = g.user)
+    return render_template("base.html", user = g.user)
 
 @operator_view.route("/get/data/", methods=['GET'])
 def get_data():
@@ -79,6 +81,169 @@ def logout():
     
     return redirect('/login/')
 
+
+@operator_view.route("/cooperate/operator/page/", methods=['GET'])
+@login_required
+def operator_list():
+    return render_template("operator_list.html")
+
+@operator_view.route("/cooperate/operator/log/", methods=['GET'])
+@login_required
+def operator_log():
+    return 'operator_log'
+
+@operator_view.route("/cooperate/operator/list/", methods=["GET", "POST"])
+@login_required
+def get_cooperate_operator_list():
+    req_args = request.args if request.method == 'GET' else request.form
+    print req_args
+    operator_list = g.session.query(UsrSPInfo).all()
+    currentpage = int(req_args.get('page', 1))
+    numperpage = int(req_args.get('rows', 20))
+    start = numperpage * (currentpage - 1)
+    total = len(operator_list)
+    operator_list = operator_list[start:(numperpage+start)]
+    if operator_list:
+        operator_data = []
+        for sp in operator_list:
+            operator_data.append({'id': sp.id, 
+                                'name': sp.name, 
+                                'link_name': sp.link_name,
+                                'link_phone': sp.link_phone,
+                                'link_qq': sp.link_qq,
+                                'link_address': sp.link_address, 
+                                'is_show': sp.is_show,
+                                'content': sp.content})
+
+        return jsonify({'rows': operator_data, 'total': total})
+
+@operator_view.route("/cooperate/channel/list/", methods=["GET", "POST"])
+@login_required
+def get_cooperate_channel_list():
+    req_args = request.args if request.method == 'GET' else request.form
+
+    channel_list = g.session.query(UsrCPInfo).all()
+    currentpage = int(req_args.get('page', 1))
+    numperpage = int(req_args.get('rows', 20))
+    start = numperpage * (currentpage - 1)
+    total = len(channel_list)
+
+    channel_list = channel_list[start:(numperpage+start)]
+
+    if channel_list:
+        channel_list_data = []
+        for cp in channel_list:
+            bank_info = g.session.query(UsrCPBank).filter(UsrCPBank.cpid == cp.id).first()
+            cp_bank_info = u'收款人：- 开户行：- 帐号：-'
+            if bank_info:
+                cp_bank_info = u'收款人：%s 开户行： %s 帐号： %s' % (bank_info.username, bank_info.bankname, bank_info.bankcard)
+
+            channel_list_data.append({'id': cp.id, 
+                                'loginname': cp.loginname, 
+                                'name': cp.name,
+                                'bank_info': cp_bank_info,
+                                'business': cp.adminid,
+                                'create_time': cp.create_time, 
+                                'is_show': cp.is_show,
+                                'content': cp.content})
+
+        return jsonify({'rows': channel_list_data, 'total': total})
+
+@operator_view.route("/cooperate/channel/page/", methods=['GET'])
+@login_required
+def channel_page():
+    return render_template("channel_list.html")
+
+@operator_view.route("/cooperate/channel/log/", methods=['GET'])
+@login_required
+def channel_log():
+    return 'channel_log'
+
+@operator_view.route("/operator/status/", methods=['GET'])
+@login_required
+def operator_status():
+    return 'operator_status'
+
+@operator_view.route("/operator/demand/", methods=['GET'])
+@login_required
+def operator_demand():
+    return 'operator_demand'
+
+@operator_view.route("/operator/exploits/", methods=['GET'])
+@login_required
+def operator_exploits():
+    return 'operator_exploits'
+
+@operator_view.route("/operator/region/", methods=['GET'])
+@login_required
+def operator_region():
+    return 'operator_region'
+
+@operator_view.route("/operator/purpose/", methods=['GET'])
+@login_required
+def operator_purpose():
+    return 'operator_purpose'
+
+@operator_view.route("/channel/list/", methods=['GET'])
+@login_required
+def channel_list():
+    return 'channel_list'
+
+@operator_view.route("/channel/settings/", methods=['GET'])
+@login_required
+def channel_settings():
+    return 'channel_settings'
+
+@operator_view.route("/channel/sync/", methods=['GET'])
+@login_required
+def channel_sync():
+    return 'channel_sync'
+
+@operator_view.route("/channel/cover/", methods=['GET'])
+@login_required
+def channel_cover():
+    return 'channel_cover'
+
+@operator_view.route("/financial/cooperate/detail/", methods=['GET'])
+@login_required
+def financial_cooperate_detail():
+    return 'financial_cooperate_detail'
+
+@operator_view.route("/financial/channel/detail/", methods=['GET'])
+@login_required
+def financial_channel_detail():
+    return 'financial_channel_detail'
+
+
+@operator_view.route("/financial/cooperate/summary/", methods=['GET'])
+@login_required
+def financial_cooperate_summary():
+    return 'financial_cooperate_summary'
+
+@operator_view.route("/financial/channel/summary/", methods=['GET'])
+@login_required
+def financial_channel_summary():
+    return 'financial_channel_summary'
+
+@operator_view.route("/sys/account/", methods=['GET'])
+@login_required
+def sys_account():
+    return 'sys_account'
+
+@operator_view.route("/sys/user/", methods=['GET'])
+@login_required
+def sys_user():
+    return 'sys_user'
+
+@operator_view.route("/sys/log/", methods=['GET'])
+@login_required
+def sys_log():
+    return 'sys_log'
+
+@operator_view.route("/sys/balck/", methods=['GET'])
+@login_required
+def sys_balck():
+    return 'sys_balck'
 
 def encrypt_token(token, ip):
     '''token加密算法
