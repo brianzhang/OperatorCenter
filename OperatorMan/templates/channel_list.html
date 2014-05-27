@@ -1,6 +1,6 @@
-<table id="dg" title="渠道商列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
+<table id="channel_dg" title="渠道商列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
         url="/cooperate/channel/list/"
-        toolbar="#toolbar" 
+        toolbar="#channel_toolbar" 
         pagination="true"
         rownumbers="true" 
         fitColumns="true" 
@@ -19,16 +19,16 @@
         </tr>
     </thead>
 </table>
-<div id="toolbar">
+<div id="channel_toolbar">
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_list.newUser()">添加</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_list.editUser()">修改</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_list.destroyUser()">删除</a>
 </div>
 
-<div id="dlg" class="easyui-dialog" style="width:400px;height:280px;padding:10px 20px"
+<div id="channel_dlg" class="easyui-dialog" style="width:400px;height:280px;padding:10px 20px"
         closed="true" buttons="#dlg-buttons">
     <div class="ftitle">User Information</div>
-    <form id="fm" method="post" novalidate>
+    <form id="channel_fm" method="post" novalidate>
         <div class="fitem">
             <label>First Name:</label>
             <input name="firstname" class="easyui-validatebox" required="true">
@@ -55,20 +55,20 @@
     var channel_list = {
         url: '',
         newUser: function() {
-            $('#dlg').dialog('open').dialog('setTitle','New User');
-            $('#fm').form('clear');
+            $('#channel_dlg').dialog('open').dialog('setTitle','New User');
+            $('#channel_fm').form('clear');
             this.url = 'save_user.php';
         },
         editUser: function() {
-            var row = $('#dg').datagrid('getSelected');
+            var row = $('#channel_dg').datagrid('getSelected');
             if (row){
-                $('#dlg').dialog('open').dialog('setTitle','Edit User');
-                $('#fm').form('load',row);
+                $('#channel_dlg').dialog('open').dialog('setTitle','Edit User');
+                $('#channel_fm').form('load',row);
                 url = 'update_user.php?id='+row.id;
             }
         },
         saveUser: function() {
-            $('#fm').form('submit',{
+            $('#channel_fm').form('submit',{
                 url: this.url,
                 onSubmit: function(){
                     return $(this).form('validate');
@@ -81,20 +81,20 @@
                             msg: result.errorMsg
                         });
                     } else {
-                        $('#dlg').dialog('close');        // close the dialog
-                        $('#dg').datagrid('reload');    // reload the user data
+                        $('#channel_dlg').dialog('close');        // close the dialog
+                        $('#channel_dg').datagrid('reload');    // reload the user data
                     }
                 }
             });
         },
         destroyUser: function() {
-            var row = $('#dg').datagrid('getSelected');
+            var row = $('#channel_dg').datagrid('getSelected');
             if (row){
                 $.messager.confirm('Confirm','Are you sure you want to destroy this user?',function(r){
                     if (r){
                         $.post('destroy_user.php',{id:row.id},function(result){
                             if (result.success){
-                                $('#dg').datagrid('reload');    // reload the user data
+                                $('#channel_dg').datagrid('reload');    // reload the user data
                             } else {
                                 $.messager.show({    // show error message
                                     title: 'Error',

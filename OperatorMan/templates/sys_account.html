@@ -1,0 +1,147 @@
+<table id="account_dg" title="账号列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
+        url="/sys/account/list/"
+        toolbar="#account_list_toolbar" 
+        pagination="true"
+        rownumbers="true" 
+        fitColumns="true" 
+        singleSelect="true"
+        pageSize="20">
+    <thead>
+        <tr>
+            <th field="id" width="50">id</th>
+            <th field="username" width="50">用户名</th>
+            <th field="realname" width="50">昵称</th>
+            <th field="role_id" width="50">权限组</th>
+            <th field="phone" width="50">电话号码</th>
+            <th field="qq" width="50">QQ</th>
+            <th field="email" width="50">Email</th>
+            <th field="is_show" data-options="formatter: account_list.formatStatus" width="50">账号状态</th>
+        </tr>
+    </thead>
+</table>
+<div id="account_list_toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="account_list.newUser()">添加</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="account_list.editUser()">修改</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="account_list.destroyUser()">停用</a>
+</div>
+<div id="account_window" class="easyui-dialog" title="添加用户" data-options="iconCls:'icon-save'" style="width:500px;height:420px;padding:10px;" closed="true" modal="true">
+    <div style="padding:10px 60px 20px 60px">
+        <form id="account_form" method="post">
+            <table cellpadding="5">
+                <tr>
+                    <td>用户名：</td>
+                    <td><input class="easyui-validatebox" type="text" name="username" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>密码：</td>
+                    <td><input class="easyui-validatebox" type="password" name="userpwd" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>昵称：</td>
+                    <td><input class="easyui-validatebox" type="text" name="realname" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>角色组：</td>
+                    <td>
+                        <select class="easyui-combobox" name="role">
+                        {%for role in roles%}
+                            <option value="{{role.id}}">{{role.rolename}}</option>
+                        {%endfor%}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>电话：</td>
+                    <td><input name="phone"></input></td>
+                </tr>
+                <tr>
+                    <td>QQ：</td>
+                    <td><input name="qq"></input></td>
+                </tr>
+                <tr>
+                    <td>email：</td>
+                    <td><input name="email" data-options="validType:'email'"></input></td>
+                </tr>
+                <tr>
+                    <td>是否启用：</td>
+                    <td><input name="is_show" type="checkbox" value="1"></input></td>
+                </tr>
+                <tr>
+                    <td>备注：</td>
+                    <td><input name="content"></input></td>
+                </tr>
+            </table>
+        </form>
+        <div style="text-align:center;padding:5px">
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="account_list.submitForm()">保存</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="account_list.clearForm()">取消</a>
+        </div>
+        </div>
+</div>
+<script type="text/javascript">
+    var account_list = {
+        url: '',
+        submitForm: function() {
+            $('#account_form').form('submit',{
+                url: this.url,
+                onSubmit: function(){
+                    return $(this).form('validate');
+                },
+                success: function(result){
+                    if (result.errorMsg){
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        account_list.clearForm();
+                        $('#account_dg').datagrid('reload');    // reload the user data
+                    }
+                }
+            });
+        },
+        clearForm: function() {
+            $('#account_window').dialog('close');
+        },
+        editUser: function() {
+            var row = $('#account_dg').datagrid('getSelected');
+            if (row){
+                $('#account_window').dialog('open');
+                $('#account_form').form('load',row);
+                url = '/sys/account/edit/'+row.id+'/';
+            }
+        },
+        newUser: function() {
+            $('#account_window').dialog('open');
+            //$('#fm').form('clear');
+            this.url = '/sys/account/add/';
+        },
+        destroyUser: function() {
+            var row = $('#account_dg').datagrid('getSelected');
+            if (row){
+                $.messager.confirm('Confirm','是否设置该账号?',function(r){
+                    if (r){
+                        $.post('/sys/account/set/',{id:row.id},function(result){
+                            if (result.success){
+                                $('#account_dg').datagrid('reload');    // reload the user data
+                            } else {
+                                $.messager.show({    // show error message
+                                    title: 'Error',
+                                    msg: result.errorMsg
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        },
+        formatStatus: function(val, row) {
+            console.log(val);
+            if (val) {
+                return '<span class="icon icon-ok" title="OK">&nbsp;</span>'
+            }else {
+                return '<span class="icon icon-error" title="False">&nbsp;</span>'
+            }
+        }
+    };    
+</script>

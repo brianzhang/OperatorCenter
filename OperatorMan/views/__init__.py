@@ -3,9 +3,16 @@
 Created on 2014-05-19
 @author: brian
 '''
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
+import datetime
+import time
 import hashlib, hmac, re
-from flask import jsonify, request, session, redirect
+from flask import jsonify, request, session, redirect, g
 from functools import wraps
+from OperatorCore.models.operator import SysAdmin, SysAdminLog, create_operator_session
 from OperatorMan.configs import settings
 
 def _jsonify(status, code='', data={}):
@@ -20,3 +27,20 @@ def fail_json(code='', data={}):
 def hash_password(password):
     m = hmac.new(settings.SECRET_KEY, password, hashlib.sha1)
     return m.hexdigest()
+
+def write_sys_log(_type, _title, _content, _uid):
+    get_session = create_operator_session()
+    sys_log = SysAdminLog()
+    sys_log.adminid = _uid
+    sys_log.op_type = _type
+    sys_log.op_title = _title
+    sys_log.op_content = _content
+    sys_log.create_time = datetime.datetime.now()
+
+    try:
+        get_session.add(sys_log)
+        get_session.commit()
+        return True
+    except Exception, e:
+        get_session.rollback()
+        return False
