@@ -322,7 +322,7 @@ def sys_log():
     else:
         req_args = request.args if request.method == 'GET' else request.form
 
-        admin_log_list = g.session.query(SysAdminLog).all()
+        admin_log_list = g.session.query(SysAdminLog).order_by(desc(SysAdminLog.id)).all()
         currentpage = int(req_args.get('page', 1))
         numperpage = int(req_args.get('rows', 20))
         start = numperpage * (currentpage - 1)
@@ -342,7 +342,7 @@ def sys_log():
 
             return jsonify({'rows': admin_log_list_data, 'total': total})
 
-@operator_view.route("/sys/balck/", methods=['GET', 'POST'])
+@operator_view.route("/sys/black/", methods=['GET', 'POST'])
 @login_required
 def sys_balck():
     if request.method == 'GET':
@@ -352,7 +352,7 @@ def sys_balck():
     else:
         req_args = request.args if request.method == 'GET' else request.form
 
-        black_list = g.session.query(PubBlackPhone).all()
+        black_list = g.session.query(PubBlackPhone).order_by(desc(PubBlackPhone.id)).all()
         currentpage = int(req_args.get('page', 1))
         numperpage = int(req_args.get('rows', 20))
         start = numperpage * (currentpage - 1)
@@ -371,11 +371,11 @@ def sys_balck():
                                     'create_time': black.create_time})
 
             return jsonify({'rows': black_list_data, 'total': total})
-    
+
 @operator_view.route("/sys/get/city/", methods=['GET', 'POST'])
 @login_required
 def sys_get_city():
-    req_args = request.args if request.method == 'GET' else request.form
+    req_args = request.args #if request.method == 'GET' else request.form
     province_id = req_args.get('province_id', None)
     citys = g.session.query(PubCity).filter(PubCity.province == province_id).all()
 
@@ -384,7 +384,36 @@ def sys_get_city():
         for city in citys:
             city_data.append({'id': city.id, 'text': city.city})
 
-        return jsonify({'data': city_data})
+        return json.dumps(city_data)
+
+@operator_view.route("/sys/black/add/", methods=['GET', 'POST'])
+@login_required
+def sys_balck_add():
+    '''
+        add black phone.
+    '''
+    req_args = request.args if request.method == 'GET' else request.form
+    black_phone = PubBlackPhone()
+    black_phone.mobile = req_args.get("mobile", None)
+    black_phone.province = req_args.get("province", None)
+    black_phone.city = req_args.get("city", None)
+    black_phone.content = req_args.get("content", None)
+    black_phone.create_time = datetime.datetime.now()
+
+    try:
+        g.session.add(black_phone)
+        g.session.commit()
+
+        write_sys_log(4, 
+                        u'添加黑名单', 
+                        u'用户【%s】在【%s】添加手机号【%s】为黑名单，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), black_phone.mobile, request.remote_addr), 
+                        g.user.id)
+        
+        return jsonify({'success': True})
+
+    except Exception, e:
+
+        return jsonify({'errorMsg': 'error'})
 
 def encrypt_token(token, ip):
     '''token加密算法
