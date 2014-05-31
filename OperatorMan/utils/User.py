@@ -8,7 +8,7 @@ from flask.ext.login import (LoginManager, current_user, login_required,
                             confirm_login, fresh_login_required)
 from flask import g
 
-from OperatorCore.models.operator import SysAdmin, create_operator_session
+from OperatorCore.models.operator_app import SysAdmin, create_operator_session
 
 
 class User(UserMixin):
