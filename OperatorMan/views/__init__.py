@@ -12,7 +12,7 @@ import time
 import hashlib, hmac, re
 from flask import jsonify, request, session, redirect, g
 from functools import wraps
-from OperatorCore.models.operator import SysAdmin, SysAdminLog, create_operator_session
+from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, create_operator_session
 from OperatorMan.configs import settings
 
 def _jsonify(status, code='', data={}):
