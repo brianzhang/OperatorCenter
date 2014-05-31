@@ -1,7 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import sys
 import os
+
+try:
+    reload(sys)
+    sys.setdefaultencoding("utf-8")
+except AttributeError:
+    pass  #没起作用
+
 from flask import Flask, render_template, request, redirect, url_for, g
 from werkzeug import secure_filename
 
