@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import os
 
 DEBUG=True
-
+SYS_DEBUG = False
 OPERATOR_SERVER_IP = '127.0.0.1'
 #OPERATOR_SERVER_IP = '172.16.10.183'
 OPERATOR_SERVER_PORT = 8801
