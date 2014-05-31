@@ -22,7 +22,7 @@ import flask.ext.wtf as wtf
 from werkzeug import secure_filename
 from OperatorMan.configs import settings
 from OperatorMan.views import ok_json, fail_json, hash_password, write_sys_log
-from OperatorCore.models.operator import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
+from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
                 create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UserSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
                 UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP
 from OperatorMan.utils import User
