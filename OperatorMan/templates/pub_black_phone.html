@@ -1,0 +1,121 @@
+<table id="pub_black_phone_dg" title="黑名单库列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
+        url="/sys/black/"
+        toolbar="#pub_black_phone_toolbar" 
+        pagination="true"
+        rownumbers="true" 
+        fitColumns="true" 
+        singleSelect="true"
+        pageSize="20">
+    <thead>
+        <tr>
+            <th field="id" width="50">id</th>
+            <th field="mobile" width="50">电话号码</th>
+            <th field="province" width="50">省份</th>
+            <th field="city" width="50">城市</th>
+            <th field="content" width="50">描述</th>
+            <th field="create_time" width="50">创建时间</th>
+        </tr>
+    </thead>
+</table>
+<div id="pub_black_phone_toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="pub_black_phone.newBlack()">添加</a>
+    <!--<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="pub_black_phone.editUser()">修改</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="pub_black_phone.destroyUser()">删除</a>-->
+</div>
+<div id="pub_black_phone_dlg" class="easyui-dialog" title="添加用户" data-options="iconCls:'icon-save'" style="width:400px;height:260px;padding:10px;" closed="true" modal="true">
+    <div style="padding:10px 60px 20px 60px">
+        <form id="pub_black_phone_fm" method="post">
+            <table cellpadding="5">
+                <tr>
+                    <td>电话号码：</td>
+                    <td><input class="easyui-validatebox" type="text" name="mobile" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>省份：</td>
+                    <td>
+                        <select class="easyui-combobox" name="province" data-options="required:true">
+                        <option>-请选择-</option>
+                        {%for province in provinces%}
+                            <option value="{{province.id}}">{{province.province}}</option>
+                        {%endfor%}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>城市：</td>
+                    <td>
+                        <select class="easyui-combobox" name="city" data-options="required:true">
+                            <option>-请选择-</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>描述：</td>
+                    <td>
+                        <input name="content"></input>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <div style="text-align:center;padding:5px">
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="pub_black_phone.submitForm()">保存</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="pub_black_phone.clearForm()">取消</a>
+        </div>
+        </div>
+</div>
+
+<script type="text/javascript">
+    var pub_black_phone = {
+        url: '',
+        newBlack: function() {
+            $('#pub_black_phone_dlg').dialog('open').dialog('setTitle','添加黑名单');
+            $('#pub_black_phone_fm').form('clear');
+            this.url = '/sys/black/add/';
+        },
+        clearForm: function() {
+            $('#pub_black_phone_dlg').dialog('close');
+        },
+        submitForm: function() {
+            $('#pub_black_phone_fm').form('submit',{
+                url: this.url,
+                onSubmit: function(){
+                    return $(this).form('validate');
+                },
+                success: function(result){
+                    var result = eval('('+result+')');
+                    if (result.errorMsg){
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        pub_black_phone.clearForm()
+                        $('#pub_black_phone_dg').datagrid('reload');    // reload the user data
+                    }
+                }
+            });
+        },
+        initialize: function() {
+            var province = $("select[name='province']").combobox({
+                disabled:false,
+                valueField:'id',
+                textField:'text',
+                onSelect: function(record) {
+                    city.combobox({
+                        url: '/sys/get/city/?province_id='+record.id,
+                        disabled:false,
+                        valueField:'id',
+                        textField:'text',
+                    }).combobox('clear');
+                }
+            });
+            var city = $("select[name='city']").combobox({
+                disabled:true,
+
+                valueField:'id',
+                textField:'text'
+            });
+        }
+    };    
+    pub_black_phone.initialize();
+</script>

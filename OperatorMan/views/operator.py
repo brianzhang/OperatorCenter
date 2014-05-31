@@ -13,6 +13,7 @@ sys.setdefaultencoding("utf-8")
 
 from sqlalchemy import or_, desc, func
 from sqlalchemy.orm import subqueryload
+
 from datetime import timedelta
 from flask import request, render_template, jsonify, g, Blueprint, Response, redirect, session, url_for
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
@@ -20,8 +21,8 @@ import flask.ext.wtf as wtf
 
 from werkzeug import secure_filename
 from OperatorMan.configs import settings
-from OperatorMan.views import ok_json, fail_json, hash_password
-from OperatorCore.models.operator import SysAdmin, SysAdminLog, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
+from OperatorMan.views import ok_json, fail_json, hash_password, write_sys_log
+from OperatorCore.models.operator import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
                 create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UserSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
                 UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP
 from OperatorMan.utils import User
@@ -40,21 +41,6 @@ def index():
 def manager_home():
     return render_template("base.html", user = g.user)
 
-@operator_view.route("/get/data/", methods=['GET'])
-def get_data():
-    return jsonify({"total":28,"rows":[
-    {"productid":"FI-SW-01","productname":"Koi","unitcost":10.00,"status":"P","listprice":36.50,"attr1":"Large","itemid":"EST-1"},
-    {"productid":"K9-DL-01","productname":"Dalmation","unitcost":12.00,"status":"P","listprice":18.50,"attr1":"Spotted Adult Female","itemid":"EST-10"},
-    {"productid":"RP-SN-01","productname":"Rattlesnake","unitcost":12.00,"status":"P","listprice":38.50,"attr1":"Venomless","itemid":"EST-11"},
-    {"productid":"RP-SN-01","productname":"Rattlesnake","unitcost":12.00,"status":"P","listprice":26.50,"attr1":"Rattleless","itemid":"EST-12"},
-    {"productid":"RP-LI-02","productname":"Iguana","unitcost":12.00,"status":"P","listprice":35.50,"attr1":"Green Adult","itemid":"EST-13"},
-    {"productid":"FL-DSH-01","productname":"Manx","unitcost":12.00,"status":"P","listprice":158.50,"attr1":"Tailless","itemid":"EST-14"},
-    {"productid":"FL-DSH-01","productname":"Manx","unitcost":12.00,"status":"P","listprice":83.50,"attr1":"With tail","itemid":"EST-15"},
-    {"productid":"FL-DLH-02","productname":"Persian","unitcost":12.00,"status":"P","listprice":23.50,"attr1":"Adult Female","itemid":"EST-16"},
-    {"productid":"FL-DLH-02","productname":"Persian","unitcost":12.00,"status":"P","listprice":89.50,"attr1":"Adult Male","itemid":"EST-17"},
-    {"productid":"AV-CB-01","productname":"Amazon Parrot","unitcost":92.00,"status":"P","listprice":63.50,"attr1":"Adult Male","itemid":"EST-18"}
-    ]})
-
 @operator_view.route('/login/', methods=['GET', 'POST'])
 def login():
     req = request.args if request.method == 'GET' else request.form
@@ -69,6 +55,10 @@ def login():
                 filter(SysAdmin.is_show==True).first()
         if user:            
             login_user(user)
+            write_sys_log(1, 
+                        u'用户登录', 
+                        u'用户【%s】在【%s】登录了该系统，登录IP为：【%s】'%(user.realname, datetime.datetime.now(), request.remote_addr), 
+                        user.id)
             return redirect(request.args.get("next") or '/')
 
         return jsonify({'ok': False, 'username': username, 'pwd': password})
@@ -77,8 +67,12 @@ def login():
 @operator_view.route('/logout/', methods=["GET"])
 @login_required
 def logout():
-    logout_user()
     
+    write_sys_log(1, 
+                    u'退出登录', 
+                    u'用户【%s】在【%s】退出了系统，注销登录IP为：【%s】' % (g.user.realname, datetime.datetime.now(), request.remote_addr),
+                    g.user.id)
+    logout_user()
     return redirect('/login/')
 
 
@@ -97,7 +91,7 @@ def operator_log():
 def get_cooperate_operator_list():
     req_args = request.args if request.method == 'GET' else request.form
     print req_args
-    operator_list = g.session.query(UsrSPInfo).all()
+    operator_list = g.session.query(UsrSPInfo).order_by(desc(UsrSPInfo.id)).all()
     currentpage = int(req_args.get('page', 1))
     numperpage = int(req_args.get('rows', 20))
     start = numperpage * (currentpage - 1)
@@ -122,7 +116,7 @@ def get_cooperate_operator_list():
 def get_cooperate_channel_list():
     req_args = request.args if request.method == 'GET' else request.form
 
-    channel_list = g.session.query(UsrCPInfo).all()
+    channel_list = g.session.query(UsrCPInfo).order_by(desc(UsrCPInfo.id)).all()
     currentpage = int(req_args.get('page', 1))
     numperpage = int(req_args.get('rows', 20))
     start = numperpage * (currentpage - 1)
@@ -142,7 +136,7 @@ def get_cooperate_channel_list():
                                 'loginname': cp.loginname, 
                                 'name': cp.name,
                                 'bank_info': cp_bank_info,
-                                'business': cp.adminid,
+                                'business': cp.admin_info.realname,
                                 'create_time': cp.create_time, 
                                 'is_show': cp.is_show,
                                 'content': cp.content})
@@ -228,22 +222,198 @@ def financial_channel_summary():
 @operator_view.route("/sys/account/", methods=['GET'])
 @login_required
 def sys_account():
-    return 'sys_account'
+    roles = g.session.query(SysRole).all()
+    return render_template("sys_account.html", roles=roles)
+
+@operator_view.route("/sys/account/list/", methods=['GET', 'POST'])
+@login_required
+def sys_account_list():
+    req_args = request.args if request.method == 'GET' else request.form
+
+    admin_list = g.session.query(SysAdmin).all()
+    currentpage = int(req_args.get('page', 1))
+    numperpage = int(req_args.get('rows', 20))
+    start = numperpage * (currentpage - 1)
+    total = len(admin_list)
+
+    admin_list = admin_list[start:(numperpage+start)]
+
+    if admin_list:
+        admin_list_data = []
+        for admin in admin_list:
+            admin_list_data.append({'id': admin.id, 
+                                'username': admin.username, 
+                                'realname': admin.realname,
+                                'role_id': admin.role_id,
+                                'phone': admin.phone,
+                                'qq': admin.qq, 
+                                'email': admin.email,
+                                'is_show': admin.is_show})
+
+        return jsonify({'rows': admin_list_data, 'total': total})
+
+
+@operator_view.route("/sys/account/add/", methods=['GET', 'POST'])
+@operator_view.route("/sys/account/edit/<user_id>/", methods=['GET', 'POST'])
+@login_required
+def sys_account_add(user_id=None):
+    req_args = request.args if request.method == 'GET' else request.form    
+    if user_id:
+        admin = g.session.query(SysAdmin).filter(SysAdmin.id==user_id).first()
+        write_sys_log(2, 
+                        u'修改用户信息', 
+                        u'用户【%s】在【%s】修改了用户信息，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+                        g.user.id)
+    else:
+        write_sys_log(2, 
+                        u'添加用户', 
+                        u'用户【%s】在【%s】添加了用户，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+                        g.user.id)
+        admin = SysAdmin()
+    admin.username = req_args.get('username', None)    
+    admin.userpwd = req_args.get('userpwd', None)
+    admin.userpwd = hash_password(admin.userpwd)    
+    admin.realname = req_args.get('realname', None)
+    admin.role_id = req_args.get('role', None)
+    admin.phone = req_args.get('phone', None)
+    admin.qq = req_args.get('qq', None)
+    admin.email = req_args.get('email', None)
+    admin.is_show = req_args.get('is_show', False)
+    admin.content = req_args.get('content', None)
+    admin.create_time = datetime.datetime.now()
+    try:
+        g.session.add(admin)
+        g.session.commit()
+        return jsonify({'ok': True})
+    except Exception, e:
+        return jsonify({'errorMsg': 'error'})
+#/sys/account/set/
+@operator_view.route("/sys/account/set/", methods=['GET', 'POST'])
+@login_required
+def sys_account_set():
+    req_args = request.args if request.method == 'GET' else request.form    
+    user_id = req_args.get('id', None)
+    print user_id
+    admin = g.session.query(SysAdmin).filter(SysAdmin.id==user_id).first()
+    admin.is_show = False if admin.is_show else True
+    try:
+        g.session.add(admin)
+        g.session.commit()
+        write_sys_log(4, 
+                        u'账号禁用', 
+                        u'用户【%s】在【%s】禁用账号 【%s】，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), admin.username, request.remote_addr), 
+                        g.user.id)
+        return jsonify({'success': True})
+    except Exception, e:
+        return jsonify({'errorMsg': 'error'})
 
 @operator_view.route("/sys/user/", methods=['GET'])
 @login_required
 def sys_user():
-    return 'sys_user'
+    roles = g.session.query(SysRole).all()
+    user_info = g.session.query(SysAdmin).filter(SysAdmin.id==g.user.id).first()
+    return render_template("sys_account_info.html", roles=roles, user=user_info)
 
-@operator_view.route("/sys/log/", methods=['GET'])
+@operator_view.route("/sys/log/", methods=['GET', 'POST'])
 @login_required
 def sys_log():
-    return 'sys_log'
+    if request.method == 'GET':
+        return render_template('sys_log.html')
+    else:
+        req_args = request.args if request.method == 'GET' else request.form
 
-@operator_view.route("/sys/balck/", methods=['GET'])
+        admin_log_list = g.session.query(SysAdminLog).order_by(desc(SysAdminLog.id)).all()
+        currentpage = int(req_args.get('page', 1))
+        numperpage = int(req_args.get('rows', 20))
+        start = numperpage * (currentpage - 1)
+        total = len(admin_log_list)
+
+        admin_log_list = admin_log_list[start:(numperpage+start)]
+
+        if admin_log_list:
+            admin_log_list_data = []
+            for log in admin_log_list:
+                admin_log_list_data.append({'id': log.id, 
+                                    'admin': log.admin.realname, 
+                                    'op_type': log.op_type,
+                                    'op_title': log.op_title,
+                                    'op_content': log.op_content,
+                                    'create_time': log.create_time})
+
+            return jsonify({'rows': admin_log_list_data, 'total': total})
+
+@operator_view.route("/sys/black/", methods=['GET', 'POST'])
 @login_required
 def sys_balck():
-    return 'sys_balck'
+    if request.method == 'GET':
+        provinces = g.session.query(PubProvince).all()
+        citys = None
+        return render_template('pub_black_phone.html', provinces=provinces, citys=None)
+    else:
+        req_args = request.args if request.method == 'GET' else request.form
+
+        black_list = g.session.query(PubBlackPhone).order_by(desc(PubBlackPhone.id)).all()
+        currentpage = int(req_args.get('page', 1))
+        numperpage = int(req_args.get('rows', 20))
+        start = numperpage * (currentpage - 1)
+        total = len(black_list)
+
+        black_list = black_list[start:(numperpage+start)]
+
+        if black_list:
+            black_list_data = []
+            for black in black_list:
+                black_list_data.append({'id': black.id, 
+                                    'mobile': black.mobile, 
+                                    'province': black.province_info.province,
+                                    'city': black.city_info.city,
+                                    'content': black.content,
+                                    'create_time': black.create_time})
+
+            return jsonify({'rows': black_list_data, 'total': total})
+
+@operator_view.route("/sys/get/city/", methods=['GET', 'POST'])
+@login_required
+def sys_get_city():
+    req_args = request.args #if request.method == 'GET' else request.form
+    province_id = req_args.get('province_id', None)
+    citys = g.session.query(PubCity).filter(PubCity.province == province_id).all()
+
+    if citys:
+        city_data = []
+        for city in citys:
+            city_data.append({'id': city.id, 'text': city.city})
+
+        return json.dumps(city_data)
+
+@operator_view.route("/sys/black/add/", methods=['GET', 'POST'])
+@login_required
+def sys_balck_add():
+    '''
+        add black phone.
+    '''
+    req_args = request.args if request.method == 'GET' else request.form
+    black_phone = PubBlackPhone()
+    black_phone.mobile = req_args.get("mobile", None)
+    black_phone.province = req_args.get("province", None)
+    black_phone.city = req_args.get("city", None)
+    black_phone.content = req_args.get("content", None)
+    black_phone.create_time = datetime.datetime.now()
+
+    try:
+        g.session.add(black_phone)
+        g.session.commit()
+
+        write_sys_log(4, 
+                        u'添加黑名单', 
+                        u'用户【%s】在【%s】添加手机号【%s】为黑名单，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), black_phone.mobile, request.remote_addr), 
+                        g.user.id)
+        
+        return jsonify({'success': True})
+
+    except Exception, e:
+
+        return jsonify({'errorMsg': 'error'})
 
 def encrypt_token(token, ip):
     '''token加密算法

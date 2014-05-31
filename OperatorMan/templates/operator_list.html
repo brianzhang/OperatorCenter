@@ -10,8 +10,8 @@
         <tr>
             <th field="id" width="50">id</th>
             <th field="name" width="50">运营商名称</th>
-            <th field="link_name" width="50">Phone</th>
-            <th field="link_phone" width="50">Phone</th>
+            <th field="link_name" width="50">联系人</th>
+            <th field="link_phone" width="50">电话号码</th>
             <th field="link_qq" width="50">QQ</th>
             <th field="link_email" width="50">Email</th>
             <th field="link_address" width="50">地址</th>
@@ -47,11 +47,12 @@
             <input name="email" class="easyui-validatebox" validType="email">
         </div>
     </form>
+    <div id="dlg-buttons">
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="operator_list.saveUser()">Save</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">Cancel</a>
+    </div>
 </div>
-<div id="dlg-buttons">
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="operator_list.saveUser()">Save</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">Cancel</a>
-</div>
+
 <script type="text/javascript">
     var operator_list = {
         url: '',

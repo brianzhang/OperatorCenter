@@ -45,11 +45,28 @@ class SysAdmin(OperatorBase):
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
 
-    def __init__(self, username, userpwd, realname):
+    def __init__(self, username=None, 
+                    userpwd=None, 
+                    realname=None, 
+                    role_id=None, 
+                    phone=None, 
+                    qq=None, 
+                    email=None, 
+                    is_show=None, 
+                    content=None, 
+                    create_time=None):
+
         self.username = username
         self.userpwd = userpwd
         self.realname = realname
-
+        self.role_id = role_id
+        self.phone = phone
+        self.qq = qq
+        self.email = email
+        self.is_show = is_show
+        self.content = content
+        self.create_time = create_time
+        
     def __repr__(self):
         return '<SysAdmin %s>' % self.username
 
@@ -75,6 +92,8 @@ class SysAdminLog(OperatorBase):
     op_title = Column(String(200), nullable=False)
     op_content = Column(String(1000), nullable=False)
     create_time = Column(DateTime, nullable=False)
+
+    admin = relationship("SysAdmin")
 
 class SysRights(OperatorBase):
     __tablename__ = 'sys_rights'
@@ -121,6 +140,8 @@ class PubBlackPhone(OperatorBase):
     city = Column(Integer, ForeignKey('pub_city.id'))
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
+    city_info = relationship("PubCity")
+    province_info = relationship("PubProvince")
 
 class PubMobileArea(OperatorBase):
 
@@ -218,6 +239,8 @@ class UsrCPInfo(OperatorBase):
     is_show = Column(Boolean, nullable=False)
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
+
+    admin_info = relationship("SysAdmin")
 
 class UsrCPBank(OperatorBase):
 

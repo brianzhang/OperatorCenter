@@ -1,0 +1,81 @@
+ <div class="easyui-panel" title="我的个人信息" style="width:400px">
+    <div style="padding:10px 60px 20px 60px">
+        <form id="account_info_form" method="post">
+            <table cellpadding="5">
+                <tr>
+                    <td>用户名：</td>
+                    <td><input class="easyui-validatebox" type="text" name="username" data-options="required:true" value="{{user.username}}" readonly="readonly"></input></td>
+                </tr>
+                <tr>
+                    <td>密码：</td>
+                    <td><input class="easyui-validatebox" type="password" name="userpwd" value="{{user.userpwd}}" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>昵称：</td>
+                    <td><input class="easyui-validatebox" type="text" name="realname" value="{{user.realname}}" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>角色组：</td>
+                    <td>
+                        <select class="easyui-combobox" name="role">
+                        {%for role in roles%}
+                            <option value="{{role.id}}" {%if role.id==user.role_id%}selected="selected"{%endif%}>{{role.rolename}}</option>
+                        {%endfor%}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>电话：</td>
+                    <td><input name="phone" value="{{user.phone}}"></input></td>
+                </tr>
+                <tr>
+                    <td>QQ：</td>
+                    <td><input name="qq" value="{{user.qq}}"></input></td>
+                </tr>
+                <tr>
+                    <td>email：</td>
+                    <td><input name="email" data-options="validType:'email'" value="{{user.email}}"></input></td>
+                </tr>
+                <tr>
+                    <td>是否启用：</td>
+                    <td><input name="is_show" type="checkbox" value="1" {%if user.is_show%}checked="checked"{%endif%}></input></td>
+                </tr>
+                <tr>
+                    <td>备注：</td>
+                    <td><input name="content" value="{{user.content}}"></input></td>
+                </tr>
+            </table>
+        </form>
+        <div style="text-align:center;padding:5px">
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="account_info.submitForm()">修改</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="account_info.clearForm()">取消</a>
+        </div>
+    </div>
+</div>
+<script>
+    var account_info = {
+        url: '/sys/account/edit/{{user.id}}/',
+        submitForm: function() {
+            $('#account_info_form').form('submit',{
+                url: this.url,
+                onSubmit: function(){
+                    return $(this).form('validate');
+                },
+                success: function(result){
+                    if (result.errorMsg){
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        account_info.updateReload()
+                    }
+                }
+            });
+        },
+        updateReload: function() {
+            var _tab = $('#tabs').tabs('getSelected');
+            $('#tabs').tabs('update', {tab: _tab, options: {iconCls: 'icon icon-user-info'}});
+        }
+    }
+</script>
