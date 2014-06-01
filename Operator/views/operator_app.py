@@ -18,7 +18,7 @@ from flask import request, render_template, jsonify, g, Blueprint, Response, red
 
 from werkzeug import secure_filename
 from Operator.configs import settings
-from OperatorCore.models.operator import SysAdmin, SysAdminLog, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
+from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
                 create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UserSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
                 UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP
 
