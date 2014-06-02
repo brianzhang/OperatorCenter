@@ -114,7 +114,7 @@ def operator_log():
                                     })
 
             return jsonify({'rows': operator_logs, 'total': total})
-
+        return jsonify({'rows': [], 'total': 0})
 
 @operator_view.route("/cooperate/operator/list/", methods=["GET", "POST"])
 @login_required
@@ -212,6 +212,7 @@ def channel_log():
                                     })
 
             return jsonify({'rows': channel_logs, 'total': total})
+        return jsonify({'rows': [], 'total': 0})
 
 @operator_view.route("/operator/status/", methods=['GET'])
 @login_required
