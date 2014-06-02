@@ -81,7 +81,7 @@ def logout():
 def operator_list():
     return render_template("operator_list.html")
 
-@operator_view.route("/cooperate/operator/log/", methods=['GET'])
+@operator_view.route("/cooperate/operator/log/", methods=['GET', 'POST'])
 @login_required
 def operator_log():
     if request.method == 'GET':
