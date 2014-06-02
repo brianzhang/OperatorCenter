@@ -101,7 +101,7 @@ def operator_log():
             for log in operator_logs_list:
                 operator_logs.append({'id': log.id, 
                                     'channelid': log.channelid, 
-                                    'spid': log.cpid,
+                                    'spid': log.spid,
                                     'urltype': log.urltype,
                                     'mobile': log.mobile,
                                     'spnumber': log.spnumber,
