@@ -199,9 +199,9 @@ class UsrSPInfo(OperatorBase):
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
 
-class UserSPTongLog(OperatorBase):
+class UsrSPTongLog(OperatorBase):
 
-    """docstring for UserSPTongLog"""
+    """docstring for UsrSPTongLog"""
     __tablename__ = 'usr_sptonglog'
     __table_args__ = ({'mysql_engine': 'InnoDB'}, )
 

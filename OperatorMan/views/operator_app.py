@@ -23,7 +23,7 @@ from werkzeug import secure_filename
 from OperatorMan.configs import settings
 from OperatorMan.views import ok_json, fail_json, hash_password, write_sys_log
 from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
-                create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UserSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
+                create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UsrSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
                 UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP
 from OperatorMan.utils import User
 
@@ -84,7 +84,37 @@ def operator_list():
 @operator_view.route("/cooperate/operator/log/", methods=['GET'])
 @login_required
 def operator_log():
-    return 'operator_log'
+    if request.method == 'GET':
+        return render_template('usr_sptong_log.html')
+    else:
+        req_args = request.args if request.method == 'GET' else request.form
+        operator_logs_list = g.session.query(UsrSPTongLog).order_by(desc(UsrSPTongLog.id)).all()
+        currentpage = int(req_args.get('page', 1))
+        numperpage = int(req_args.get('rows', 20))
+        start = numperpage * (currentpage - 1)
+        total = len(operator_logs_list)
+
+        operator_logs_list = operator_logs_list[start:(numperpage+start)]
+
+        if operator_logs_list:
+            operator_logs = []
+            for log in operator_logs_list:
+                operator_logs.append({'id': log.id, 
+                                    'channelid': log.channelid, 
+                                    'spid': log.cpid,
+                                    'urltype': log.urltype,
+                                    'mobile': log.mobile,
+                                    'spnumber': log.spnumber,
+                                    'momsg': log.momsg,
+                                    'linkid': log.linkid,
+                                    'tongurl': log.tongurl,
+                                    'tongdate': log.tongdate,
+                                    'is_show': log.is_show,
+                                    'create_time': log.create_time
+                                    })
+
+            return jsonify({'rows': operator_logs, 'total': total})
+
 
 @operator_view.route("/cooperate/operator/list/", methods=["GET", "POST"])
 @login_required
@@ -143,15 +173,45 @@ def get_cooperate_channel_list():
 
         return jsonify({'rows': channel_list_data, 'total': total})
 
-@operator_view.route("/cooperate/channel/page/", methods=['GET'])
+@operator_view.route("/cooperate/channel/page/", methods=['GET', 'POST'])
 @login_required
-def channel_page():
+def channel_page():    
     return render_template("channel_list.html")
 
-@operator_view.route("/cooperate/channel/log/", methods=['GET'])
+@operator_view.route("/cooperate/channel/log/", methods=['GET', 'POST'])
 @login_required
 def channel_log():
-    return 'channel_log'
+    if request.method == 'GET':
+        return render_template('usr_cptong_log.html')
+    else:
+        req_args = request.args if request.method == 'GET' else request.form
+        channel_logs_list = g.session.query(UsrCPTongLog).order_by(desc(UsrCPTongLog.id)).all()
+        currentpage = int(req_args.get('page', 1))
+        numperpage = int(req_args.get('rows', 20))
+        start = numperpage * (currentpage - 1)
+        total = len(channel_logs_list)
+
+        channel_logs_list = channel_logs_list[start:(numperpage+start)]
+
+        if channel_logs_list:
+            channel_logs = []
+            for log in channel_logs_list:
+                channel_logs.append({'id': log.id, 
+                                    'channelid': log.channelid, 
+                                    'cpid': log.cpid,
+                                    'urltype': log.urltype,
+                                    'mobile': log.mobile,
+                                    'spnumber': log.spnumber,
+                                    'momsg': log.momsg,
+                                    'linkid': log.linkid,
+                                    'tongurl': log.tongurl,
+                                    'backmsg': log.backmsg,
+                                    'tongdate': log.tongdate,
+                                    'is_show': log.is_show,
+                                    'create_time': log.create_time
+                                    })
+
+            return jsonify({'rows': channel_logs, 'total': total})
 
 @operator_view.route("/operator/status/", methods=['GET'])
 @login_required
