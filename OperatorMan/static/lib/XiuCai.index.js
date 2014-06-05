@@ -1,13 +1,3 @@
-/***********************************************************************
-
-* 作者：疯狂秀才 QQ：1055818239
-* 讨论群：112044258、32994605、36534121、56271061
-* 创建日期：2011/1/17
-
-* 广告：本人承接各类大中小型管理系统的软件的设计与开发，有需要的朋友联系我啦~~~~
-
-**********************************************************/
-
 window.onload = function(){
 	$('#loading-mask').fadeOut();
 }
@@ -164,8 +154,7 @@ function createFrame(url, el) {
 	});
 }
 
-function tabClose()
-{
+function tabClose() {
 	/*双击关闭TAB选项卡*/
 	$(".tabs-inner").dblclick(function(){
 		var subtitle = $(this).children(".tabs-closable").text();
@@ -199,8 +188,7 @@ function tabCloseEven() {
     return false;
 }
 
-function closeTab(action)
-{
+function closeTab(action) {
     var alltabs = $('#tabs').tabs('tabs');
     var currentTab =$('#tabs').tabs('getSelected');
 	var allTabtitle = [];

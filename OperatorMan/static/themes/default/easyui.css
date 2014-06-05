@@ -2294,6 +2294,8 @@
   color: #000000;
 }
 .validatebox-invalid {
+  border-width: 1px;
+  border-style: solid;
   background-image: url('images/validatebox_warning.png');
   background-repeat: no-repeat;
   background-position: right center;

@@ -1,0 +1,153 @@
+<table id="operator_dg" title="运营商列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
+        url="/cooperate/operator/list/"
+        toolbar="#operator_toolbar" 
+        pagination="true"
+        rownumbers="true" 
+        fitColumns="true" 
+        singleSelect="true"
+        pageSize="20">
+    <thead>
+        <tr>
+            <th field="id" width="50">id</th>
+            <th field="name" width="50">运营商名称</th>
+            <th field="link_name" width="50">联系人</th>
+            <th field="link_phone" width="50">电话号码</th>
+            <th field="link_qq" width="50">QQ</th>
+            <th field="link_email" width="50">Email</th>
+            <th field="link_address" width="50">地址</th>
+            <th field="is_show" data-options="formatter: operator_list.formatStatus" width="50">合作状态</th>
+            <th field="content" width="50">备注</th>
+        </tr>
+    </thead>
+</table>
+<div id="operator_toolbar">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="operator_list.addSpInfo()">添加</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="operator_list.editSpInfo()">修改</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="operator_list.destroySpInfo()">删除</a>
+</div>
+
+<div id="window_SpInfo" class="easyui-dialog" style="width:500px;height:470px;padding:10px 20px" closed="true" modal="true">
+     <div style="padding:10px 60px 20px 60px">
+        <form id="window_SpInfo_Form" method="post">
+            <table cellpadding="5">
+                <tr>
+                    <td>运营商名称：</td>
+                    <td><input class="easyui-validatebox" type="text" name="name" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>商务跟进：</td>
+                    <td>
+                        <select class="easyui-combobox" name="adminid">
+                        {%for admin in admins%}
+                            <option value="{{admin.id}}">{{admin.realname}}</option>
+                        {%endfor%}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>姓名：</td>
+                    <td><input class="easyui-validatebox" type="text" name="link_name" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>电话：</td>
+                    <td><input class="easyui-validatebox" type="text" name="link_phone" ></input></td>
+                </tr>
+                <tr>
+                    <td>联系人QQ：</td>
+                    <td><input class="easyui-validatebox" type="text" name="link_qq" ></input></td>
+                </tr>
+                <tr>
+                    <td>邮箱：</td>
+                    <td><input class="easyui-validatebox" type="text" name="link_email" data-options="validType:'email'"></input></td>
+                </tr>
+                <tr>
+                    <td>地址：</td>
+                    <td><input class="easyui-validatebox" type="text" name="link_address"></input></td>
+                </tr>
+                <tr>
+                    <td>是否合作：</td>
+                    <td><input class="easyui-validatebox" type="checkbox" name="is_show" value="1" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>备注：</td>
+                    <td><input name="content"></input></td>
+                </tr>
+            </table>
+        </form>
+        <div style="text-align:center;padding:5px">
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="operator_list.submitForm()">保存</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="operator_list.clearForm()">取消</a>
+        </div>
+        </div>
+</div>
+
+<script type="text/javascript">
+    var operator_list = {
+        url: '',
+        clearForm: function() {
+            $('#window_SpInfo').dialog('close');        // close the dialog
+            $('#window_SpInfo_Form').datagrid('reload');    // reload the user data
+        },
+        addSpInfo: function() {
+            $('#window_SpInfo').dialog('open').dialog('setTitle','添加运营商信息');
+            $('#window_SpInfo_Form').form('clear');
+            this.url = '/cooperate/operator/add/';
+        },
+        editSpInfo: function() {
+            var row = $('#operator_dg').datagrid('getSelected');
+            if (row){
+                $('#window_SpInfo').dialog('open').dialog('setTitle','修改运营商信息');
+                $('#window_SpInfo_Form').form('load',row);
+                this.url = '/cooperate/operator/edit/'+row.id+'/';
+            }
+        },
+        submitForm: function() {
+            $('#window_SpInfo_Form').form('submit',{
+                url: this.url,
+                onSubmit: function(){
+                    return $(this).form('validate');
+                },
+                success: function(result){
+                    var result = eval('('+result+')');
+                    if (result.errorMsg){
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        operator_list.clearForm();
+                        $('#operator_dg').datagrid('reload');    // reload the user data
+                    }
+                }
+            });
+        },
+        destroySpInfo: function() {
+            var row = $('#operator_dg').datagrid('getSelected');
+            if (row){
+                var _msg = row.is_show == true ? '是否取消与'+row.name+'合作运营' : '是否开启与'+row.name+'运营';
+
+                $.messager.confirm('Confirm',_msg,function(r){
+                    if (r){
+                        $.post('/cooperate/operator/destory/',{id:row.id},function(result){
+                            if (result.success){
+                                $('#operator_dg').datagrid('reload');    // reload the user data
+                            } else {
+                                $.messager.show({    // show error message
+                                    title: 'Error',
+                                    msg: result.errorMsg
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
+        },
+        formatStatus: function(val, row) {
+            if (val) {
+                return '<span class="icon icon-ok">&nbsp;</span>'
+            }else {
+                return '<span class="icon icon-error">&nbsp;</span>'
+            }
+        }
+    };    
+</script>

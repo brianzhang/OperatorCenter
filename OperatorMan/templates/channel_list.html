@@ -1,118 +1,165 @@
-<table id="channel_dg" title="渠道商列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
-        url="/cooperate/channel/list/"
-        toolbar="#channel_toolbar" 
-        pagination="true"
-        rownumbers="true" 
-        fitColumns="true" 
-        singleSelect="true"
-        pageSize="20">
-    <thead>
-        <tr>
-            <th field="id" width="50">id</th>
-            <th field="loginname" width="50">用户名</th>
-            <th field="name" width="50">渠道商</th>
-            <th field="bank_info" width="100">银行信息</th>
-            <th field="business" width="50">商务</th>
-            <th field="content" width="50">备注</th>
-            <th field="is_show" data-options="formatter: channel_list.formatStatus" width="50">合作状态</th>
-            <th field="create_time" width="50">合作时间</th>
-        </tr>
-    </thead>
-</table>
-<div id="channel_toolbar">
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_list.newUser()">添加</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_list.editUser()">修改</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_list.destroyUser()">删除</a>
+<div title="通道列表" class="easyui-panel">
+    <div fit="true">
+        <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
+        <!--高级查询部分-->
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <th>接口:</th>
+                <td>
+                    <select id="channel_id" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {%for channel in channels%}
+                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                        {%endfor%}
+                    </select>
+                </td>
+                <th>合作方:</th>
+                <td>
+                    <select id="sp_id" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {% for sp_info in sp_info_list %}
+                        <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <th>产品:</th>
+                <td>
+                    <select id="product_id" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {% for product in products%}
+                        <option value="{{product.id}}">{{product.proname}}</option>
+                        {% endfor%}
+                    </select>
+                </td>
+                <th>运营商:</th>
+                <td>
+                    <select id="operator_id" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        <option value="0">中国移动</option>
+                        <option value="1">中国联通</option>
+                        <option value="2">中国电信</option>
+                        <option value="3">其他</option>
+                    </select>
+                </td>
+                <th>类型:</th>
+                <td>
+                    <select id="busi_type" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {%for busi in busi_list%}
+                        <option value="{{busi.id}}">{{busi.name}}</option>
+                        {%endfor%}
+                    </select>
+                </td>
+                <th>端口地区:</th>
+                <td>
+                    <select id="area" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                    </select>
+                    <input/>
+                </td>
+                <td align="right">
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_manager.queryData()" plain="true">查询</a>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="channel_manager.clearQuery()" plain="true">清空</a>
+                </td>
+            </tr>
+        </table>
+        </div>
+        <div data-options="region:'center',split:false"  border="false">
+            <table id="channel_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
+                    url="/channel/list/"
+                    toolbar="#channel_list_toolbar" 
+                    pagination="true"
+                    rownumbers="true" 
+                    fitColumns="true" 
+                    singleSelect="true"
+                    loadMsg='数据加载中,请稍候...'
+                    pageSize="20">
+                <thead>
+                    <tr>
+                        <th field="id" width="20">id</th>
+                        <th field="spid" width="20">SPID</th>
+                        <th field="operator" width="40">运营商</th>
+                        <th field="product_info" width="40">产品类型</th>
+                        <th field="busi_info" width="30">业务类型</th>
+                        <th field="sx" width="50">上行指令</th>
+                        <th field="spnumber" width="50">通道长号码</th>
+                        <th field="sx_type" width="40" data-options="formatter: channel_manager.formatCommand">指令模式</th>
+                        <th field="price" width="30">通道资费</th>
+                        <th field="costprice" width="30">接入单价</th>
+                        <th field="fcpric" width="30">分成单价</th>
+                        <th field="bl" width="30">扣量比例</th>
+                        <th field="daymax" width="30">日限</th>
+                        <th field="monmax" width="30">月限</th>
+                        <th field="remark" width="40">下发语</th>
+                        <th field="content" width="200">备注</th>
+                        <th field="is_show" width="30" data-options="formatter: channel_manager.formatStatus">状态</th>
+                        <th field="create_time" width="80" data-options="formatter: channel_manager.formatterDate">操作时间</th>
+                    </tr>
+                </thead>
+            </table>
+            <div id="channel_list_toolbar">
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_manager.addChannel()">添加</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_manager.editChannel()">修改</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_manager.destroyUser()">删除</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="channel_manager.openChannel()">开通</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_manager.offChannel()">暂停</a>
+            </div>
+        </div>
+    </div>
 </div>
-
-<div id="channel_dlg" class="easyui-dialog" style="width:400px;height:280px;padding:10px 20px"
-        closed="true" buttons="#dlg-buttons">
-    <div class="ftitle">User Information</div>
-    <form id="channel_fm" method="post" novalidate>
-        <div class="fitem">
-            <label>First Name:</label>
-            <input name="firstname" class="easyui-validatebox" required="true">
-        </div>
-        <div class="fitem">
-            <label>Last Name:</label>
-            <input name="lastname" class="easyui-validatebox" required="true">
-        </div>
-        <div class="fitem">
-            <label>Phone:</label>
-            <input name="phone">
-        </div>
-        <div class="fitem">
-            <label>Email:</label>
-            <input name="email" class="easyui-validatebox" validType="email">
-        </div>
-    </form>
-</div>
-<div id="dlg-buttons">
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="channel_list.saveUser()">Save</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">Cancel</a>
-</div>
-<script type="text/javascript">
-    var channel_list = {
-        url: '',
-        newUser: function() {
-            $('#channel_dlg').dialog('open').dialog('setTitle','New User');
-            $('#channel_fm').form('clear');
-            this.url = 'save_user.php';
-        },
-        editUser: function() {
-            var row = $('#channel_dg').datagrid('getSelected');
-            if (row){
-                $('#channel_dlg').dialog('open').dialog('setTitle','Edit User');
-                $('#channel_fm').form('load',row);
-                url = 'update_user.php?id='+row.id;
-            }
-        },
-        saveUser: function() {
-            $('#channel_fm').form('submit',{
-                url: this.url,
-                onSubmit: function(){
-                    return $(this).form('validate');
-                },
-                success: function(result){
-                    var result = eval('('+result+')');
-                    if (result.errorMsg){
-                        $.messager.show({
-                            title: 'Error',
-                            msg: result.errorMsg
-                        });
-                    } else {
-                        $('#channel_dlg').dialog('close');        // close the dialog
-                        $('#channel_dg').datagrid('reload');    // reload the user data
-                    }
-                }
-            });
-        },
-        destroyUser: function() {
-            var row = $('#channel_dg').datagrid('getSelected');
-            if (row){
-                $.messager.confirm('Confirm','Are you sure you want to destroy this user?',function(r){
-                    if (r){
-                        $.post('destroy_user.php',{id:row.id},function(result){
-                            if (result.success){
-                                $('#channel_dg').datagrid('reload');    // reload the user data
-                            } else {
-                                $.messager.show({    // show error message
-                                    title: 'Error',
-                                    msg: result.errorMsg
-                                });
-                            }
-                        },'json');
-                    }
-                });
-            }
-        },
-        formatStatus: function(val, row) {
-            console.log(val);
-            if (val) {
-                return '<span class="icon icon-ok">&nbsp;</span>'
-            }else {
-                return '<span class="icon icon-error">&nbsp;</span>'
-            }
+<script>
+var channel_manager = {
+    url: '',
+    datagrid: $('#channel_list_dg'),
+    addChannel: function() {
+        this.url = '/channel/add/';
+        addTab('添加通道', this.url, 'icon-add')
+    },
+    editChannel: function() {
+        var row = $('#channel_list_dg').datagrid('getSelected');
+        if (row){
+            this.url = '/channel/edit/'+row.id+'/';
+            addTab('修改通道', this.url, 'icon-edit');
         }
-    };    
+
+    },
+    openChannel: function() {},
+    offChannel: function() {},
+    formatStatus: function(val, row) {
+        if (val) {
+            return '<span class="icon icon-ok">&nbsp;</span>已开通'
+        }else {
+            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
+        }
+    },
+    formatterDate: function(val, row) {
+        var date = new Date(val);
+        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
+    },
+    formatCommand: function(val, row) {
+        val = parseInt(val);
+        switch(val){
+            case 0:
+                return '模糊';
+            case 1:
+                return '模糊+精确';
+            case 2:
+                return '双精确';
+        }
+    },
+    queryData: function() {
+        var req_data = {'channel_id': $('#channel_id').combobox('getValue'), 
+           'sp_id': $("#sp_id").combobox('getValue'), 
+           'product_id': $("#product_id").combobox('getValue'), 
+           'operator_id': $("#operator_id").combobox('getValue'),
+           'busi_type': $("#busi_type").combobox('getValue'),
+           'area': $("#area").combobox('getValue')
+        };
+        console.log(req_data);
+        this.datagrid.datagrid('load', req_data)
+    },
+    clearQuery: function() {
+
+    }
+}
 </script>

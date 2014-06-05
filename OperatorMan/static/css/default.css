@@ -59,3 +59,6 @@ a:hover{ color:Red; text-decoration:underline;}
 .icon-channel-cover{background-position: -220px -420px;}
 
 .icon-arrow{ background:url('../images/arrow.gif') no-repeat right;}
+
+fieldset{border:1px solid #95B8E7; }
+textarea{margin:1px}

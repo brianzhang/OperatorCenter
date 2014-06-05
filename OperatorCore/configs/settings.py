@@ -2,13 +2,15 @@
 
 import logging
 
-DEBUG = True
+DEBUG = False
 
 #DB_SPOTLIGHT_URI = 'mysql://root:123@127.0.0.1:3306/db_operator'
-DB_SPOTLIGHT_URI = 'mysql://root:1234@127.0.0.1:3306/db_operator'
+DB_SPOTLIGHT_URI = 'mysql://root:1234@61.160.251.17:3306/db_operator'
+#DB_SPOTLIGHT_URI = 'mysql://root:1234@120.31.131.109:3306/db_operator'
+
 DB_POOL_RECYCLE_TIMEOUT = 10
 DB_POOL_SIZE = 5
-DB_DEBUG = True
+DB_DEBUG = False
 
 #LOGGING_PATH = '/home/brian/temp/log/TowerSpotlight'
 #LOGGING_FILE = 'towerspotlight.log'

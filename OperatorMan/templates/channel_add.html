@@ -1,0 +1,140 @@
+<div title="通道配置" class="easyui-panel" style="padding:10px 20px">
+    <form id="set_channel_Form" method="post">
+        <fieldset>
+            <legend>基本信息</legend>
+            <table>
+                <tr>
+                    <td width="80px">通道名称：</td>
+                    <td><input class="easyui-validatebox" type="text" name="name" data-options="required:true"></input></td>
+                    <td>合作方：</td>
+                    <td>
+                        <select class="easyui-combobox" name="sp_infp">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {%for sp_info in sp_list%}
+                            <option value="{{sp_info.id}}">[{{sp_info.id}}]-{{sp_info.name}}</option>
+                        {%endfor%}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>信息类型：</td>
+                    <td>
+                        {%for busi in busi_list%}
+                        <label><input type="radio" name="busi" value="{{busi.id}}"/>{{busi.name}}</label>
+                        {%endfor%}
+                    </td>
+                    <td>指令模式：</td>
+                    <td>
+                        <label><input type="radio" name="command_type" value="0"/>模糊</label>
+                        <label><input type="radio" name="command_type" value="1"/>模糊+精确</label>
+                        <label><input type="radio" name="command_type" value="2"/>双精确</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>当前状态：</td>
+                    <td>
+                        <label><input type="radio" name="status_type" value="1"/>正常</label>
+                        <label><input type="radio" name="status_type" value="0"/>停止</label>
+                    </td>
+                    <td>运营商：</td>
+                    <td>
+                        <label><input type="radio" name="operator" value="0"/>中国移动</label>
+                        <label><input type="radio" name="operator" value="1"/>中国联通</label>
+                        <label><input type="radio" name="operator" value="2"/>中国电信</label>
+                        <label><input type="radio" name="operator" value="3"/>其他</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>产品类型：</td>
+                    <td>
+                        <select name="product_id" class="easyui-combobox">
+                            <option selected="selected" value=''>--请选择--</option>
+                            {% for product in products%}
+                            <option value="{{product.id}}">{{product.proname}}</option>
+                            {% endfor%}
+                        </select>
+                    </td>
+                    <td>指令类型：</td>
+                    <td>
+                        <label><input type="radio" name="command_moduel" value="0"/>短指令</label>
+                        <label><input type="radio" name="command_moduel" value="1"/>长指令</label>
+                        <label><input type="radio" name="command_moduel" value="2"/>不扩展</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>上行指令：</td>
+                    <td><input class="easyui-validatebox" type="text" name="txt_sx" data-options="required:true"></input></td>
+                    <td>上行端口：</td>
+                    <td><input class="easyui-validatebox" type="text" name="txt_prot" data-options="required:true"></input></td>
+                </tr>
+            </table>
+        </fieldset>
+        <fieldset>
+            <legend>资费设置</legend>
+            <table>
+                <tr>
+                    <td width="80px">端口资费：</td>
+                    <td>
+                        <input class="easyui-validatebox" type="text" name="txt_price" data-options="required:true"></input>
+                    </td>
+                    <td>接入单价：</td>
+                    <td>
+                        <input class="easyui-validatebox" type="text" name="txt_costprice" data-options="required:true"></input>
+                    </td>
+                </tr>
+                <tr>
+                    <td>分成单价：</td>
+                    <td>
+                        <input class="easyui-validatebox" type="text" name="txt_fcpric" data-options="required:true"></input>
+                    </td>
+                    <td>默认比例：</td>
+                    <td>
+                        <input class="easyui-slider" style="width: 150px" name="txt_bl" data-options="showTip:true">
+                    </td>
+                </tr>
+                <tr>
+                    <td>单号日限：</td>
+                    <td>
+                        <input class="easyui-validatebox" type="text" name="txt_daymax" data-options="required:true"></input>
+                    </td>
+                    <td>单号月限：</td>
+                    <td>
+                        <input class="easyui-validatebox" type="text" name="txt_monmax" data-options="required:true"></input>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+        <fieldset>
+            <legend>地区配置</legend>
+            <table>
+                <tr>
+                    <td width="80px">开通省份：</td>
+                    <td colspan="3">
+                    {%for province in provinces%}
+                        <label><input name="province" type="checkbox" value="{{province.id}}"/>{{province.province}}</label>
+                        {%if loop.index % 10 ==0 %}
+                        <br />
+                        {%endif%}
+                    {%endfor%}
+                    </td>
+                </tr>
+                <tr>
+                    <td>屏蔽地市：</td>
+                    <td colspan="3">--</td>
+                </tr>
+                <tr>
+                    <td>备注说明：</td>
+                    <td colspan="3"><textarea name="bank_content" style="width: 100%"></textarea></td>
+                </tr>
+                <tr>
+                    <td>其他信息：</td>
+                    <td colspan="3"><textarea name="bank_content" style="width: 100%"></textarea></td>
+                </tr>
+            </table>
+        </fieldset>
+    </form>
+    <div style="text-align:center;padding:5px">
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_list.submitForm()">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_list.clearForm()">取消</a>
+    </div>
+</div>

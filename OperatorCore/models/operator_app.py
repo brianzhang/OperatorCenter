@@ -241,7 +241,8 @@ class UsrCPInfo(OperatorBase):
     create_time = Column(DateTime, nullable=False)
 
     admin_info = relationship("SysAdmin")
-
+    bank_info = relationship("UsrCPBank")
+    
 class UsrCPBank(OperatorBase):
 
     """docstring for UsrCPBank"""
@@ -333,6 +334,7 @@ class ChaInfo(OperatorBase):
     __table_args__ = ({'mysql_engine': 'InnoDB'}, )
 
     id = Column(Integer, primary_key=True)
+    cha_name = Column(String(50), nullable=False)
     spid = Column(Integer, ForeignKey('usr_spinfo.id'))
     proid = Column(Integer, ForeignKey('pub_products.id'))
     busi_type = Column(Integer, ForeignKey('pub_busitype.id'))
@@ -350,6 +352,10 @@ class ChaInfo(OperatorBase):
     remark = Column(String(2000), nullable=False)
     content = Column(String(200), nullable=False)
     create_time = Column(DateTime, nullable=False)
+    
+    sp_info = relationship(UsrSPInfo)
+    product_info = relationship(PubProducts)
+    busi_info = relationship(PubBusiType)
 
 class ChaProvince(OperatorBase):
 

@@ -1,28 +1,31 @@
-=========
-Config
+#OperatorCenter
 
-Flask-WTF
+=========
+
+#Config
+
+#Flask-WTF
+
 https://flask-wtf.readthedocs.org/en/latest/install.html
 
-==
+#Flask-WTF
+
 $ easy_install Flask-WTF
 
-simplejson
 
-==
+#simplejson
+
 https://pypi.python.org/pypi/simplejson/
 
-Flask-Login
 
-==
+#Flask-Login
+
 $ easy_install Flask-Login
 
-MySql-Python
+#MySql-Python
 
 $ easy_install mysql-python
 
-Windows PYTHON_PATH SET
+#Windows PYTHON_PATH SET
 
 http://yuji.wordpress.com/2009/08/31/python-on-windows-setting-pythonpath-environment-variable/
-
-$

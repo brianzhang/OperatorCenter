@@ -75,11 +75,67 @@ def logout():
     logout_user()
     return redirect('/login/')
 
+@operator_view.route('/setpassword/', methods=["POST"])
+@login_required
+def set_password():
+    req = request.args if request.method == 'GET' else request.form
+    new_pass = req.get('newpass', None)
+    
+    user = g.session.query(SysAdmin).filter(SysAdmin.id==g.user.id).first()
+    if user:
+        user.userpwd = hash_password(new_pass)
+        try:
+            g.session.add(user)
+            g.session.commit()
+            return new_pass
+            
+        except Exception, e:
+            return jsonify({'ok': False, 'reason': 'SET ERROR.'})
+    else:
+        return jsonify({'ok': False, 'reason': 'SET ERROR.'})
 
 @operator_view.route("/cooperate/operator/page/", methods=['GET'])
 @login_required
-def operator_list():
-    return render_template("operator_list.html")
+def sp_info_list():
+    admins = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
+    return render_template("sp_info_list.html", admins=admins)
+
+@operator_view.route("/cooperate/operator/add/", methods=['POST'])
+@operator_view.route("/cooperate/operator/edit/<sp_id>/", methods=['POST'])
+@login_required
+def operator_add(sp_id=None):
+    req_args = request.args if request.method == 'GET' else request.form
+    if sp_id:
+        sp_info = g.session.query(UsrSPInfo).filter(UsrSPInfo.id==sp_id).first()
+    else:
+        sp_info = UsrSPInfo()
+        sp_info.startdate = datetime.datetime.now()
+
+    sp_info.name = req_args.get('name', None)
+    sp_info.adminid = req_args.get('adminid', None)
+    sp_info.link_name = req_args.get('link_name', None)
+    sp_info.link_phone = req_args.get('link_phone', None)
+    sp_info.link_qq = req_args.get('link_qq', None)
+    sp_info.link_email = req_args.get('link_email', None)
+    sp_info.link_address = req_args.get('link_address', None)    
+    sp_info.enddate = '0000-00-00 00:00:00'
+    sp_info.is_show = req_args.get('is_show', False)
+    sp_info.content = req_args.get('content', None)
+    sp_info.create_time = datetime.datetime.now()
+
+    try:
+        g.session.add(sp_info)
+        g.session.commit()
+
+        write_sys_log(2, 
+                    u'设置运营商信息', 
+                    u'用户【%s】在【%s】设置运营商了信息，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+                    g.user.id)
+
+        return jsonify({'ok': True})
+
+    except Exception, e:
+        return jsonify({'errorMsg': 'error'})
 
 @operator_view.route("/cooperate/operator/log/", methods=['GET', 'POST'])
 @login_required
@@ -120,7 +176,6 @@ def operator_log():
 @login_required
 def get_cooperate_operator_list():
     req_args = request.args if request.method == 'GET' else request.form
-    print req_args
     operator_list = g.session.query(UsrSPInfo).order_by(desc(UsrSPInfo.id)).all()
     currentpage = int(req_args.get('page', 1))
     numperpage = int(req_args.get('rows', 20))
@@ -141,6 +196,31 @@ def get_cooperate_operator_list():
 
         return jsonify({'rows': operator_data, 'total': total})
 
+@operator_view.route("/cooperate/operator/destory/", methods=["GET", "POST"])
+@login_required
+def set_cooperate_operator_distory():
+    req_args = request.args if request.method == 'GET' else request.form
+    sp_id = req_args.get('id', None)
+    if sp_id:
+        sp_info = g.session.query(UsrSPInfo).filter(UsrSPInfo.id==sp_id).first()
+        if sp_info:
+            sp_info.is_show = False if sp_info.is_show else True
+            try:
+                g.session.add(sp_info)
+                g.session.commit()
+                write_sys_log(2, 
+                        u'合作商合作状态设置', 
+                        u'用户【%s】在【%s】合作商【%s】合作状态 ，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), sp_info.name, request.remote_addr), 
+                        g.user.id)
+                return jsonify({'success': True})
+
+            except Exception, e:
+                return jsonify({'errorMsg': u'操作失败'})
+        else:
+            return jsonify({'errorMsg': u'合作商信息不存在'})
+    else:
+        return jsonify({'errorMsg': u'请传递有效的合作商ID信息'})
+
 @operator_view.route("/cooperate/channel/list/", methods=["GET", "POST"])
 @login_required
 def get_cooperate_channel_list():
@@ -157,10 +237,10 @@ def get_cooperate_channel_list():
     if channel_list:
         channel_list_data = []
         for cp in channel_list:
-            bank_info = g.session.query(UsrCPBank).filter(UsrCPBank.cpid == cp.id).first()
             cp_bank_info = u'收款人：- 开户行：- 帐号：-'
-            if bank_info:
-                cp_bank_info = u'收款人：%s 开户行： %s 帐号： %s' % (bank_info.username, bank_info.bankname, bank_info.bankcard)
+            if cp.bank_info:
+                for bank_info in cp.bank_info:
+                    cp_bank_info = u'收款人：%s 开户行： %s 帐号： %s' % (bank_info.username, bank_info.bankname, bank_info.bankcard)
 
             channel_list_data.append({'id': cp.id, 
                                 'loginname': cp.loginname, 
@@ -175,8 +255,72 @@ def get_cooperate_channel_list():
 
 @operator_view.route("/cooperate/channel/page/", methods=['GET', 'POST'])
 @login_required
-def channel_page():    
-    return render_template("channel_list.html")
+def cp_info_list():
+    admins = g.session.query(SysAdmin).all()
+    return render_template("cp_info_list.html", admins=admins)
+
+@operator_view.route("/cooperate/cpinfo/add/", methods=['POST'])
+@operator_view.route("/cooperate/cpinfo/edit/<cp_id>/", methods=['POST'])
+@login_required
+def cpinfo_add(cp_id=None):
+    req_args = request.args if request.method == 'GET' else request.form
+    if cp_id:
+        cp_info = g.session.query(UsrCPInfo).filter(UsrSPInfo.id==cp_id).first()
+        bank_info = cp_info.bank_info
+        if len(bank_info) > 0:
+            bank_info = bank_info[0]
+        else:
+            bank_info = UsrCPBank()
+            bank_info.create_time = datetime.datetime.now()
+    else:
+        cp_info = UsrCPInfo()
+        bank_info = UsrCPBank()
+        cp_info.startdate = datetime.datetime.now()
+        cp_info.enddate = '0000-00-00 00:00:00'
+        cp_info.create_time = datetime.datetime.now()
+
+        bank_info.create_time = datetime.datetime.now()    
+
+    #cp info module
+    cp_info.loginname = req_args.get('txt_loginname', None)
+    cp_info.loginpwd = req_args.get('txt_loginpwd', None)
+    cp_info.loginpwd = hash_password(cp_info.loginpwd)
+    cp_info.name = req_args.get('name', None)
+    cp_info.adminid = req_args.get('business', None)
+    cp_info.link_name = req_args.get('link_name', None)
+    cp_info.link_email = req_args.get('link_email', None)
+    cp_info.link_phone = req_args.get('link_phone', None)
+    cp_info.link_qq = req_args.get('link_qq', None)
+    cp_info.link_address = req_args.get('link_address', None)
+    cp_info.is_show = req_args.get('is_show', False)
+    cp_info.content = req_args.get('content', None)
+    
+    #bank info module
+    bank_info.bankname = req_args.get('bank_name', None)
+    bank_info.username = req_args.get('bank_username', None)
+    bank_info.bankcard = req_args.get('bank_card', None)
+    bank_info.is_show = req_args.get('bank_is_show', None)
+    bank_info.content = req_args.get('bank_content', None)
+
+    try:
+        g.session.add(cp_info)
+        g.session.commit()
+
+        bank_info.cpid = cp_info.id
+
+        g.session.add(bank_info)
+        g.session.commit()
+
+        write_sys_log(2, 
+                        u'渠道商信息设置', 
+                        u'用户【%s】在【%s】设置渠道商:【%s】信息，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), cp_info.name, request.remote_addr), 
+                        g.user.id)
+
+        return jsonify({'ok': True})
+
+    except Exception, e:
+        g.session.rollback()
+        return jsonify({'errorMsg': 'error'})
 
 @operator_view.route("/cooperate/channel/log/", methods=['GET', 'POST'])
 @login_required
@@ -217,68 +361,160 @@ def channel_log():
 @operator_view.route("/operator/status/", methods=['GET'])
 @login_required
 def operator_status():
-    return 'operator_status'
+    return  render_template('operator_status.html')
 
 @operator_view.route("/operator/demand/", methods=['GET'])
 @login_required
 def operator_demand():
-    return 'operator_demand'
+    return render_template('operator_demand.html')
 
 @operator_view.route("/operator/exploits/", methods=['GET'])
 @login_required
 def operator_exploits():
-    return 'operator_exploits'
+    return render_template('operator_exploits.html')
 
 @operator_view.route("/operator/region/", methods=['GET'])
 @login_required
 def operator_region():
-    return 'operator_region'
+    return render_template('operator_region.html')
 
 @operator_view.route("/operator/purpose/", methods=['GET'])
 @login_required
 def operator_purpose():
-    return 'operator_purpose'
+    return render_template('operator_purpose.html')
 
-@operator_view.route("/channel/list/", methods=['GET'])
+@operator_view.route("/channel/list/", methods=['GET', 'POST'])
 @login_required
 def channel_list():
-    return 'channel_list'
+    req_args = request.args if request.method == 'GET' else request.form
+
+    if request.method == 'POST':
+        query = g.session.query(ChaInfo).order_by(desc(ChaInfo.id))
+
+        channel_id = req_args.get('channel_id', None)
+        sp_id = req_args.get('sp_id', None)
+        product_id = req_args.get('product_id', None)
+        operator_id = req_args.get('operator_id', None)
+        busi_type = req_args.get('busi_type', None)
+        area = req_args.get('area', None)
+        if channel_id:
+            query = query.filter(ChaInfo.id==channel_id)
+
+        if sp_id:
+            query = query.filter(ChaInfo.spid==sp_id)
+
+        if product_id:
+            query = query.filter(ChaInfo.proid==product_id)
+
+        if operator_id:
+            query = query.filter(ChaInfo.operator==operator_id)
+
+        if busi_type:
+            query = query.filter(ChaInfo.busi_type==busi_type)
+
+        #if area:
+        #    query = query.filter(ChaInfo.busi_type==busi_type)
+
+        channel_list = query.all()
+        currentpage = int(req_args.get('page', 1))
+        numperpage = int(req_args.get('rows', 20))
+        start = numperpage * (currentpage - 1)
+        total = len(channel_list)
+
+        channel_list = channel_list[start:(numperpage+start)]
+
+        if channel_list:
+            channels = []
+            for channel in channel_list:
+                channels.append({'id': channel.id, 
+                                'cha_name': channel.cha_name,
+                                'spid': channel.spid, 
+                                'operator': channel.sp_info.name,
+                                'product_info': channel.product_info.proname,
+                                'busi_info': channel.busi_info.name,
+                                'sx': channel.sx,
+                                'spnumber': channel.spnumber,
+                                'sx_type': channel.sx_type,
+                                'price': "￥%s" % channel.price,
+                                'costprice': "￥%s" % channel.costprice,
+                                'fcpric': "￥%s" % channel.fcpric,
+                                'bl': "%s&#37;" % channel.bl,
+                                'daymax': channel.daymax,
+                                'monmax': channel.monmax,
+                                'is_show': channel.is_show,
+                                'remark': channel.remark,
+                                'content': channel.content,
+                                'create_time': channel.create_time
+                                })
+
+            return jsonify({'rows': channels, 'total': total})
+        return jsonify({'rows': [], 'total': 0})
+    else:
+        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
+        sp_info_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        products = g.session.query(PubProducts).filter(PubProducts.is_show==True).all()
+        busi_list = g.session.query(PubBusiType).filter(PubBusiType.is_show==True).all()
+
+        return render_template('channel_list.html', channels=channels, 
+                                            sp_info_list=sp_info_list, 
+                                            busi_list=busi_list,
+                                            products=products)
+
+@operator_view.route("/channel/add/", methods=['GET', 'POST'])
+@operator_view.route("/channel/edit/<channel_id>/", methods=['GET', 'POST'])
+@login_required
+def channel_add_info(channel_id=None):
+    req_args = request.args if request.method == 'GET' else request.form
+    if request.method == 'POST':
+        return jsonify({'ok': True})
+    else:
+        if channel_id:
+            channel_info = g.session.query(ChaInfo).filter(ChaInfo.id==channel_id).first()
+
+        provinces = g.session.query(PubProvince).all()
+        products = g.session.query(PubProducts).filter(PubProducts.is_show==True).all()
+        busi_list = g.session.query(PubBusiType).filter(PubBusiType.is_show==True).all()
+        sp_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        return render_template('channel_add.html', provinces=provinces, 
+                            products=products, 
+                            busi_list=busi_list, 
+                            sp_list=sp_list)
 
 @operator_view.route("/channel/settings/", methods=['GET'])
 @login_required
 def channel_settings():
-    return 'channel_settings'
+    return render_template('channel_settings.html')
 
 @operator_view.route("/channel/sync/", methods=['GET'])
 @login_required
 def channel_sync():
-    return 'channel_sync'
+    return render_template('channel_sync.html')
 
 @operator_view.route("/channel/cover/", methods=['GET'])
 @login_required
 def channel_cover():
-    return 'channel_cover'
+    return render_template('channel_cover.html')
 
 @operator_view.route("/financial/cooperate/detail/", methods=['GET'])
 @login_required
 def financial_cooperate_detail():
-    return 'financial_cooperate_detail'
+    return render_template('financial_cooperate_detail.html')
 
 @operator_view.route("/financial/channel/detail/", methods=['GET'])
 @login_required
 def financial_channel_detail():
-    return 'financial_channel_detail'
+    return render_template('financial_channel_detail.html')
 
 
 @operator_view.route("/financial/cooperate/summary/", methods=['GET'])
 @login_required
 def financial_cooperate_summary():
-    return 'financial_cooperate_summary'
+    return render_template('financial_cooperate_summary.html')
 
 @operator_view.route("/financial/channel/summary/", methods=['GET'])
 @login_required
 def financial_channel_summary():
-    return 'financial_channel_summary'
+    return render_template('financial_channel_summary.html')
 
 @operator_view.route("/sys/account/", methods=['GET'])
 @login_required

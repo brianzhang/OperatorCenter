@@ -9,8 +9,8 @@
     <link rel="stylesheet" type="text/css" href="/static/themes/icon.css" />
     <script type="text/javascript" src="/static/lib/jquery.min.js"></script>
     <script type="text/javascript" src="/static/lib/jquery.easyui.min.js"></script>
-    <script type="text/javascript" src='/static/lib/XiuCai.index.js'> </script>
-
+    <script type="text/javascript" src='/static/lib/XiuCai.index.js'></script>
+    <script type="text/javascript" src='/static/locale/easyui-lang-zh_CN.js'></script>
     <script type="text/javascript">
 
         var _menus = {
@@ -166,7 +166,7 @@
                 modal: true,
                 shadow: true,
                 closed: true,
-                height: 160,
+                height: 170,
                 resizable:false
             });
         }
@@ -196,11 +196,11 @@
                 return false;
             }
 
-            $.post('/ajax/editpassword.ashx?newpass=' + $newpass.val(), function(msg) {
+            $.post('/setpassword/', {'newpass': $newpass.val()},function(msg) {
                 msgShow('系统提示', '恭喜，密码修改成功！<br>您的新密码为：' + msg, 'info');
                 $newpass.val('');
                 $rePass.val('');
-                close();
+                closePwd();
             })
             
         }
@@ -248,7 +248,7 @@
 </div>
 
     <div region="north" split="true" border="false" style="overflow: hidden; height: 30px;
-        background: url(images/layout-browser-hd-bg.gif) #7f99be repeat-x center 50%;
+        background: url(/static/images/layout-browser-hd-bg.gif) #7f99be repeat-x center 50%;
         line-height: 20px;color: #fff; font-family: Verdana, 微软雅黑,黑体">
         <span style="float:right; padding-right:20px;" class="head">欢迎 {{user.realname}} <a href="#" id="editpass">修改密码</a> <a href="/logout/" id="loginOut">安全退出</a></span>
         <span style="padding-left:10px; font-size: 16px; "><img src="/static/images/blocks.gif" width="20" height="20" align="absmiddle" /> 萝卜运营管理后台</span>
@@ -257,13 +257,15 @@
         <div class="footer">By Brian</div>
     </div>
     <div region="west" split="true"  title="导航菜单" style="width:180px;" id="west">
-            <div id="nav"></div>
-
+        <div id="nav"></div>
     </div>
     <div id="mainPanle" region="center" style="background: #eee; overflow-y:hidden">
         <div id="tabs" class="easyui-tabs"  fit="true" border="false" >
             <div title="欢迎使用" style="padding:20px;overflow:hidden; color:red; " >
                 <h1 style="font-size:24px;">*hi {{user.realname}}，欢迎光临</h1>
+                <h1 style="font-size:24px;">*本系统优先支持Chrome, FireFox, Safari, IE10 以上浏览器，您的浏览器最好能支持CSS3，HTML5 等新特性</h1>
+                <h1>*本着对服务和体验的最佳状态，建议使用以上浏览器</h1>
+                <h1>*技术支持：brian.netmad@gmail.com 紧急联系：15815515601</h1>
             </div>
         </div>
     </div>
