@@ -32,7 +32,7 @@
                 <table>
                     <tr>
                         <td>渠道商名称：</td>
-                        <td><input class="easyui-validatebox" type="text" name="name" data-options="required:true"></input></td>
+                        <td><input class="easyui-validatebox" type="text" name="name" data-options="required:true" /></td>
                         <td>商务跟进：</td>
                         <td>
                             <select class="easyui-combobox" name="business">
@@ -44,15 +44,15 @@
                     </tr>
                     <tr>
                         <td>联系人：</td>
-                        <td><input class="easyui-validatebox" type="text" name="link_name"></input></td>
+                        <td><input class="easyui-validatebox" type="text" name="link_name" /></td>
                         <td>电话号码：</td>
-                        <td><input class="easyui-validatebox" type="text" name="link_phone"></input></td>
+                        <td><input class="easyui-validatebox" type="text" name="link_phone" /></td>
                     </tr>
                     <tr>
                         <td>QQ：</td>
-                        <td><input class="easyui-validatebox" type="text" name="link_qq"></input></td>
+                        <td><input class="easyui-validatebox" type="text" name="link_qq" /></td>
                         <td>Email：</td>
-                        <td><input class="easyui-validatebox" type="text" name="link_email"></input></td>
+                        <td><input class="easyui-validatebox" type="text" name="link_email" /></td>
                     </tr>
                     <tr>
                         <td>地址：</td>
@@ -71,14 +71,14 @@
             <fieldset>
                 <legend>账号信息</legend>
                 <table>
-                <tr>
-                    <td>登录账号：</td>
-                    <td><input class="easyui-validatebox" type="text" name="txt_loginname" data-options="required:true"></input></td>
-                    <td>登录密码：</td>
-                    <td>
-                        <input class="easyui-validatebox" type="password" name="txt_loginpwd" data-options="required:true"></input>
-                    </td>
-                </tr>
+                    <tr>
+                        <td>登录账号：</td>
+                        <td><input class="easyui-validatebox" type="text" name="txt_loginname" data-options="required:true" /></td>
+                        <td>登录密码：</td>
+                        <td>
+                            <input class="easyui-validatebox" type="password" name="txt_loginpwd" data-options="required:true" />
+                        </td>
+                    </tr>
                 </table>
             </fieldset>
             <fieldset>
@@ -86,13 +86,17 @@
                 <table>
                     <tr>
                         <td>开户名：</td>
-                        <td><input class="easyui-validatebox" type="text" name="bank_name" data-options="required:true"></input></td>
+                        <td><input class="easyui-validatebox" type="text" name="bank_name" data-options="required:true" /></td>
                         <td>开户人：</td>
-                        <td><input class="easyui-validatebox" type="text" name="bank_username" data-options="required:true"></input></td>
+                        <td>
+                            <input class="easyui-validatebox" type="text" name="bank_username" data-options="required:true" />
+                        </td>
                     </tr>
                     <tr>
                         <td>卡号：</td>
-                        <td colspan="3"><input class="easyui-validatebox" type="text" name="bank_card" data-options="required:true" style='width: 315px;'></input></td>
+                        <td colspan="3">
+                            <input class="easyui-validatebox" type="text" name="bank_card" data-options="required:true" style='width: 315px;' />
+                        </td>
                     </tr>
                     <tr>
                         <td>是否启用：</td>
@@ -106,7 +110,7 @@
             </fieldset>
         </form>
         <div style="text-align:center;padding:5px">
-            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_list.submitForm()">保存</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_list.saveUser()">保存</a>
             <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_list.clearForm()">取消</a>
         </div>
     </div>    
@@ -124,19 +128,14 @@
             if (row){
                 $('#window_CpInfo').dialog('open').dialog('setTitle','修改渠道商信息');
                 $('#window_CpInfo_Form').form('load',row);
-                url = '/cooperate/cpinfo/edit/'+row.id+'/';
+                this.url = '/cooperate/cpinfo/edit/'+row.id+'/';
             }
         },
         clearForm: function() {
             $('#window_CpInfo').dialog('close');        // close the dialog
         },
-        submitForm: function() {
-            $('#window_CpInfo_Form').form('submit',{
-                url = 'update_user.php?id='+row.id;
-            }
-        },
         saveUser: function() {
-            $('#channel_fm').form('submit',{
+            $('#window_CpInfo_Form').form('submit',{
                 url: this.url,
                 onSubmit: function(){
                     return $(this).form('validate');

@@ -475,10 +475,26 @@ def channel_add_info(channel_id=None):
         products = g.session.query(PubProducts).filter(PubProducts.is_show==True).all()
         busi_list = g.session.query(PubBusiType).filter(PubBusiType.is_show==True).all()
         sp_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        city_list = g.session.query(PubCity).all()
+        provinces_json = {}
+        for prov in provinces:
+            provinces_json[prov.id] = []
+            prov_item = []
+            for city in city_list:
+                if city.province == prov.id:
+                    prov_item.append({'name': city.city, 'id': city.id})
+            provinces_json[prov.id].append(prov_item)
+
+        print provinces_json
+        print '--------------------'
+        print json.dumps(provinces_json)
+
         return render_template('channel_add.html', provinces=provinces, 
                             products=products, 
                             busi_list=busi_list, 
-                            sp_list=sp_list)
+                            sp_list=sp_list,
+                            action_url=request.path,
+                            provinces_json=json.dumps(provinces_json))
 
 @operator_view.route("/channel/settings/", methods=['GET'])
 @login_required

@@ -111,7 +111,7 @@
                     <td width="80px">开通省份：</td>
                     <td colspan="3">
                     {%for province in provinces%}
-                        <label><input name="province" type="checkbox" value="{{province.id}}"/>{{province.province}}</label>
+                        <label><input name="province" type="checkbox" text="{{province.province}}" value="{{province.id}}"/>{{province.province}}</label>
                         {%if loop.index % 10 ==0 %}
                         <br />
                         {%endif%}
@@ -120,21 +120,78 @@
                 </tr>
                 <tr>
                     <td>屏蔽地市：</td>
-                    <td colspan="3">--</td>
+                    <td colspan="3">
+                        <hr />
+                        <div id="channel_city">
+                            
+                        </div>
+                    </td>
                 </tr>
                 <tr>
                     <td>备注说明：</td>
-                    <td colspan="3"><textarea name="bank_content" style="width: 100%"></textarea></td>
+                    <td colspan="3"><textarea name="content" style="width: 100%"></textarea></td>
                 </tr>
                 <tr>
                     <td>其他信息：</td>
-                    <td colspan="3"><textarea name="bank_content" style="width: 100%"></textarea></td>
+                    <td colspan="3"><textarea name="other_content" style="width: 100%"></textarea></td>
                 </tr>
             </table>
         </fieldset>
     </form>
     <div style="text-align:center;padding:5px">
-        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_list.submitForm()">保存</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_list.clearForm()">取消</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="set_channel_moduel.submitForm()">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="set_channel_moduel.clearForm()">取消</a>
     </div>
 </div>
+<script>
+    var set_channel_moduel = {
+        city_list: {{provinces_json|safe}},
+        url: '{{action_url}}',
+        submitForm: function() {
+            $("#set_channel_Form").form('submit', {
+                url: this.url,
+                onSubmit: function() {
+                    return $(this).form('validate');
+                },
+                success: function(result) {
+                    var result = eval('('+result+')');
+                    if (result.errorMsg){
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        set_channel_moduel.clearForm();
+                        //$('#channel_dg').datagrid('reload');    // reload the user data
+                        closeTab('close');
+                    }
+                }
+            });
+        },
+        clearForm: function() {
+
+        },
+        eventBind: function() {
+            $("input[name='province']").on('click', function() {
+                var val = this.value;
+                var _item_list = '<div id="cits_'+val+'" style="line-height: 24px;">'+$(this).attr('text')+': ';
+                if(this.checked) {
+                    var ctiys = set_channel_moduel.city_list[val][0];
+                    for(var city in ctiys) {
+                        console.log(ctiys[city]['name']);
+                        _item_list += '<label><input type="checkbox" value="'+ctiys[city]['id']+'" name="city"/>'+ctiys[city]['name']+'</label>';
+                    }
+                    $("#channel_city").append(_item_list+"</div>");
+                }else{
+                    $('#cits_'+val).remove();
+                }
+            })
+        },
+        initialize: function(){
+           this.eventBind(); 
+        }
+    };
+    (function() {
+        set_channel_moduel.initialize();
+    })();
+</script>
