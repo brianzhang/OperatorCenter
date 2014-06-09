@@ -327,6 +327,22 @@ class UsrCPTongLog(OperatorBase):
     tongdate = Column(Integer)
     create_time = Column(DateTime, nullable=False)
 
+class ChaProvince(OperatorBase):
+
+    """docstring for ChaProvince"""
+    __tablename__ = 'cha_province'
+    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
+
+    id = Column(Integer, primary_key=True)
+    channelid = Column(Integer, ForeignKey('cha_info.id'))
+    province = Column(Integer, ForeignKey('pub_province.id'))
+    city = Column(String(200), nullable=False)
+    daymax = Column(Integer)
+    is_show = Column(Boolean, nullable=False)
+    content = Column(String(200), nullable=False)
+    create_time = Column(DateTime, nullable=False)
+    province_info = relationship(PubProvince)
+
 class ChaInfo(OperatorBase):
 
     """docstring for ChaInfo"""
@@ -356,21 +372,9 @@ class ChaInfo(OperatorBase):
     sp_info = relationship(UsrSPInfo)
     product_info = relationship(PubProducts)
     busi_info = relationship(PubBusiType)
+    cha_province = relationship(ChaProvince)
 
-class ChaProvince(OperatorBase):
 
-    """docstring for ChaProvince"""
-    __tablename__ = 'cha_province'
-    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
-
-    id = Column(Integer, primary_key=True)
-    channelid = Column(Integer, ForeignKey('cha_info.id'))
-    province = Column(Integer, ForeignKey('pub_province.id'))
-    city = Column(Integer, ForeignKey('pub_city.id'))
-    daymax = Column(Integer)
-    is_show = Column(Boolean, nullable=False)
-    content = Column(String(200), nullable=False)
-    create_time = Column(DateTime, nullable=False)
 
 class DataMo(OperatorBase):
 

@@ -465,8 +465,73 @@ def channel_list():
 @login_required
 def channel_add_info(channel_id=None):
     req_args = request.args if request.method == 'GET' else request.form
+    city_list = g.session.query(PubCity).all()
     if request.method == 'POST':
-        return jsonify({'ok': True})
+        if channel_id:
+            channel_info = g.session.query(ChaInfo).filter(ChaInfo.id==channel_id).first()
+        else:
+            channel_info = ChaInfo()
+
+        channel_info.cha_name = req_args.get('cha_name', None)
+        channel_info.spid = req_args.get('sp_info', None)
+        channel_info.proid = req_args.get('product', None)
+        channel_info.busi_type = req_args.get('busi', None)
+        channel_info.operator = req_args.get('operator', None)
+        channel_info.sx = req_args.get('txt_sx', None)
+        channel_info.spnumber = req_args.get('txt_prot', None)
+        channel_info.sx_type = req_args.get('command_type', None)
+        channel_info.price = req_args.get('txt_price', 0)
+        channel_info.costprice = req_args.get('txt_costprice', 0)
+        channel_info.fcpric = req_args.get('txt_fcpric', 0)
+        channel_info.bl = req_args.get('txt_bl', 0)
+        channel_info.daymax = req_args.get('txt_daymax', 0)
+        channel_info.monmax = req_args.get('txt_monmax', 0)
+        channel_info.is_show = req_args.get('status_type', False)
+        channel_info.remark = req_args.get('content', None)
+        channel_info.content = req_args.get('other_content', None)
+        channel_info.create_time = datetime.datetime.now()
+        provinces = req_args.getlist('province', None)
+        black_city = req_args.getlist('city', None)
+
+        try:
+            g.session.add(channel_info)
+            g.session.commit()
+
+            for prov in provinces:
+
+                cha_province = g.session.query(ChaProvince).filter(ChaProvince.channelid==channel_info.id).\
+                                filter(ChaProvince.province==int(prov)).first()
+
+                if not cha_province:
+                    cha_province = ChaProvince()
+                    cha_province.create_time = datetime.datetime.now()
+
+                cha_province.channelid = channel_info.id
+                cha_province.province = int(prov)
+                city_str = []
+                for _city in black_city:                    
+                    for _c in city_list:
+                        if _c.id == int(_city) and _c.province == int(prov):
+                            city_str.append(_city)
+
+                cha_province.city = ','.join(city_str)
+                cha_province.daymax = channel_info.daymax
+                cha_province.is_show = channel_info.is_show
+                cha_province.content = channel_info.content
+
+                g.session.add(cha_province)
+                g.session.commit()
+
+            write_sys_log(2, 
+                        u'设置通道信息', 
+                        u'用户【%s】在【%s】设置了通道信息，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+                        g.user.id)
+
+            return jsonify({'ok': True})
+        except Exception, e:
+            print e
+            return jsonify({'ok': False, 'errorMsg': u'设置通道失败.'})
+
     else:
         if channel_id:
             channel_info = g.session.query(ChaInfo).filter(ChaInfo.id==channel_id).first()
@@ -475,7 +540,7 @@ def channel_add_info(channel_id=None):
         products = g.session.query(PubProducts).filter(PubProducts.is_show==True).all()
         busi_list = g.session.query(PubBusiType).filter(PubBusiType.is_show==True).all()
         sp_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
-        city_list = g.session.query(PubCity).all()
+        
         provinces_json = {}
         for prov in provinces:
             provinces_json[prov.id] = []
@@ -485,16 +550,21 @@ def channel_add_info(channel_id=None):
                     prov_item.append({'name': city.city, 'id': city.id})
             provinces_json[prov.id].append(prov_item)
 
-        print provinces_json
-        print '--------------------'
-        print json.dumps(provinces_json)
-
         return render_template('channel_add.html', provinces=provinces, 
                             products=products, 
                             busi_list=busi_list, 
                             sp_list=sp_list,
                             action_url=request.path,
-                            provinces_json=json.dumps(provinces_json))
+                            provinces_json=json.dumps(provinces_json),
+                            channel_info=channel_info)
+
+''
+
+@operator_view.route("/channel/confige/", methods=['GET'])
+@operator_view.route("/channel/confige/<channel_id>/", methods=['GET'])
+@login_required
+def channel_confige(channel_id=None):
+    return render_template('channel_settings.html')
 
 @operator_view.route("/channel/settings/", methods=['GET'])
 @login_required

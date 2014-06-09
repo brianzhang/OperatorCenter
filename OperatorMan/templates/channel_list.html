@@ -100,7 +100,7 @@
             <div id="channel_list_toolbar">
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_manager.addChannel()">添加</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_manager.editChannel()">修改</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_manager.destroyUser()">删除</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_manager.channelConfige()">通道配置</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="channel_manager.openChannel()">开通</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_manager.offChannel()">暂停</a>
             </div>
@@ -122,6 +122,19 @@ var channel_manager = {
             addTab('修改通道', this.url, 'icon-edit');
         }
 
+    },
+    channelConfige: function() {
+        var row = $('#channel_list_dg').datagrid('getSelected');
+        if (row){
+            this.url = '/channel/confige/'+row.id+'/';
+            addTab('修改通道', this.url, 'icon-edit');
+        }else{
+            this.url = '/channel/confige/';
+            addTab('修改通道', this.url, 'icon-edit');
+        }        
+    },
+    reloadData: function() {
+        this.datagrid.datagrid('load')
     },
     openChannel: function() {},
     offChannel: function() {},
@@ -155,7 +168,6 @@ var channel_manager = {
            'busi_type': $("#busi_type").combobox('getValue'),
            'area': $("#area").combobox('getValue')
         };
-        console.log(req_data);
         this.datagrid.datagrid('load', req_data)
     },
     clearQuery: function() {
