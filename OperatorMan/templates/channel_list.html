@@ -127,10 +127,10 @@ var channel_manager = {
         var row = $('#channel_list_dg').datagrid('getSelected');
         if (row){
             this.url = '/channel/confige/'+row.id+'/';
-            addTab('修改通道', this.url, 'icon-edit');
+            addTab('通道配置', this.url, 'icon-remove');
         }else{
             this.url = '/channel/confige/';
-            addTab('修改通道', this.url, 'icon-edit');
+            addTab('通道配置', this.url, 'icon-remove');
         }        
     },
     reloadData: function() {

@@ -32,7 +32,7 @@ function InitLeftMenu() {
 		var menulist ='';
 		menulist +='<ul class="navlist">';
         $.each(n.menus, function(j, o) {
-			menulist += '<li><div ><a ref="'+o.menuid+'" href="#" rel="' + o.url + '" ><span class="icon '+o.icon+'" >&nbsp;</span><span class="nav">' + o.menuname + '</span></a></div> ';
+			menulist += '<li><div ><a ref="'+o.menuid+'" href="javascript:;" rel="' + o.url + '" ><span class="icon '+o.icon+'" >&nbsp;</span><span class="nav">' + o.menuname + '</span></a></div> ';
 
 			if(o.child && o.child.length>0)
 			{
@@ -40,7 +40,7 @@ function InitLeftMenu() {
 
 				menulist += '<ul class="third_ul">';
 				$.each(o.child,function(k,p){
-					menulist += '<li><div><a ref="'+p.menuid+'" href="#" rel="' + p.url + '" ><span class="icon '+p.icon+'" >&nbsp;</span><span class="nav">' + p.menuname + '</span></a></div> </li>'
+					menulist += '<li><div><a ref="'+p.menuid+'" href="javascript:;" rel="' + p.url + '" ><span class="icon '+p.icon+'" >&nbsp;</span><span class="nav">' + p.menuname + '</span></a></div> </li>'
 				});
 				menulist += '</ul>';
 			}

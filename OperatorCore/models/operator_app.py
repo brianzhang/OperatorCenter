@@ -271,26 +271,6 @@ class UsrCPLog(OperatorBase):
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
 
-class UsrChannel(OperatorBase):
-
-    """docstring for UsrChannel"""
-    __tablename__ = 'usr_channel'
-    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
-
-    id  = Column(Integer, primary_key=True)
-    channelid = Column(Integer, ForeignKey('cha_info.id'))
-    cpid = Column(Integer, ForeignKey('usr_cpinfo.id'))
-    adminid = Column(Integer, ForeignKey('sys_admin.id'))
-    momsg = Column(String(150), nullable=False)
-    sx_type = Column(Integer)
-    spnumber = Column(String(20), nullable=False)
-    fcprice = Column(Integer)
-    bl = Column(Integer)
-    backurl = Column(String(100), nullable=False)
-    is_show = Column(Boolean, nullable=False)
-    content = Column(String(100), nullable=False)
-    create_time = Column(DateTime, nullable=False)
-
 class UsrProvince(OperatorBase):
 
     """docstring for UsrProvince"""
@@ -374,7 +354,29 @@ class ChaInfo(OperatorBase):
     busi_info = relationship(PubBusiType)
     cha_province = relationship(ChaProvince)
 
+class UsrChannel(OperatorBase):
 
+    """docstring for UsrChannel"""
+    __tablename__ = 'usr_channel'
+    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
+
+    id  = Column(Integer, primary_key=True)
+    channelid = Column(Integer, ForeignKey('cha_info.id'))
+    cpid = Column(Integer, ForeignKey('usr_cpinfo.id'))
+    adminid = Column(Integer, ForeignKey('sys_admin.id'))
+    momsg = Column(String(150), nullable=False)
+    sx_type = Column(Integer)
+    spnumber = Column(String(20), nullable=False)
+    fcprice = Column(Integer)
+    bl = Column(Integer)
+    backurl = Column(String(100), nullable=False)
+    is_show = Column(Boolean, nullable=False)
+    content = Column(String(100), nullable=False)
+    create_time = Column(DateTime, nullable=False)
+    
+    cha_info = relationship(ChaInfo)
+    cp_info = relationship(UsrCPInfo)
+    user_info = relationship(SysAdmin)
 
 class DataMo(OperatorBase):
 

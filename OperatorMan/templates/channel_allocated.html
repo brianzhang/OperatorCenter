@@ -1,0 +1,295 @@
+<div title="通道分配" class="easyui-panel">
+    <div fit="true">
+        <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
+        <!--高级查询部分-->
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <th>通道:</th>
+                <td>
+                    <select name="channel_id" id="allocated_channel_id" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {%for channel in channel_list%}
+                        <option value="{{channel.id}}" {% if channel_id == channel.id%}selected="selected"{%endif%}>[{{channel.id}}]{{channel.cha_name}}</option>
+                        {%endfor%}
+                    </select>
+                </td>
+                <th>渠道商:</th>
+                <td>
+                    <select name="cp_id" id="allocated_cp_id" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {% for cp_info in cp_info_list %}
+                        <option value="{{cp_info.id}}">[{{cp_info.id}}]{{cp_info.name}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <th>状态:</th>
+                <td>
+                    <select name="status" id="allocated_status" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>                        
+                        <option value="1">正常</option>
+                        <option value="0">停止</option>
+                    </select>
+                </td>
+                <th>特征查询:</th>
+                <td>
+                    <select name="other_query" id="allocated_other_query" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        <option value="spnumber">通道号码</option>
+                        <option value="backurl">同步地址</option>
+                    </select>
+                    <input name="keyword" id="allocated_keyword"/>
+                </td>
+                <td align="right">
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_allocated_manager.queryData()" plain="true">查询</a>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="channel_allocated_manager.clearQuery()" plain="true">清空</a>
+                </td>
+            </tr>
+        </table>
+        </div>
+        <div data-options="region:'center',split:false"  border="false">
+            <table id="channel_allocated_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
+                    url="{{action_path}}"
+                    toolbar="#channel_allocated_toolbar" 
+                    pagination="true"
+                    rownumbers="true" 
+                    fitColumns="true" 
+                    singleSelect="true"
+                    loadMsg='数据加载中,请稍候...'
+                    pageSize="20">
+                <thead>
+                    <tr>
+                        <th field="id" width="20">ID</th>
+                        <th field="channel_name" width="20">通道名称</th>
+                        <th field="cp_name" width="20">渠道商</th>
+                        <th field="sx_str" width="40">分配指令</th>
+                        <th field="rysc_url" width="40">同步地址</th>
+                        <th field="is_show" width="30" data-options="formatter: channel_allocated_manager.formatStatus">状态</th>
+                    </tr>
+                </thead>
+            </table>
+            <div id="channel_allocated_toolbar">
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_allocated_manager.addChannelAllocated()">添加</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_allocated_manager.editChannelAllocated()">修改</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="channel_allocated_manager.setChannelAllocatedStatus(true)">开通</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_allocated_manager.setChannelAllocatedStatus(false)">暂停</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_allocated_manager.testChannelAllocated()">测试</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="channel_allocated_manager_window" class="easyui-dialog" style="width:500px;height:585px;padding:10px 20px" closed="true" modal="true">
+    <div>
+        <form id="channel_allocated_manager_form" method="post">
+            <fieldset>
+                <legend>基本信息</legend>
+                <table>
+                    <tr>
+                        <td>通道：</td>
+                        <td>
+                            <select name="channel" id="set_allocated_channel_id" class="easyui-combobox" data-options="required:true, onSelect: channel_allocated_manager.onChannelSelect">
+                                <option selected="selected">--请选择--</option>
+                                {%for channel in channel_list%}
+                                <option value="{{channel.id}}" >[{{channel.id}}]{{channel.cha_name}}</option>
+                                {%endfor%}
+                            </select>
+                        </td>
+                        <td>商务跟进：</td>
+                        <td>
+                            <select class="easyui-combobox" name="sys_admin" data-options="required:true">
+                            <option selected="selected" value=''>--请选择--</option>
+                            {%for admin in admins%}
+                                <option value="{{admin.id}}">{{admin.realname}}</option>
+                            {%endfor%}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>CP：</td>
+                        <td>
+                            <select name="cp" id="select_allocated_cp_id" class="easyui-combobox" data-options="required:true">
+                                <option selected="selected" value=''>--请选择--</option>
+                                {% for cp_info in cp_info_list %}
+                                <option value="{{cp_info.id}}">[{{cp_info.id}}]{{cp_info.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>开通状态：</td>
+                        <td>
+                            <lable><input type="radio" name="rad_status" value="1"/>开通</lable>
+                            <lable><input type="radio" name="rad_status" value="0"/>关闭</lable>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>上行内容：</td>
+                        <td><input class="easyui-validatebox" type="text" name="txt_momsg" data-options="required:true" /></td>
+                        <td>通道号码：</td>
+                        <td><input class="easyui-validatebox" type="text" name="txt_spnumber" data-options="required:true" /></td>
+                    </tr>
+                    <tr>
+                        <td>分配指令：</td>
+                        <td colspan="3"><labe id="lab_command_info"></labe></td>
+                    </tr>
+                    <tr>
+                        <td>CP结算单价：</td>
+                        <td><input class="easyui-validatebox" type="text" name="txt_fcprice" /></td>
+                        <td>扣量比例：</td>
+                        <td><input class="easyui-validatebox" type="text" name="txt_bl" /></td>
+                    </tr>
+                    <tr>
+                        <td>指令模式：</td>
+                        <td colspan="3">
+                            <lable><input type="radio" name="rad_sx_type" value="0"/>模糊</lable>
+                            <lable><input type="radio" name="rad_sx_type" value="1"/>模糊+精确</lable>
+                            <lable><input type="radio" name="rad_sx_type" value="2"/>精确</lable>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>同步地址：</td>
+                        <td colspan="3"><textarea name="txt_backurl" style="width: 315px;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>备注：</td>
+                        <td colspan="3"><textarea name="content" style="width: 315px"></textarea></td>
+                    </tr>
+                </table>
+            </fieldset>
+            <fieldset>
+            <legend>地区配置</legend>
+            <table>
+                <tr>
+                    <td width="80px">开通省份：</td>
+                    <td colspan="3">
+                    {%for province in provinces%}
+                        <label><input name="allocated_province" type="checkbox" text="{{province.province}}" value="{{province.id}}"/>{{province.province}}</label>
+                        {%if loop.index % 6 ==0 %}
+                        <br />
+                        {%endif%}
+                    {%endfor%}
+                    </td>
+                </tr>
+                <tr>
+                    <td>屏蔽地市：</td>
+                    <td colspan="3">
+                        <hr />
+                        <div id="allocated_channel_city">
+                            
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>备注说明：</td>
+                    <td colspan="3"><textarea name="allocated_content" style="width: 100%"></textarea></td>
+                </tr>
+            </table>
+        </fieldset>
+        </form>
+        <div style="text-align:center;padding:5px">
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_allocated_manager.saveChannelAllocated()">保存</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_allocated_manager.clearForm()">取消</a>
+        </div>
+    </div>    
+</div>
+<script>
+    var channel_allocated_manager = {
+        url: '',
+        datagrid: $("#channel_allocated_dg"),
+        city_list: {{provinces_json|safe}},
+        labMsg: $("#lab_command_info"),
+        addChannelAllocated: function() {
+            $('#channel_allocated_manager_window').dialog('open').dialog('setTitle','添加通道分配');
+            $('#channel_allocated_manager_form').form('clear');
+            this.url = '/channel/confige/set/';
+        },
+        editChannelAllocated: function() {
+            var row = this.datagrid.datagrid('getSelected');
+            if (row){
+                $('#channel_allocated_manager_window').dialog('open').dialog('setTitle','修改通道分配');
+                //$('#channel_allocated_manager_form').form('load',row);
+                this.url = '/channel/confige/set/'+row.id+'/';
+            }
+        },
+        setChannelAllocatedStatus: function(status) {
+
+        },
+        saveChannelAllocated: function() {
+            $('#channel_allocated_manager_form').form('submit',{
+                url: this.url,
+                onSubmit: function(){
+                    return $(this).form('validate');
+                },
+                success: function(result){
+                    var result = eval('('+result+')');
+                    if (result.errorMsg){
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        channel_allocated_manager.clearForm();
+                        channel_allocated_manager.datagrid.datagrid('reload');    // reload the user data
+                    }
+                }
+            });
+        },
+        clearForm: function() {
+            $('#channel_allocated_manager_window').dialog('close');
+        },
+        testChannelAllocated: function() {
+
+        },
+        queryData: function() {
+            var req_data = {'channel_id': $('#allocated_channel_id').combobox('getValue'), 
+               'cp_id': $("#allocated_cp_id").combobox('getValue'), 
+               'status': $("#allocated_status").combobox('getValue'), 
+               'other_query': $("#allocated_other_query").combobox('getValue'),
+               'keyword': $("#allocated_keyword").val()
+            };
+            this.datagrid.datagrid('load', req_data)
+        },
+        clearQuery: function() {
+
+        },
+        formatStatus: function(val, row) {
+            if (val) {
+                return '<span class="icon icon-ok">&nbsp;</span>已开通'
+            }else {
+                return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
+            }
+        },
+        formatterDate: function(val, row) {
+            var date = new Date(val);
+            return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
+        },
+        onChannelSelect: function(record) {
+            var channel_id = record.value;
+            $.getJSON('/channel/info/get/', {'channel_id': channel_id}, function(resp) {
+                if(resp.ok) {
+                    channel_allocated_manager.labMsg.html('发送 '+resp.data.msg+' 到'+resp.data.spnumber);
+                    $("input[name='txt_momsg']").val(resp.data.msg);
+                    $("input[name='txt_spnumber']").val(resp.data.spnumber);
+                    $("input[name='txt_fcprice']").val(resp.data.fcprice);
+                    $("input[name='txt_bl']").val(resp.data.bl);
+                    //txt_fcprice, txt_bl
+                }
+            });
+            
+        },
+        eventBind: function() {
+            $("input[name='allocated_province']").on('click', function() {
+                var val = this.value;
+                var _item_list = '<div id="allocated_cits_'+val+'" style="line-height: 24px;">'+$(this).attr('text')+': ';
+                if(this.checked) {
+                    var ctiys = channel_allocated_manager.city_list[val][0];
+                    for(var city in ctiys) {
+                        _item_list += '<label><input type="checkbox" province="'+val+'" value="'+ctiys[city]['id']+'" name="city"/>'+ctiys[city]['name']+'</label>';
+                    }
+                    $("#allocated_channel_city").append(_item_list+"</div>");
+                }else{
+                    $('#allocated_cits_'+val).remove();
+                }
+            })
+        },
+        initialize: function() {this.eventBind()}
+    };
+    channel_allocated_manager.initialize();
+</script>
