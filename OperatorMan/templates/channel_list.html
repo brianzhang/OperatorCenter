@@ -91,8 +91,8 @@
                         <th field="daymax" width="30">日限</th>
                         <th field="monmax" width="30">月限</th>
                         <th field="remark" width="40">下发语</th>
-                        <th field="content" width="200">备注</th>
-                        <th field="is_show" width="30" data-options="formatter: channel_manager.formatStatus">状态</th>
+                        <th field="content" width="100">备注</th>
+                        <th field="is_show" width="40" data-options="formatter: channel_manager.formatStatus">状态</th>
                         <th field="create_time" width="80" data-options="formatter: channel_manager.formatterDate">操作时间</th>
                     </tr>
                 </thead>
@@ -101,8 +101,8 @@
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_manager.addChannel()">添加</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_manager.editChannel()">修改</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_manager.channelConfige()">通道配置</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="channel_manager.openChannel()">开通</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_manager.offChannel()">暂停</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="channel_manager.setChannelStatus(1)">开通</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_manager.setChannelStatus(0)">暂停</a>
             </div>
         </div>
     </div>
@@ -136,8 +136,27 @@ var channel_manager = {
     reloadData: function() {
         this.datagrid.datagrid('load')
     },
-    openChannel: function() {},
-    offChannel: function() {},
+    setChannelStatus: function(status) {
+        var row = this.datagrid.datagrid('getSelected');
+        var _tip_msg = status == 1 ? '是否开通该通道?' : '是否关闭该通道?';
+        var _this = this;
+        if (row){
+            $.messager.confirm('Confirm', _tip_msg, function(r){
+                if (r){
+                    $.post('/channel/confige/status/set/',{'channel_id':row.id, 'change_type': 'channel', 'status': status},function(result){
+                        if (result.ok){
+                            _this.datagrid.datagrid('reload');    // reload the user data
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+    },
     formatStatus: function(val, row) {
         if (val) {
             return '<span class="icon icon-ok">&nbsp;</span>已开通'

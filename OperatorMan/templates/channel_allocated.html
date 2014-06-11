@@ -70,8 +70,8 @@
             <div id="channel_allocated_toolbar">
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_allocated_manager.addChannelAllocated()">添加</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_allocated_manager.editChannelAllocated()">修改</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="channel_allocated_manager.setChannelAllocatedStatus(true)">开通</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_allocated_manager.setChannelAllocatedStatus(false)">暂停</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="channel_allocated_manager.setChannelAllocatedStatus(1)">开通</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_allocated_manager.setChannelAllocatedStatus(0)">暂停</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_allocated_manager.testChannelAllocated()">测试</a>
             </div>
         </div>
@@ -203,13 +203,37 @@
         editChannelAllocated: function() {
             var row = this.datagrid.datagrid('getSelected');
             if (row){
-                $('#channel_allocated_manager_window').dialog('open').dialog('setTitle','修改通道分配');
-                //$('#channel_allocated_manager_form').form('load',row);
                 this.url = '/channel/confige/set/'+row.id+'/';
+                $('#channel_allocated_manager_window').dialog('open').dialog('setTitle','修改通道分配');
+                $.getJSON(this.url, {}, function(resp) {
+                    if(resp.ok) {
+                        $('#channel_allocated_manager_form').form('load',resp.data);      
+                    }
+                });
+                //$('#channel_allocated_manager_form').form('load',row);
+                
             }
         },
         setChannelAllocatedStatus: function(status) {
-
+            var row = this.datagrid.datagrid('getSelected');
+            var _tip_msg = status == 1 ? '是否开通该渠道?' : '是否关闭该渠道?';
+            var _this = this;
+            if (row){
+                $.messager.confirm('Confirm', _tip_msg, function(r){
+                    if (r){
+                        $.post('/channel/confige/status/set/',{'allocated_id':row.id, 'change_type': 'allocated', 'status': status},function(result){
+                            if (result.ok){
+                                _this.datagrid.datagrid('reload');    // reload the user data
+                            } else {
+                                $.messager.show({    // show error message
+                                    title: 'Error',
+                                    msg: result.errorMsg
+                                });
+                            }
+                        },'json');
+                    }
+                });
+            }
         },
         saveChannelAllocated: function() {
             $('#channel_allocated_manager_form').form('submit',{

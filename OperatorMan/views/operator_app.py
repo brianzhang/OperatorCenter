@@ -674,22 +674,30 @@ def set_channel_allocated(allocated_id=None):
     if request.method == "GET":
         if allocated_id:
             channel_allocated = g.session.query(UsrChannel).filter(UsrChannel.id==allocated_id).one()
+            user_province = []
+
             if channel_allocated:
-                return jsonify({
+                for province in channel_allocated.usr_province:
+                    user_province.append(province.province)
+                
+                print user_province
+                return jsonify({'ok': True, 'data': {
                         'channel': channel_allocated.channelid,
                         'sys_admin': channel_allocated.adminid,
                         'cp': channel_allocated.cpid,
-                        'rad_status': channel_allocated.is_show,
+                        'rad_status':1 if channel_allocated.is_show else 0,
                         'txt_momsg': channel_allocated.momsg,
                         'txt_spnumber': channel_allocated.spnumber,
                         'txt_fcprice': channel_allocated.fcprice,
                         'txt_bl': channel_allocated.bl,
                         'rad_sx_type': channel_allocated.sx_type,
                         'txt_backurl': channel_allocated.backurl,
-                        'content': channel_allocated.content
+                        'content': channel_allocated.content,
+                        'allocated_province': user_province
+                        }
                     })
         else:
-            return jsonify([])
+            return jsonify({'ok': False})
     else:
         if allocated_id:
             channel_allocated = g.session.query(UsrChannel).filter(UsrChannel.id==allocated_id).one()
@@ -723,7 +731,29 @@ def set_channel_allocated(allocated_id=None):
 @operator_view.route("/channel/confige/status/set/", methods=["POST"])
 @login_required
 def channel_config_status_set():
-    return jsonify({'ok': True})
+    req_args = request.args if request.method == 'GET' else request.form
+    if request.method == 'POST':
+        change_type = req_args.get("change_type", None)
+        status = req_args.get("status", None)
+        channel_id = req_args.get('channel_id', None)
+        allocated_id = req_args.get('allocated_id', None)
+        if change_type == 'channel':
+            change_module = g.session.query(ChaInfo).filter(ChaInfo.id==channel_id).one()
+        else:
+            change_module = g.session.query(UsrChannel).filter(UsrChannel.id==allocated_id).one()
+        
+        change_module.is_show = status
+        try:
+            write_sys_log(2, 
+                    u'通道状态设置', 
+                    u'用户【%s】在【%s】分配通道渠道，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+                    g.user.id)
+            g.session.add(change_module)
+            g.session.commit()
+            return jsonify({'ok': True})
+        except Exception, e:
+            print e
+            return jsonify({'errorMsg': 'error'})
 
 @operator_view.route("/channel/settings/", methods=['GET'])
 @login_required
