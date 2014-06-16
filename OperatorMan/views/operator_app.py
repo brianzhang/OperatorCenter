@@ -671,16 +671,24 @@ def  channel_info_get():
 @login_required
 def set_channel_allocated(allocated_id=None):
     req_args = request.args if request.method == 'GET' else request.form
+    city_list = g.session.query(PubCity).all()
     if request.method == "GET":
         if allocated_id:
             channel_allocated = g.session.query(UsrChannel).filter(UsrChannel.id==allocated_id).one()
             user_province = []
-
+            city_html = ""
             if channel_allocated:
                 for province in channel_allocated.usr_province:
                     user_province.append(province.province)
+                    _citys = g.session.query(PubCity).filter(PubCity.province==province.province).all()
+                    if _citys:
+                        city_html += """<div id="allocated_cits_%s" style="line-height: 24px;">%s: """  % (province.province, province.province_info.province)
+                        for _city in _citys:
+                            city_html += """
+                                <label><input type="checkbox" province="%s" value="%s" name="city"/>%s</label>
+                            """ % (province.province, _city.id, _city.city)
+                        city_html += """</div>"""
                 
-                print user_province
                 return jsonify({'ok': True, 'data': {
                         'channel': channel_allocated.channelid,
                         'sys_admin': channel_allocated.adminid,
@@ -693,7 +701,8 @@ def set_channel_allocated(allocated_id=None):
                         'rad_sx_type': channel_allocated.sx_type,
                         'txt_backurl': channel_allocated.backurl,
                         'content': channel_allocated.content,
-                        'allocated_province': user_province
+                        'allocated_province': user_province,
+                        "city_html": city_html
                         }
                     })
         else:
@@ -716,6 +725,9 @@ def set_channel_allocated(allocated_id=None):
         channel_allocated.backurl = req_args.get("txt_backurl", None)
         channel_allocated.is_show = req_args.get("rad_status", False)
         channel_allocated.content = req_args.get("content", None)
+        provinces = req_args.getlist('allocated_province', None)
+        black_city = req_args.getlist('city', None)
+
         try:
             write_sys_log(2, 
                     u'分配通道渠道', 
@@ -723,6 +735,31 @@ def set_channel_allocated(allocated_id=None):
                     g.user.id)
             g.session.add(channel_allocated)
             g.session.commit()
+
+            for prov in provinces:
+
+                g.session.query(UsrProvince).filter(UsrProvince.channelid==channel_allocated.id).\
+                                filter(UsrProvince.province==int(prov)).delete()
+
+                usr_province = UsrProvince()
+                usr_province.channelid = channel_allocated.id
+                usr_province.cpid = channel_allocated.cpid
+                usr_province.adminid = g.user.id
+                usr_province.create_time = datetime.datetime.now()
+                usr_province.province = int(prov)
+                usr_province.daymax = 1000
+                usr_province.is_show = channel_allocated.is_show
+                usr_province.content = channel_allocated.content
+                city_str = []
+                for _city in black_city:                    
+                    for _c in city_list:
+                        if _c.id == int(_city) and _c.province == int(prov):
+                            city_str.append(_city)
+
+                usr_province.city = ','.join(city_str)
+                g.session.add(usr_province)
+                g.session.commit()
+
             return jsonify({'ok': True})
         except Exception, e:
             print e

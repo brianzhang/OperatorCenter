@@ -77,7 +77,7 @@
         </div>
     </div>
 </div>
-<div id="channel_allocated_manager_window" class="easyui-dialog" style="width:500px;height:585px;padding:10px 20px" closed="true" modal="true">
+<div id="channel_allocated_manager_window" class="easyui-dialog" style="width:580px;height:585px;padding:10px 20px" closed="true" modal="true">
     <div>
         <form id="channel_allocated_manager_form" method="post">
             <fieldset>
@@ -202,12 +202,16 @@
         },
         editChannelAllocated: function() {
             var row = this.datagrid.datagrid('getSelected');
+            $("#allocated_channel_city").empty();
+            channel_allocated_manager.labMsg.empty();
             if (row){
                 this.url = '/channel/confige/set/'+row.id+'/';
                 $('#channel_allocated_manager_window').dialog('open').dialog('setTitle','修改通道分配');
                 $.getJSON(this.url, {}, function(resp) {
                     if(resp.ok) {
                         $('#channel_allocated_manager_form').form('load',resp.data);      
+                        channel_allocated_manager.labMsg.html('发送 '+resp.data.txt_momsg+' 到'+resp.data.txt_spnumber);
+                        $("#allocated_channel_city").html(resp.data.city_html)
                     }
                 });
                 //$('#channel_allocated_manager_form').form('load',row);
@@ -299,6 +303,7 @@
             
         },
         eventBind: function() {
+            $("input[name='allocated_province']").unbind("click");
             $("input[name='allocated_province']").on('click', function() {
                 var val = this.value;
                 var _item_list = '<div id="allocated_cits_'+val+'" style="line-height: 24px;">'+$(this).attr('text')+': ';

@@ -282,12 +282,14 @@ class UsrProvince(OperatorBase):
     cpid = Column(Integer, ForeignKey('usr_cpinfo.id'))
     adminid = Column(Integer, ForeignKey('sys_admin.id'))
     province = Column(Integer, ForeignKey('pub_province.id'))
-    city = Column(Integer, ForeignKey('pub_city.id'))
+    city =  Column(String(200), nullable=False)
     daymax = Column(Integer)
     is_show = Column(Boolean, nullable=False)
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
 
+    province_info = relationship("PubProvince")
+    
 class UsrCPTongLog(OperatorBase):
 
     """docstring for UsrCPTongLog"""
@@ -378,6 +380,22 @@ class UsrChannel(OperatorBase):
     cp_info = relationship(UsrCPInfo)
     user_info = relationship(SysAdmin)
     usr_province = relationship(UsrProvince)
+
+class UsrChannelSync(OperatorBase):
+    
+    """docstring for UsrChannelSync"""
+    __tablename__ = 'usr_channel_sync'
+    __table_args__ = ({'mysql_engine': 'InnoDB'}, )    
+
+    id = Column(Integer, primary_key=True)
+    channelid = Column(Integer, ForeignKey('cha_info.id'))
+    sync_type = Column(Integer)
+    status_key =  Column(String(100), nullable=False)
+    url = Column(String(100), nullable=False)
+    is_rsync = Column(Boolean, nullable=False)
+    is_show  = Column(Boolean, nullable=False)
+    msg = Column(String(100), nullable=False)
+    number = Column(String(100), nullable=False)
 
 class DataMo(OperatorBase):
 
