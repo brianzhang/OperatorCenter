@@ -394,8 +394,10 @@ class UsrChannelSync(OperatorBase):
     url = Column(String(100), nullable=False)
     is_rsync = Column(Boolean, nullable=False)
     is_show  = Column(Boolean, nullable=False)
+    spnumber = Column(String(100), nullable=False)
+    mobile = Column(String(100), nullable=False)
+    linkid = Column(String(100), nullable=False)
     msg = Column(String(100), nullable=False)
-    number = Column(String(100), nullable=False)
 
 class DataMo(OperatorBase):
 

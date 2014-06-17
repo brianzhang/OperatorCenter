@@ -427,9 +427,8 @@ def channel_list():
             channels = []
             for channel in channel_list:
                 channels.append({'id': channel.id, 
-                                'cha_name': channel.cha_name,
-                                'spid': channel.spid, 
-                                'operator': channel.sp_info.name,
+                                'channel_name': channel.cha_name,
+                                'operator_info': "[%s] %s" % (channel.spid, channel.sp_info.name),
                                 'product_info': channel.product_info.proname,
                                 'busi_info': channel.busi_info.name,
                                 'sx': channel.sx,
@@ -792,10 +791,16 @@ def channel_config_status_set():
             print e
             return jsonify({'errorMsg': 'error'})
 
-@operator_view.route("/channel/settings/", methods=['GET'])
+@operator_view.route("/channel/settings/", methods=['GET', 'POST'])
 @login_required
 def channel_settings():
-    return render_template('channel_settings.html')
+    #channels
+    req_args = request.args if request.method == 'GET' else request.form
+    if request.method == "GET":
+        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
+        return render_template('channel_settings.html', channels=channels)
+    else:
+        return jsonify({'ok': True})
 
 @operator_view.route("/channel/sync/", methods=['GET'])
 @login_required
