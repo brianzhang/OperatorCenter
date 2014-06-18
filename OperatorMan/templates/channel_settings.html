@@ -30,7 +30,7 @@
                         <option value="1">停止</option>
                     </select>
                 </td>
-                <td align="right">
+                <td align="right" colspan="3">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_manager.queryData()" plain="true">查询</a>
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="channel_manager.clearQuery()" plain="true">清空</a>
                 </td>
@@ -68,19 +68,75 @@
         </div>
     </div>
 </div>
+
+
+<div id="set_channel_sesttings_window" class="easyui-dialog" title="添加用户" data-options="iconCls:'icon-save'" style="width:500px;height:400px;padding:10px;" closed="true" modal="true">
+    <div style="padding:10px 60px 20px 60px">
+        <form id="account_form" method="post">
+            <table cellpadding="5">
+                <tr>
+                    <td>通道名称：</td>
+                    <td>
+                        <select name="channel_name" class="easyui-combobox">
+                            <option selected="selected" value=''>--请选择--</option>
+                            {% for channel in channels %}
+                            <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                            {%endfor%}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td> 同步类型：</td>
+                    <td>
+                        <select name="sync_type" class="easyui-combobox">
+                            <option selected="selected" value=''>--请选择--</option>
+                            <option value="0">上行同步</option>
+                            <option value="1">下行同步</option>
+                            <option value="2">状态报告</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>成功标识：</td>
+                    <td><input class="easyui-validatebox" type="text" name="status_key" data-options="required:true"></input></td>
+                </tr>
+                <tr>
+                    <td>接口地址：</td>
+                    <td><textarea class="easyui-validatebox" type="text" name="url" data-options="required:true"></textarea></td>
+                </tr>
+                <tr>
+                    <td>是否异步：</td>
+                    <td><label><input type="checkbox" value="1" name="is_rsync"/>是</label><label><input type="checkbox" value="0" name="is_rsync"/>是</label></td>
+                </tr>
+                <tr>
+                    <td>当前状态：</td>
+                    <td><label><input type="checkbox" value="1" name="is_show"/>开通</label><label><input type="checkbox" value="0" name="is_show"/>停止</label></td>
+                </tr>
+            </table>
+        </form>
+        <div style="text-align:center;padding:5px">
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_settings_manager.submitForm()">保存</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_settings_manager.clearForm()">取消</a>
+        </div>
+        </div>
+</div>
+
 <script>
 var channel_settings_manager = {
     url: '',
     datagrid: $('#channel_setting_list_dg'),
+    clearForm: function() {
+            $('#set_channel_sesttings_window').dialog('close');
+    },
     addChannel: function() {
-        this.url = '/channel/add/';
-        addTab('新增同步地址', this.url, 'icon-add')
+        $('#set_channel_sesttings_window').dialog('open').dialog('setTitle','添加接口');;
+        this.url = '/channel/settings/add/';
     },
     editChannel: function() {
         var row = $('#channel_list_dg').datagrid('getSelected');
         if (row){
-            this.url = '/channel/edit/'+row.id+'/';
-            addTab('修改同步地址', this.url, 'icon-edit');
+            $('#set_channel_sesttings_window').dialog('open').dialog('setTitle','修改接口');;
+            this.url = '/channel/settings/'+row.id+'/';
         }
 
     },
@@ -141,12 +197,9 @@ var channel_settings_manager = {
         }
     },
     queryData: function() {
-        var req_data = {'channel_id': $('#channel_id').combobox('getValue'), 
-           'sp_id': $("#sp_id").combobox('getValue'), 
-           'product_id': $("#product_id").combobox('getValue'), 
-           'operator_id': $("#operator_id").combobox('getValue'),
-           'busi_type': $("#busi_type").combobox('getValue'),
-           'area': $("#area").combobox('getValue')
+        var req_data = {'channel_id': $('#select_channel_list').combobox('getValue'), 
+           'sync_type': $("#select_sync_type").combobox('getValue'), 
+           'status': $("#select_status_type").combobox('getValue')
         };
         this.datagrid.datagrid('load', req_data)
     },

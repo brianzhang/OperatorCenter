@@ -398,7 +398,26 @@ class UsrChannelSync(OperatorBase):
     mobile = Column(String(100), nullable=False)
     linkid = Column(String(100), nullable=False)
     msg = Column(String(100), nullable=False)
+    create_time = Column(DateTime, nullable=False)
 
+class UsrSPSync(OperatorBase):
+    """docstring for UsrSPSync"""
+    __tablename__ = 'usr_sp_sync'
+    __table_args__ = ({'mysql_engine': 'InnoDB'}, )    
+
+    id = Column(Integer, primary_key=True)
+    spid = Column(Integer, ForeignKey('usr_spinfo.id'))
+    sync_type = Column(Integer)
+    status_key =  Column(String(100), nullable=False)
+    url = Column(String(100), nullable=False)
+    is_rsync = Column(Boolean, nullable=False)
+    is_show  = Column(Boolean, nullable=False)
+    spnumber = Column(String(100), nullable=False)
+    mobile = Column(String(100), nullable=False)
+    linkid = Column(String(100), nullable=False)
+    msg = Column(String(100), nullable=False)
+    create_time = Column(DateTime, nullable=False)
+    
 class DataMo(OperatorBase):
 
     """docstring for DataMo"""

@@ -24,7 +24,9 @@ from OperatorMan.configs import settings
 from OperatorMan.views import ok_json, fail_json, hash_password, write_sys_log
 from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
                 create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UsrSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
-                UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP
+                UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP, UsrChannelSync, \
+                UsrSPSync
+
 from OperatorMan.utils import User
 
 operator_view = Blueprint('operator_view', __name__)
@@ -801,6 +803,18 @@ def channel_settings():
         return render_template('channel_settings.html', channels=channels)
     else:
         return jsonify({'ok': True})
+
+@operator_view.route("/channel/settings/add/", methods=["GET", "POST"])
+@operator_view.route("/channel/settings/edit/<c_id>/", methods=["GET", "POST"])
+@login_required
+def channel_settings_edit(c_id=None):
+    if c_id:
+        channel_setting_info = g.session.query(UsrChannelSync).filter(UsrChannelSync.id==c_id).one()
+    else:
+        channel_setting_info = UsrChannelSync()
+
+    return jsonify({'ok': True})
+
 
 @operator_view.route("/channel/sync/", methods=['GET'])
 @login_required
