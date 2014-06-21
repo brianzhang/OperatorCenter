@@ -1,18 +1,33 @@
-<table id="sys_log" title="操作日志列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
-        url="/sys/log/"
-        pagination="true"
-        rownumbers="true" 
+<table id="channel_cover_datagrid" title="省份覆盖" class="easyui-datagrid" style="width:100;height:100;position: absolute" rownumbers="true" 
         fitColumns="true" 
-        singleSelect="true"
-        pageSize="20">
+        singleSelect="true">
     <thead>
         <tr>
-            <th field="id" width="20">id</th>
-            <th field="admin" width="20">用户名</th>
-            <th field="op_type" width="10">操作类别</th>
-            <th field="op_title" width="30">描述</th>
-            <th field="op_content" width="200">操作内容</th>
-            <th field="create_time" width="50">操作时间</th>
+            <th field="province" width="30">省份</th>
+            <th field="channels" width="100" data-options="formatter: channel_cover.formatterChannel">开通通道</th>
         </tr>
     </thead>
 </table>
+<script>
+var channel_cover={
+    data:{{render_data|safe}} ,
+    datagrid: $("#channel_cover_datagrid"),
+    formatterChannel: function(val, row) {
+        var _item = '';
+        if(val.length>0) {
+           
+            for(var i in val) {
+                 var _click = 'addTab(\'修改通道\', \'/channel/edit/'+val[i]['id']+'/\', \'icon-edit\');';
+                _item += '<a href="javascript:'+_click+'">['+val[i]['id']+']'+val[i]['cha_name']+'</a> '
+            }
+        } else{
+            _item = '暂无渠道支持'
+        }
+        return _item;
+    },
+    init: function() {
+        this.datagrid.datagrid({'data': this.data});
+    }
+};
+(function() {channel_cover.init();})();
+</script>

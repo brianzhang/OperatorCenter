@@ -29,30 +29,26 @@ from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, Pub
 
 from OperatorMan.utils import User
 
-operator_view = Blueprint('operator_view', __name__, url_prefix='/operator')
+financial_view = Blueprint('financial_view', __name__, url_prefix='/financial')
 
 
-@operator_view.route("/status/", methods=['GET'])
+@financial_view.route("/cooperate/detail/", methods=['GET'])
 @login_required
-def operator_status():
-    return  render_template('operator_status.html')
+def financial_cooperate_detail():
+    return render_template('financial_cooperate_detail.html')
 
-@operator_view.route("/demand/", methods=['GET'])
+@financial_view.route("/channel/detail/", methods=['GET'])
 @login_required
-def operator_demand():
-    return render_template('operator_demand.html')
+def financial_channel_detail():
+    return render_template('financial_channel_detail.html')
 
-@operator_view.route("/exploits/", methods=['GET'])
-@login_required
-def operator_exploits():
-    return render_template('operator_exploits.html')
 
-@operator_view.route("/region/", methods=['GET'])
+@financial_view.route("/cooperate/summary/", methods=['GET'])
 @login_required
-def operator_region():
-    return render_template('operator_region.html')
+def financial_cooperate_summary():
+    return render_template('financial_cooperate_summary.html')
 
-@operator_view.route("/purpose/", methods=['GET'])
+@financial_view.route("/channel/summary/", methods=['GET'])
 @login_required
-def operator_purpose():
-    return render_template('operator_purpose.html')
+def financial_channel_summary():
+    return render_template('financial_channel_summary.html')

@@ -31,8 +31,8 @@
                     </select>
                 </td>
                 <td align="right" colspan="3">
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_manager.queryData()" plain="true">查询</a>
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="channel_manager.clearQuery()" plain="true">清空</a>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_settings_manager.queryData()" plain="true">查询</a>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="channel_settings_manager.clearQuery()" plain="true">清空</a>
                 </td>
             </tr>
         </table>
@@ -51,11 +51,11 @@
                     <tr>
                         <th field="id" width="15">ID</th>
                         <th field="channel_name" width="50">通道名称</th>
-                        <th field="sync_type" width="40">同步类型</th>
+                        <th field="sync_type" width="30" data-options="formatter: channel_settings_manager.syncType">同步类型</th>
                         <th field="url" width="40">同步地址</th>
                         <th field="status_key" width="30">成功标识</th>
                         <th field="is_rsync" width="40" data-options="formatter: channel_settings_manager.formatStatus">异步</th>
-                        <th field="is_show" width="80" data-options="formatter: channel_settings_manager.formatterDate">状态</th>
+                        <th field="is_show" width="40" data-options="formatter: channel_settings_manager.formatStatus">状态</th>
                     </tr>
                 </thead>
             </table>
@@ -72,12 +72,12 @@
 
 <div id="set_channel_sesttings_window" class="easyui-dialog" title="添加用户" data-options="iconCls:'icon-save'" style="width:500px;height:400px;padding:10px;" closed="true" modal="true">
     <div style="padding:10px 60px 20px 60px">
-        <form id="account_form" method="post">
+        <form id="set_channel_sesttings_form" method="post">
             <table cellpadding="5">
                 <tr>
                     <td>通道名称：</td>
                     <td>
-                        <select name="channel_name" class="easyui-combobox">
+                        <select name="channelid" class="easyui-combobox" id="">
                             <option selected="selected" value=''>--请选择--</option>
                             {% for channel in channels %}
                             <option value="{{channel.id}}">{{channel.cha_name}}</option>
@@ -102,15 +102,15 @@
                 </tr>
                 <tr>
                     <td>接口地址：</td>
-                    <td><textarea class="easyui-validatebox" type="text" name="url" data-options="required:true"></textarea></td>
+                    <td><input class="easyui-validatebox" type="text" name="url" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>是否异步：</td>
-                    <td><label><input type="checkbox" value="1" name="is_rsync"/>是</label><label><input type="checkbox" value="0" name="is_rsync"/>是</label></td>
+                    <td><label><input type="radio" value="1" name="is_rsync"/>是</label><label><input type="radio" value="0" name="is_rsync"/>否</label></td>
                 </tr>
                 <tr>
                     <td>当前状态：</td>
-                    <td><label><input type="checkbox" value="1" name="is_show"/>开通</label><label><input type="checkbox" value="0" name="is_show"/>停止</label></td>
+                    <td><label><input type="radio" value="1" name="is_show"/>开通</label><label><input type="radio" value="0" name="is_show"/>停止</label></td>
                 </tr>
             </table>
         </form>
@@ -133,10 +133,11 @@ var channel_settings_manager = {
         this.url = '/channel/settings/add/';
     },
     editChannel: function() {
-        var row = $('#channel_list_dg').datagrid('getSelected');
+        var row = this.datagrid.datagrid('getSelected');
         if (row){
-            $('#set_channel_sesttings_window').dialog('open').dialog('setTitle','修改接口');;
+            $('#set_channel_sesttings_window').dialog('open').dialog('setTitle','修改接口');
             this.url = '/channel/settings/'+row.id+'/';
+            $('#set_channel_sesttings_form').form('load',row);
         }
 
     },
@@ -150,17 +151,37 @@ var channel_settings_manager = {
             addTab('通道配置', this.url, 'icon-remove');
         }        
     },
+    submitForm: function() {
+        //set_channel_sesttings_form
+        $('#set_channel_sesttings_form').form('submit',{
+            url: this.url,
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                if (result.errorMsg){
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    channel_settings_manager.clearForm();
+                    channel_settings_manager.datagrid.datagrid('reload');    // reload the user data
+                }
+            }
+        });
+    },
     reloadData: function() {
         this.datagrid.datagrid('load')
     },
     setChannelStatus: function(status) {
         var row = this.datagrid.datagrid('getSelected');
-        var _tip_msg = status == 1 ? '是否开通该通道?' : '是否关闭该通道?';
+        var _tip_msg = status == 1 ? '是否开通该接口?' : '是否关闭该接口?';
         var _this = this;
         if (row){
             $.messager.confirm('Confirm', _tip_msg, function(r){
                 if (r){
-                    $.post('/channel/confige/status/set/',{'channel_id':row.id, 'change_type': 'channel', 'status': status},function(result){
+                    $.post('/channel/confige/status/set/',{'channel_id':row.id, 'change_type': 'sync_settings', 'status': status},function(result){
                         if (result.ok){
                             _this.datagrid.datagrid('reload');    // reload the user data
                         } else {
@@ -184,6 +205,20 @@ var channel_settings_manager = {
     formatterDate: function(val, row) {
         var date = new Date(val);
         return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
+    },
+    syncType: function(val, row) {
+        switch(val){
+
+            case 0:            
+                return '上行同步'
+
+            case 1:
+                return '下行同步'
+
+            case 2:
+
+                return '状态报告'
+        }
     },
     formatCommand: function(val, row) {
         val = parseInt(val);

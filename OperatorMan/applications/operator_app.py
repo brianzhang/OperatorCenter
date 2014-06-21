@@ -6,7 +6,10 @@ import os
 from hashlib import md5
 from flask import Flask, g
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
+from OperatorMan.views.base_app import base_view
+from OperatorMan.views.channel_app import channel_view
 from OperatorMan.views.operator_app import operator_view
+from OperatorMan.views.financial_app import financial_view
 from OperatorMan.utils.User import User
 from OperatorMan.configs import settings
 from OperatorCore.models.operator_app import create_operator_session
@@ -14,7 +17,10 @@ from OperatorCore.models.operator_app import create_operator_session
 
 def create_app(debug=settings.DEBUG):
     app = Flask(__name__, template_folder='../templates/', static_folder="../static")
+    app.register_blueprint(base_view)
     app.register_blueprint(operator_view)
+    app.register_blueprint(channel_view)
+    app.register_blueprint(financial_view)
     app.secret_key = 'PS#yio`%_!((f_or(%)))s'
     app.debug = debug
 

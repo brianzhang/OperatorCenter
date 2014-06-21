@@ -324,7 +324,7 @@ class ChaProvince(OperatorBase):
     content = Column(String(200), nullable=False)
     create_time = Column(DateTime, nullable=False)
     province_info = relationship(PubProvince)
-
+    
 class ChaInfo(OperatorBase):
 
     """docstring for ChaInfo"""
@@ -400,6 +400,8 @@ class UsrChannelSync(OperatorBase):
     msg = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
 
+    cha_info = relationship(ChaInfo)
+
 class UsrSPSync(OperatorBase):
     """docstring for UsrSPSync"""
     __tablename__ = 'usr_sp_sync'
@@ -407,6 +409,7 @@ class UsrSPSync(OperatorBase):
 
     id = Column(Integer, primary_key=True)
     spid = Column(Integer, ForeignKey('usr_spinfo.id'))
+    channelid = Column(Integer, ForeignKey('cha_info.id'))
     sync_type = Column(Integer)
     status_key =  Column(String(100), nullable=False)
     url = Column(String(100), nullable=False)
@@ -418,6 +421,9 @@ class UsrSPSync(OperatorBase):
     msg = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
     
+    usr_spinfo = relationship(UsrSPInfo)
+    cha_info = relationship(ChaInfo)
+
 class DataMo(OperatorBase):
 
     """docstring for DataMo"""
