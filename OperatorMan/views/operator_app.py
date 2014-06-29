@@ -32,25 +32,68 @@ from OperatorMan.utils import User
 operator_view = Blueprint('operator_view', __name__, url_prefix='/operator')
 
 
-@operator_view.route("/status/", methods=['GET'])
+@operator_view.route("/status/", methods=['GET', 'POST'])
 @login_required
 def operator_status():
-    return  render_template('operator_status.html')
+    
+    req = request.args if request.method == 'GET' else request.form
 
-@operator_view.route("/demand/", methods=['GET'])
+    if request.method == 'GET':
+        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
+        sp_info_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        provinces = g.session.query(PubProvince).all()
+        users = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
+
+        return  render_template('operator_status.html', channels=channels, 
+                                                        sp_info_list=sp_info_list,
+                                                        provinces=provinces,
+                                                        users=users)
+    else:
+        return jsonify({'rows': [], 'total': 0})
+
+@operator_view.route("/demand/", methods=['GET', 'POST'])
 @login_required
 def operator_demand():
-    return render_template('operator_demand.html')
+    req = request.args if request.method == 'GET' else request.form
 
-@operator_view.route("/exploits/", methods=['GET'])
+    if request.method == 'GET':
+        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
+        sp_info_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        provinces = g.session.query(PubProvince).all()
+        users = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
+
+        return  render_template('operator_demand.html', channels=channels, 
+                                                        sp_info_list=sp_info_list,
+                                                        provinces=provinces,
+                                                        users=users)
+    else:
+        return jsonify({'rows': [], 'total': 0})
+
+@operator_view.route("/exploits/", methods=['GET', 'POST'])
 @login_required
 def operator_exploits():
-    return render_template('operator_exploits.html')
+    req = request.args if request.method == 'GET' else request.form
 
-@operator_view.route("/region/", methods=['GET'])
+    if request.method == 'GET':
+        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
+        sp_info_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        return render_template('operator_exploits.html',channels=channels, 
+                                                        sp_info_list=sp_info_list,
+                                                        query_type='time') 
+    else:
+        return jsonify({'rows': [], 'total': 0})
+
+@operator_view.route("/region/", methods=['GET', 'POST'])
 @login_required
 def operator_region():
-    return render_template('operator_region.html')
+    req = request.args if request.method == 'GET' else request.form
+
+    if request.method == 'GET':
+
+        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
+        return render_template('operator_region.html', channels=channels)
+    else:
+        return jsonify({'rows': [], 'total': 0})
 
 @operator_view.route("/purpose/", methods=['GET'])
 @login_required
