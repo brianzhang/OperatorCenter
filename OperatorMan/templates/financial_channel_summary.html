@@ -1,18 +1,118 @@
-<table id="sys_log" title="操作日志列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
-        url="/sys/log/"
-        pagination="true"
-        rownumbers="true" 
-        fitColumns="true" 
-        singleSelect="true"
-        pageSize="20">
-    <thead>
-        <tr>
-            <th field="id" width="20">id</th>
-            <th field="admin" width="20">用户名</th>
-            <th field="op_type" width="10">操作类别</th>
-            <th field="op_title" width="30">描述</th>
-            <th field="op_content" width="200">操作内容</th>
-            <th field="create_time" width="50">操作时间</th>
-        </tr>
-    </thead>
-</table>
+<div title="合作方明细" class="easyui-panel">
+    <div fit="true">
+        <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
+        <!--高级查询部分-->
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <th>开始时间:</th>
+                <td>
+                    <input class="easyui-datebox" type="text" id="txt_start_time"/>
+                </td>
+                <th>结束时间:</th>
+                <td>
+                    <input class="easyui-datebox"type="text" id="txt_end_time" />
+                </td>
+
+                <th>通道:</th>
+                <td>
+                    <select id="channel_id" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {%for channel in channels%}
+                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                        {%endfor%}
+                    </select>
+                </td>
+                <th>合作方:</th>
+                <td>
+                    <select id="sp_id" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {% for sp_info in sp_info_list %}
+                        <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <th>状态:</th>
+                <td>
+                    <select id="sp_id" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                    </select>
+                </td>
+                <td align="right">
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="financial_channel_summary_manager.queryData()" plain="true">查询</a>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="financial_channel_summary_manager.clearQuery()" plain="true">清空</a>
+                </td>
+            </tr>
+        </table>
+        </div>
+        <div data-options="region:'center',split:false"  border="false">
+            <table id="financial_channel_summary_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
+                    url="/financial/channel/summary/"
+                    toolbar="#financial_channel_summary_toolbar" 
+                    pagination="true"
+                    rownumbers="true" 
+                    fitColumns="true" 
+                    singleSelect="true"
+                    loadMsg='数据加载中,请稍候...'
+                    pageSize="20">
+                <thead>
+                    <tr>
+                        <th field="id" width="15">合作方</th>
+                        <th field="channel_name" width="50">通道名称</th>
+                        <th field="operator_info" width="40">资费</th>
+                        <th field="product_info" width="40">条数</th>
+                        <th field="busi_info" width="30">单价</th>
+                        <th field="sx" width="50">金额</th>
+                        <th field="spnumber" width="50">时间周期</th>
+                    </tr>
+                </thead>
+            </table>
+            <div id="financial_channel_summary_toolbar">
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_channel_summary_manager.addChannel()">添加</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+var financial_channel_summary_manager = {
+    url: '',
+    datagrid: $('#financial_channel_summary_list_dg'),
+    reloadData: function() {
+        this.datagrid.datagrid('load')
+    },
+    formatStatus: function(val, row) {
+        if (val) {
+            return '<span class="icon icon-ok">&nbsp;</span>已开通'
+        }else {
+            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
+        }
+    },
+    formatterDate: function(val, row) {
+        var date = new Date(val);
+        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
+    },
+    formatCommand: function(val, row) {
+        val = parseInt(val);
+        switch(val){
+            case 0:
+                return '模糊';
+            case 1:
+                return '模糊+精确';
+            case 2:
+                return '双精确';
+        }
+    },
+    queryData: function() {
+        var req_data = {'channel_id': $('#channel_id').combobox('getValue'), 
+           'sp_id': $("#sp_id").combobox('getValue'), 
+           'product_id': $("#product_id").combobox('getValue'), 
+           'operator_id': $("#operator_id").combobox('getValue'),
+           'busi_type': $("#busi_type").combobox('getValue'),
+           'area': $("#area").combobox('getValue')
+        };
+        this.datagrid.datagrid('load', req_data)
+    },
+    clearQuery: function() {
+
+    }
+}
+</script>
