@@ -47,7 +47,7 @@
         <div data-options="region:'center',split:false"  border="false">
             <table id="financial_cooperate_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
                     url="/financial/channel/detail/"
-                    toolbar="#channel_list_toolbar" 
+                    toolbar="#financial_cooperate_list_toolbar" 
                     pagination="true"
                     rownumbers="true" 
                     fitColumns="true" 
@@ -67,12 +67,9 @@
                     </tr>
                 </thead>
             </table>
-            <div id="channel_list_toolbar">
+            <div id="financial_cooperate_list_toolbar">
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_cooperate_manager.addChannel()">添加</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_cooperate_manager.editChannel()">修改</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="financial_cooperate_manager.channelConfige()">通道配置</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="financial_cooperate_manager.setChannelStatus(1)">开通</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="financial_cooperate_manager.setChannelStatus(0)">暂停</a>
             </div>
         </div>
     </div>
