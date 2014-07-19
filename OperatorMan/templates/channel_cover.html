@@ -3,8 +3,10 @@
         singleSelect="true">
     <thead>
         <tr>
-            <th field="province" width="30">省份</th>
-            <th field="channels" width="100" data-options="formatter: channel_cover.formatterChannel">开通通道</th>
+            <th field="province" width="30px">省份</th>
+            <th field="channels1" width="30" data-options="formatter: channel_cover.formatterChannel">移动</th>
+            <th field="channels2" width="30" data-options="formatter: channel_cover.formatterChannel">联通</th>
+            <th field="channels3" width="30" data-options="formatter: channel_cover.formatterChannel">电信</th>
         </tr>
     </thead>
 </table>
@@ -17,8 +19,8 @@ var channel_cover={
         if(val.length>0) {
            
             for(var i in val) {
-                 var _click = 'addTab(\'修改通道\', \'/channel/edit/'+val[i]['id']+'/\', \'icon-edit\');';
-                _item += '<a href="javascript:'+_click+'">['+val[i]['id']+']'+val[i]['cha_name']+'</a> '
+                var _click = 'addTab(\'修改通道\', \'/channel/edit/'+val[i]['id']+'/\', \'icon-edit\');';
+                _item += '<a href="javascript:'+_click+'">['+val[i]['id']+']'+val[i]['cha_name']+'</a> ';
             }
         } else{
             _item = '暂无渠道支持'

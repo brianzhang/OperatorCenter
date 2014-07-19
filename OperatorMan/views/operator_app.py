@@ -39,8 +39,8 @@ def operator_status():
     req = request.args if request.method == 'GET' else request.form
 
     if request.method == 'GET':
-        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
-        sp_info_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        channels = g.session.query(ChaInfo).all()
+        sp_info_list = g.session.query(UsrSPInfo).all()
         provinces = g.session.query(PubProvince).all()
         users = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
 
@@ -57,8 +57,8 @@ def operator_demand():
     req = request.args if request.method == 'GET' else request.form
 
     if request.method == 'GET':
-        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
-        sp_info_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        channels = g.session.query(ChaInfo).all()
+        sp_info_list = g.session.query(UsrSPInfo).all()
         provinces = g.session.query(PubProvince).all()
         users = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
 
@@ -75,8 +75,8 @@ def operator_exploits():
     req = request.args if request.method == 'GET' else request.form
 
     if request.method == 'GET':
-        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
-        sp_info_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        channels = g.session.query(ChaInfo).all()
+        sp_info_list = g.session.query(UsrSPInfo).all()
         return render_template('operator_exploits.html',channels=channels, 
                                                         sp_info_list=sp_info_list,
                                                         query_type='time') 
@@ -90,7 +90,7 @@ def operator_region():
 
     if request.method == 'GET':
 
-        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
+        channels = g.session.query(ChaInfo).all()
         return render_template('operator_region.html', channels=channels)
     else:
         return jsonify({'rows': [], 'total': 0})

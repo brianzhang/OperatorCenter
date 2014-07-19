@@ -1,6 +1,6 @@
 <div title="状态报告" class="easyui-panel">
     <div fit="true">
-        <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
+        <div data-options="region:'north',split:false" style="height: 60px;padding:6px;" border="false">
         <!--高级查询部分-->
         <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
@@ -43,6 +43,8 @@
                         <option value="1">扣点</option>
                     </select>
                 </td>
+            </tr>
+            <tr>
                 <th>状态:</th>
                 <td>
                     <select id="sp_id" class="easyui-combobox">
@@ -56,7 +58,7 @@
                     <select id="sp_id" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for user in users %}
-                        <option value="{{user.id}}">[{{user.id}}]{{user.nick}}</option>
+                        <option value="{{user.id}}">[{{user.id}}]{{user.realname}}</option>
                         {% endfor %}
                     </select>
                 </td>
@@ -78,7 +80,7 @@
                     <label for="_radio_search_1"><input type="radio" value="1" id="_radio_search_1"/>历史</label>
                     <label for="_radio_search_2"><input type="radio" value="2" id="_radio_search_2"/>全部</label>
                 </td>
-                <td align="right">
+                <td align="right" colspan="4">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="operator_status_manange.queryData()" plain="true">查询</a>
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="operator_status_manange.clearQuery()" plain="true">清空</a>
                 </td>

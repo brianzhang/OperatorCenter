@@ -97,10 +97,10 @@ def channel_list():
             return jsonify({'rows': channels, 'total': total})
         return jsonify({'rows': [], 'total': 0})
     else:
-        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
-        sp_info_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
-        products = g.session.query(PubProducts).filter(PubProducts.is_show==True).all()
-        busi_list = g.session.query(PubBusiType).filter(PubBusiType.is_show==True).all()
+        channels = g.session.query(ChaInfo).all()
+        sp_info_list = g.session.query(UsrSPInfo).all()
+        products = g.session.query(PubProducts).all()
+        busi_list = g.session.query(PubBusiType).all()
 
         return render_template('channel_list.html', channels=channels, 
                                             sp_info_list=sp_info_list, 
@@ -185,9 +185,9 @@ def channel_add_info(channel_id=None):
         else:
             channel_info = None
         provinces = g.session.query(PubProvince).all()
-        products = g.session.query(PubProducts).filter(PubProducts.is_show==True).all()
-        busi_list = g.session.query(PubBusiType).filter(PubBusiType.is_show==True).all()
-        sp_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
+        products = g.session.query(PubProducts).all()
+        busi_list = g.session.query(PubBusiType).all()
+        sp_list = g.session.query(UsrSPInfo).all()
         
         provinces_json = {}
         for prov in provinces:
@@ -214,9 +214,9 @@ def channel_confige(channel_id=None):
     action_path = request.path
 
     if request.method == 'GET':
-        channel_list = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
-        cp_info_list = g.session.query(UsrCPInfo).filter(UsrCPInfo.is_show==True).all()
-        admins = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
+        channel_list = g.session.query(ChaInfo).all()
+        cp_info_list = g.session.query(UsrCPInfo).all()
+        admins = g.session.query(SysAdmin).all()
         provinces = g.session.query(PubProvince).all()
         city_list = g.session.query(PubCity).all()
 
@@ -452,7 +452,7 @@ def channel_settings():
     #channels
     req_args = request.args if request.method == 'GET' else request.form
     if request.method == "GET":
-        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
+        channels = g.session.query(ChaInfo).all()
         return render_template('channel_settings.html', channels=channels)
     else:
         query = g.session.query(UsrChannelSync).order_by(desc(UsrChannelSync.id))
@@ -540,8 +540,8 @@ def channel_sync():
     #channels
     req_args = request.args if request.method == 'GET' else request.form
     if request.method == "GET":
-        spinfo_list = g.session.query(UsrSPInfo).filter(UsrSPInfo.is_show==True).all()
-        channels = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).all()
+        spinfo_list = g.session.query(UsrSPInfo).all()
+        channels = g.session.query(ChaInfo).all()
         return render_template('channel_sync.html', spinfo_list=spinfo_list, channels=channels)
     else:
         query = g.session.query(UsrSPSync).order_by(desc(UsrSPSync.id))
@@ -632,15 +632,26 @@ def channel_cover():
 
     for province in provinces:
         _item = {'province': province.province, 'id': province.id}
-        _channels = []
+        _channels1 = []
+        _channels2 = []
+        _channels3 = []
         for channel in channels:
 
             for p in channel.cha_province:
 
-                if p.province_info.id == province.id:
-                    _channels.append({'id':channel.id, 'cha_name': channel.cha_name})
+                if p.province_info.id == province.id and channel.operator == '0':
+                    _channels1.append({'id':channel.id, 'cha_name': channel.cha_name, 'operator': channel.operator})
 
-        _item['channels']=_channels
+                if p.province_info.id == province.id and channel.operator == '1':
+                    _channels2.append({'id':channel.id, 'cha_name': channel.cha_name, 'operator': channel.operator})
+
+                if p.province_info.id == province.id and channel.operator == '2':
+                    _channels3.append({'id':channel.id, 'cha_name': channel.cha_name, 'operator': channel.operator})
+
+        _item['channels1']=_channels1
+        _item['channels2']=_channels2
+        _item['channels3']=_channels3
+        
         render_data.append(_item)
 
     return render_template('channel_cover.html', render_data=json.dumps(render_data))
