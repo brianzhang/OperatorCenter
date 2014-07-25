@@ -199,6 +199,7 @@
             $('#channel_allocated_manager_window').dialog('open').dialog('setTitle','添加通道分配');
             $('#channel_allocated_manager_form').form('clear');
             this.url = '/channel/confige/set/';
+            channel_allocated_manager.labMsg.empty();
         },
         editChannelAllocated: function() {
             var row = this.datagrid.datagrid('getSelected');
