@@ -32,23 +32,36 @@ from OperatorMan.utils import User
 financial_view = Blueprint('financial_view', __name__, url_prefix='/financial')
 
 
-@financial_view.route("/cooperate/detail/", methods=['GET'])
+@financial_view.route("/cooperate/detail/", methods=['GET', 'POST'])
 @login_required
 def financial_cooperate_detail():
-    return render_template('financial_cooperate_detail.html')
+    if request.method == 'GET':
+        return render_template('financial_cooperate_detail.html')
+    else:
+        return jsonify({'rows': [], 'total': 0})
 
-@financial_view.route("/channel/detail/", methods=['GET'])
+
+@financial_view.route("/channel/detail/", methods=['GET', 'POST'])
 @login_required
 def financial_channel_detail():
-    return render_template('financial_channel_detail.html')
+    if request.method == 'GET':
+        return render_template('financial_channel_detail.html')
+    else:
+        return jsonify({'rows': [], 'total': 0})
 
 
-@financial_view.route("/cooperate/summary/", methods=['GET'])
+@financial_view.route("/cooperate/summary/", methods=['GET', 'POST'])
 @login_required
 def financial_cooperate_summary():
-    return render_template('financial_cooperate_summary.html')
+    if request.method == 'GET':
+        return render_template('financial_cooperate_summary.html')
+    else:
+        return jsonify({'rows': [], 'total': 0})
 
-@financial_view.route("/channel/summary/", methods=['GET'])
+@financial_view.route("/channel/summary/", methods=['GET', 'POST'])
 @login_required
 def financial_channel_summary():
-    return render_template('financial_channel_summary.html')
+    if request.method == 'GET':
+        return render_template('financial_channel_summary.html')
+    else:
+        return jsonify({'rows': [], 'total': 0})
