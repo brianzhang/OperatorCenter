@@ -1,11 +1,12 @@
 <table id="channel_dg" title="渠道商列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
         url="/cooperate/channel/list/"
-        toolbar="#channel_toolbar" 
+        toolbar="#channel_toolbar"
         pagination="true"
-        rownumbers="true" 
-        fitColumns="true" 
+        rownumbers="true"
+        fitColumns="true"
         singleSelect="true"
-        pageSize="20">
+        pageSize="20"
+        data-options="onClickRow: channel_list.onClickRow">
     <thead>
         <tr>
             <th field="id" width="20">id</th>
@@ -21,12 +22,14 @@
 <div id="channel_toolbar">
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_list.newUser()">添加</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_list.editUser()">修改</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_list.destroyUser()">删除</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_list.enabledPartners()">合作(停/起)用</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton hide editbank" iconCls="icon-edit" plain="true" onclick="channel_list.editBank()">修改银行</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton hide editaccount" iconCls="icon-edit" plain="true" onclick="channel_list.editAccount()">修改账号</a>
 </div>
 <div id="window_CpInfo" class="easyui-dialog" style="width:500px;height:545px;padding:10px 20px" closed="true" modal="true">
     <div>
         <form id="window_CpInfo_Form" method="post">
-            <fieldset>
+            <fieldset id="cp_base_item">
                 <legend>基本信息</legend>
                 <table>
                     <tr>
@@ -59,7 +62,7 @@
                     </tr>
                     <tr>
                         <td>合作状态：</td>
-                        <td colspan="3"><input type="checkbox" value="1" name="is_show"/></td>
+                        <td colspan="3"><input type="checkbox" value="1" name="is_show" data-options="required:true"/></td>
                     </tr>
                     <tr>
                         <td>备注：</td>
@@ -67,7 +70,7 @@
                     </tr>
                 </table>
             </fieldset>
-            <fieldset>
+            <fieldset id="cp_account_item">
                 <legend>账号信息</legend>
                 <table>
                     <tr>
@@ -80,7 +83,7 @@
                     </tr>
                 </table>
             </fieldset>
-            <fieldset>
+            <fieldset id="cp_bankinfo_item">
                 <legend>银行卡信息</legend>
                 <table>
                     <tr>
@@ -112,25 +115,74 @@
             <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_list.saveUser()">保存</a>
             <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_list.clearForm()">取消</a>
         </div>
-    </div>    
+    </div>
 </div>
 <script type="text/javascript">
     var channel_list = {
         url: '',
         newUser: function() {
+
+            $('.editbank').hide();
+            $('.editaccount').hide();
             $('#window_CpInfo').dialog('open').dialog('setTitle','添加渠道商');
+            $("#cp_account_item").show();
+            $("#cp_bankinfo_item").show();
+            $("#cp_base_item").show();
+            $('#window_CpInfo').css('height', '545px');
             $('#window_CpInfo_Form').form('clear');
             this.url = '/cooperate/cpinfo/add/';
+        },
+        editBank: function() {
+            var row = $('#channel_dg').datagrid('getSelected');
+            if (row){
+                $("#cp_base_item").hide();
+                $("#cp_account_item").hide();
+                $("#cp_bankinfo_item").show();
+                $('#window_CpInfo').css('height', '205px');
+                $('#window_CpInfo').dialog('open').dialog('setTitle','修改渠道商银行信息');
+                $('#window_CpInfo_Form').form('load','/cooperate/cpinfo/'+row.id+'/');
+                this.url = '/cooperate/cpinfo/edit/'+row.id+'/?type=bank';
+                if(row.is_show) {
+                  this._checkbox = $('#window_CpInfo_Form').find("input[name='is_show']")[0];
+                  $(this._checkbox).attr('checked', true);
+                }
+            }
+        },
+        editAccount: function() {
+            var row = $('#channel_dg').datagrid('getSelected');
+            if (row){
+                $("#cp_base_item").hide();
+                $("#cp_account_item").show();
+                $("#cp_bankinfo_item").hide();
+                $('#window_CpInfo').css('height', '135px');
+                $('#window_CpInfo').dialog('open').dialog('setTitle','修改渠道商账号信息');
+                $('#window_CpInfo_Form').form('load','/cooperate/cpinfo/'+row.id+'/');
+                this.url = '/cooperate/cpinfo/edit/'+row.id+'/?type=account';
+                if(row.is_show) {
+                  this._checkbox = $('#window_CpInfo_Form').find("input[name='is_show']")[0];
+                  $(this._checkbox).attr('checked', true);
+                }
+            }
         },
         editUser: function() {
             var row = $('#channel_dg').datagrid('getSelected');
             if (row){
+
+                $("#cp_account_item").hide();
+                $("#cp_bankinfo_item").hide();
+                $('#window_CpInfo').css('height', '305px');
                 $('#window_CpInfo').dialog('open').dialog('setTitle','修改渠道商信息');
-                $('#window_CpInfo_Form').form('load',row);
+                $('#window_CpInfo_Form').form('load','/cooperate/cpinfo/'+row.id+'/');
                 this.url = '/cooperate/cpinfo/edit/'+row.id+'/';
+                if(row.is_show) {
+                  this._checkbox = $('#window_CpInfo_Form').find("input[name='is_show']")[0];
+                  $(this._checkbox).attr('checked', true);
+                }
             }
         },
         clearForm: function() {
+            $('.editbank').hide();
+            $('.editaccount').hide();
             $('#window_CpInfo').dialog('close');        // close the dialog
         },
         saveUser: function() {
@@ -153,14 +205,16 @@
                 }
             });
         },
-        destroyUser: function() {
+        enabledPartners: function() {
             var row = $('#channel_dg').datagrid('getSelected');
             if (row){
-                $.messager.confirm('Confirm','Are you sure you want to destroy this user?',function(r){
+                $.messager.confirm('Confirm','是否对'+row.name+'进行合作设置?',function(r){
                     if (r){
-                        $.post('destroy_user.php',{id:row.id},function(result){
-                            if (result.success){
+                        $.post('/cooperate/cpinfo/partner/',{id:row.id},function(result){
+                            if (result.ok){
                                 $('#channel_dg').datagrid('reload');    // reload the user data
+                                $('.editbank').hide();
+                                $('.editaccount').hide();
                             } else {
                                 $.messager.show({    // show error message
                                     title: 'Error',
@@ -182,6 +236,14 @@
         formatterDate: function(val, row) {
             var date = new Date(val);
             return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
+        },
+        onClickRow: function(index) {
+          if (index>=0) {
+            $('.editbank').show().css('visibility', 'visible');
+            $('.editaccount').show().css('visibility', 'visible');;
+          }
+          console.log(index);
         }
-    };    
+
+    };
 </script>

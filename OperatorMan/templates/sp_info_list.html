@@ -1,9 +1,9 @@
 <table id="operator_dg" title="运营商列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
         url="/cooperate/operator/list/"
-        toolbar="#operator_toolbar" 
+        toolbar="#operator_toolbar"
         pagination="true"
-        rownumbers="true" 
-        fitColumns="true" 
+        rownumbers="true"
+        fitColumns="true"
         singleSelect="true"
         pageSize="20">
     <thead>
@@ -23,7 +23,7 @@
 <div id="operator_toolbar">
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="operator_list.addSpInfo()">添加</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="operator_list.editSpInfo()">修改</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="operator_list.destroySpInfo()">删除</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="operator_list.destroySpInfo()">合作(停/起)用</a>
 </div>
 
 <div id="window_SpInfo" class="easyui-dialog" style="width:500px;height:470px;padding:10px 20px" closed="true" modal="true">
@@ -85,8 +85,9 @@
     var operator_list = {
         url: '',
         clearForm: function() {
+            $('#window_SpInfo_Form').form('clear'); // clear form data.
             $('#window_SpInfo').dialog('close');        // close the dialog
-            $('#window_SpInfo_Form').datagrid('reload');    // reload the user data
+            $('#operator_dg').datagrid('reload');    // reload the user data
         },
         addSpInfo: function() {
             $('#window_SpInfo').dialog('open').dialog('setTitle','添加运营商信息');
@@ -98,6 +99,11 @@
             if (row){
                 $('#window_SpInfo').dialog('open').dialog('setTitle','修改运营商信息');
                 $('#window_SpInfo_Form').form('load',row);
+                if(row.is_show) {
+                    _check = $('#window_SpInfo_Form').find("input[name='is_show']")[0];
+                    console.log(_check);
+                    $(_check).attr('checked', 'checked');
+                }
                 this.url = '/cooperate/operator/edit/'+row.id+'/';
             }
         },
@@ -149,5 +155,5 @@
                 return '<span class="icon icon-error">&nbsp;</span>'
             }
         }
-    };    
+    };
 </script>
