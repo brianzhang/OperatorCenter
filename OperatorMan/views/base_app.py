@@ -61,9 +61,8 @@ def login():
                         u'用户登录',
                         u'用户【%s】在【%s】登录了该系统，登录IP为：【%s】'%(user.realname, datetime.datetime.now(), request.remote_addr),
                         user.id)
-            return redirect(request.args.get("next") or '/')
-
-        return jsonify({'ok': False, 'username': username, 'pwd': password})
+            return jsonify({'ok': True, 'data': '/'})
+        return jsonify({'ok': False, 'username': username, 'reason': u'用户密码错误'})
 
 
 @base_view.route('/logout/', methods=["GET"])
@@ -158,8 +157,8 @@ def operator_log():
             operator_logs = []
             for log in operator_logs_list:
                 operator_logs.append({'id': log.id,
-                                    'channelid': log.channelid,
-                                    'spid': log.spid,
+                                    'channelid': "[%s]%s" % (log.channelid, log.channe_info.cha_name),
+                                    'spid': "[%s]%s" % (log.spid, log.sp_info.name),
                                     'urltype': log.urltype,
                                     'mobile': log.mobile,
                                     'spnumber': log.spnumber,
@@ -415,8 +414,8 @@ def channel_log():
             channel_logs = []
             for log in channel_logs_list:
                 channel_logs.append({'id': log.id,
-                                    'channelid': log.channelid,
-                                    'cpid': log.cpid,
+                                    'channelid': "[%s] %s" % (log.channelid, log.channe_info.cha_name),
+                                    'cpid': log.cp_info.name,
                                     'urltype': log.urltype,
                                     'mobile': log.mobile,
                                     'spnumber': log.spnumber,
@@ -425,7 +424,7 @@ def channel_log():
                                     'tongurl': log.tongurl,
                                     'backmsg': log.backmsg,
                                     'tongdate': log.tongdate,
-                                    'is_show': log.is_show,
+
                                     'create_time': log.create_time
                                     })
 
@@ -586,7 +585,7 @@ def sys_balck():
             return jsonify({'rows': black_list_data, 'total': total})
         else:
             return jsonify({'rows': [], 'total': 0})
-            
+
 @base_view.route("/sys/get/city/", methods=['GET', 'POST'])
 @login_required
 def sys_get_city():

@@ -1,4 +1,4 @@
-<div title="合作方明细" class="easyui-panel">
+<div title="渠道商汇总" class="easyui-panel">
     <div fit="true">
         <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
         <!--高级查询部分-->
@@ -26,20 +26,13 @@
                 <td>
                     <select id="sp_id" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
-                        {% for sp_info in sp_info_list %}
-                        <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
+                        {% for cp_info in cp_info_list %}
+                        <option value="{{cp_info.id}}">[{{cp_info.id}}]{{cp_info.name}}</option>
                         {% endfor %}
-                    </select>
-                </td>
-                <th>状态:</th>
-                <td>
-                    <select id="sp_id" class="easyui-combobox">
-                        <option selected="selected" value=''>--请选择--</option>
                     </select>
                 </td>
                 <td align="right">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="financial_channel_summary_manager.queryData()" plain="true">查询</a>
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="financial_channel_summary_manager.clearQuery()" plain="true">清空</a>
                 </td>
             </tr>
         </table>
@@ -47,10 +40,9 @@
         <div data-options="region:'center',split:false"  border="false">
             <table id="financial_channel_summary_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
                     url="/financial/channel/summary/"
-                    toolbar="#financial_channel_summary_toolbar" 
                     pagination="true"
-                    rownumbers="true" 
-                    fitColumns="true" 
+                    rownumbers="true"
+                    fitColumns="true"
                     singleSelect="true"
                     loadMsg='数据加载中,请稍候...'
                     pageSize="20">
@@ -66,8 +58,6 @@
                     </tr>
                 </thead>
             </table>
-            <div id="financial_channel_summary_toolbar">
-            </div>
         </div>
     </div>
 </div>
@@ -101,9 +91,9 @@ var financial_channel_summary_manager = {
         }
     },
     queryData: function() {
-        var req_data = {'channel_id': $('#channel_id').combobox('getValue'), 
-           'sp_id': $("#sp_id").combobox('getValue'), 
-           'product_id': $("#product_id").combobox('getValue'), 
+        var req_data = {'channel_id': $('#channel_id').combobox('getValue'),
+           'sp_id': $("#sp_id").combobox('getValue'),
+           'product_id': $("#product_id").combobox('getValue'),
            'operator_id': $("#operator_id").combobox('getValue'),
            'busi_type': $("#busi_type").combobox('getValue'),
            'area': $("#area").combobox('getValue')

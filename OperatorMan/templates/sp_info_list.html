@@ -13,10 +13,10 @@
             <th field="link_name" width="50">联系人</th>
             <th field="link_phone" width="50">电话号码</th>
             <th field="link_qq" width="50">QQ</th>
-            <th field="link_email" width="50">Email</th>
-            <th field="link_address" width="50">地址</th>
+            <!--<th field="link_email" width="50">Email</th>
+            <th field="link_address" width="50">地址</th>-->
             <th field="is_show" data-options="formatter: operator_list.formatStatus" width="50">合作状态</th>
-            <th field="content" width="50">备注</th>
+            <!--<th field="content" width="50">备注</th>-->
         </tr>
     </thead>
 </table>
@@ -32,7 +32,7 @@
             <table cellpadding="5">
                 <tr>
                     <td>运营商名称：</td>
-                    <td><input class="easyui-validatebox" type="text" name="name" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="name" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>商务跟进：</td>
@@ -46,31 +46,31 @@
                 </tr>
                 <tr>
                     <td>姓名：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_name" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_name" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>电话：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_phone" ></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_phone" ></input></td>
                 </tr>
                 <tr>
                     <td>联系人QQ：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_qq" ></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_qq" ></input></td>
                 </tr>
                 <tr>
                     <td>邮箱：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_email" data-options="validType:'email'"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_email" data-options="validType:'email'"></input></td>
                 </tr>
                 <tr>
                     <td>地址：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_address"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_address"></input></td>
                 </tr>
                 <tr>
                     <td>是否合作：</td>
-                    <td><input class="easyui-validatebox" type="checkbox" name="is_show" value="1" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="checkbox" name="is_show" value="1" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>备注：</td>
-                    <td><input name="content"></input></td>
+                    <td><input name="content" class="easyui-textbox"></input></td>
                 </tr>
             </table>
         </form>

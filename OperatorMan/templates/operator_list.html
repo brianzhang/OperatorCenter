@@ -1,9 +1,9 @@
 <table id="dg" title="运营商列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
         url="/cooperate/operator/list/"
-        toolbar="#toolbar" 
+        toolbar="#toolbar"
         pagination="true"
-        rownumbers="true" 
-        fitColumns="true" 
+        rownumbers="true"
+        fitColumns="true"
         singleSelect="true"
         pageSize="20">
     <thead>
@@ -29,19 +29,19 @@
     <form id="fm" method="post" novalidate>
         <div class="fitem">
             <label>First Name:</label>
-            <input name="firstname" class="easyui-validatebox" required="true">
+            <input name="firstname" class="easyui-textbox easyui-validatebox" required="true" />
         </div>
         <div class="fitem">
             <label>Last Name:</label>
-            <input name="lastname" class="easyui-validatebox" required="true">
+            <input name="lastname" class="easyui-textbox easyui-validatebox" required="true" />
         </div>
         <div class="fitem">
             <label>Phone:</label>
-            <input name="phone">
+            <input name="phone" class="easyui-textbox" />
         </div>
         <div class="fitem">
             <label>Email:</label>
-            <input name="email" class="easyui-validatebox" validType="email">
+            <input name="email" class="easyui-textbox easyui-validatebox" validType="email" />
         </div>
     </form>
     <div id="dlg-buttons">
@@ -113,5 +113,5 @@
                 return '<span class="icon icon-error">&nbsp;</span>'
             }
         }
-    };    
+    };
 </script>

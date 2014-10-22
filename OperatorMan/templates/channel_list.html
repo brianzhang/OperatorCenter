@@ -55,7 +55,7 @@
                     <select id="area" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                     </select>
-                    <input/>
+                    <input class="easyui-textbox"/>
                 </td>
                 <td align="right">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_manager.queryData()" plain="true">查询</a>
@@ -67,10 +67,10 @@
         <div data-options="region:'center',split:false"  border="false">
             <table id="channel_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
                     url="/channel/list/"
-                    toolbar="#channel_list_toolbar" 
+                    toolbar="#channel_list_toolbar"
                     pagination="true"
-                    rownumbers="true" 
-                    fitColumns="true" 
+                    rownumbers="true"
+                    fitColumns="true"
                     singleSelect="true"
                     loadMsg='数据加载中,请稍候...'
                     pageSize="20">
@@ -129,7 +129,7 @@ var channel_manager = {
         }else{
             this.url = '/channel/confige/';
             addTab('通道配置', this.url, 'icon-remove');
-        }        
+        }
     },
     reloadData: function() {
         this.datagrid.datagrid('load')
@@ -178,9 +178,9 @@ var channel_manager = {
         }
     },
     queryData: function() {
-        var req_data = {'channel_id': $('#channel_id').combobox('getValue'), 
-           'sp_id': $("#sp_id").combobox('getValue'), 
-           'product_id': $("#product_id").combobox('getValue'), 
+        var req_data = {'channel_id': $('#channel_id').combobox('getValue'),
+           'sp_id': $("#sp_id").combobox('getValue'),
+           'product_id': $("#product_id").combobox('getValue'),
            'operator_id': $("#operator_id").combobox('getValue'),
            'busi_type': $("#busi_type").combobox('getValue'),
            'area': $("#area").combobox('getValue')

@@ -34,7 +34,7 @@
                 <table>
                     <tr>
                         <td>渠道商名称：</td>
-                        <td><input class="easyui-validatebox" type="text" name="name" data-options="required:true" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="name" data-options="required:true" /></td>
                         <td>商务跟进：</td>
                         <td>
                             <select class="easyui-combobox" name="business">
@@ -46,19 +46,19 @@
                     </tr>
                     <tr>
                         <td>联系人：</td>
-                        <td><input class="easyui-validatebox" type="text" name="link_name" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_name" /></td>
                         <td>电话号码：</td>
-                        <td><input class="easyui-validatebox" type="text" name="link_phone" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_phone" /></td>
                     </tr>
                     <tr>
                         <td>QQ：</td>
-                        <td><input class="easyui-validatebox" type="text" name="link_qq" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_qq" /></td>
                         <td>Email：</td>
-                        <td><input class="easyui-validatebox" type="text" name="link_email" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_email" /></td>
                     </tr>
                     <tr>
                         <td>地址：</td>
-                        <td colspan="3"><textarea name="link_address" style="width: 315px;"></textarea></td>
+                        <td colspan="3"><textarea name="link_address" style="width: 315px;height: 50px" class="easyui-textbox"></textarea></td>
                     </tr>
                     <tr>
                         <td>合作状态：</td>
@@ -66,19 +66,19 @@
                     </tr>
                     <tr>
                         <td>备注：</td>
-                        <td colspan="3"><textarea name="content" style="width: 315px"></textarea></td>
+                        <td colspan="3"><textarea name="content" style="width: 315px; height: 50px" class="easyui-textbox"></textarea></td>
                     </tr>
                 </table>
             </fieldset>
             <fieldset id="cp_account_item">
-                <legend>账号信息</legend>
+                <legend>账号信息设置</legend>
                 <table>
                     <tr>
-                        <td>登录账号：</td>
-                        <td><input class="easyui-validatebox" type="text" name="txt_loginname" data-options="required:true" /></td>
-                        <td>登录密码：</td>
+                        <td>账号：</td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_loginname" data-options="required:true" /></td>
+                        <td>密码：</td>
                         <td>
-                            <input class="easyui-validatebox" type="password" name="txt_loginpwd" data-options="required:true" />
+                            <input class="easyui-textbox easyui-validatebox" type="password" name="txt_loginpwd" data-options="required:true" />
                         </td>
                     </tr>
                 </table>
@@ -88,16 +88,16 @@
                 <table>
                     <tr>
                         <td>开户名：</td>
-                        <td><input class="easyui-validatebox" type="text" name="bank_name" data-options="required:true" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="bank_name" data-options="required:true" /></td>
                         <td>开户人：</td>
                         <td>
-                            <input class="easyui-validatebox" type="text" name="bank_username" data-options="required:true" />
+                            <input class="easyui-textbox easyui-validatebox" type="text" name="bank_username" data-options="required:true" />
                         </td>
                     </tr>
                     <tr>
                         <td>卡号：</td>
                         <td colspan="3">
-                            <input class="easyui-validatebox" type="text" name="bank_card" data-options="required:true" style='width: 315px;' />
+                            <input class="easyui-textbox easyui-validatebox" type="text" name="bank_card" data-options="required:true" style='width: 325px;' />
                         </td>
                     </tr>
                     <tr>
@@ -106,7 +106,7 @@
                     </tr>
                     <tr>
                         <td>备注：</td>
-                        <td colspan="3"><textarea name="bank_content" style="width: 315px"></textarea></td>
+                        <td colspan="3"><textarea name="bank_content" style="width: 315px; height: 50px;" class="easyui-textbox"></textarea></td>
                     </tr>
                 </table>
             </fieldset>
