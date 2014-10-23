@@ -6,16 +6,16 @@
             <tr>
                 <th>开始时间:</th>
                 <td>
-                    <input class="easyui-datebox" type="text" id="txt_start_time"/>
+                    <input class="easyui-datebox" type="text" id="start_time{{random_key}}"/>
                 </td>
                 <th>结束时间:</th>
                 <td>
-                    <input class="easyui-datebox"type="text" id="txt_end_time" />
+                    <input class="easyui-datebox"type="text" id="txt_end_time{{random_key}}" />
                 </td>
 
                 <th>通道:</th>
                 <td>
-                    <select id="channel_id" class="easyui-combobox">
+                    <select id="channels{{random_key}}" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for channel in channels%}
                         <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
@@ -24,7 +24,7 @@
                 </td>
                 <th>合作方:</th>
                 <td>
-                    <select id="sp_id" class="easyui-combobox">
+                    <select id="spinfo{{random_key}}" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for sp_info in sp_info_list %}
                         <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
@@ -39,7 +39,6 @@
                 </td>-->
                 <td align="right">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="financial_cooperate_manager.queryData()" plain="true">查询</a>
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="financial_cooperate_manager.clearQuery()" plain="true">清空</a>
                 </td>
             </tr>
         </table>
@@ -56,11 +55,13 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="id" width="15">日期</th>
-                        <th field="spName" width="50">合作方(SP)</th>
-                        <th field="channelName" width="40">通道名称</th>
-                        <th field="product_info" width="40">资费（元）</th>
-                        <th field="total" width="30">汇总</th>
+                        <th field="regdate" width="25">日期</th>
+                        <th field="spname" width="50">合作方(SP)</th>
+                        <th field="channel" width="40">通道名称</th>
+                        <th field="price" width="40">资费（元）</th>
+                        <th field="costprice" width="40">单价（元）</th>
+                        <th field="count" width="30">条数</th>
+                        <th field="total" width="30">金额</th>
                         <th field="sx_type" width="40" data-options="formatter: financial_cooperate_manager.formatCommand">状态</th>
                     </tr>
                 </thead>

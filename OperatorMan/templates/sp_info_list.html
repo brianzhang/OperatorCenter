@@ -66,7 +66,7 @@
                 </tr>
                 <tr>
                     <td>是否合作：</td>
-                    <td><input class="easyui-textbox easyui-validatebox" type="checkbox" name="is_show" value="1" data-options="required:true"></input></td>
+                    <td><input class="easyui-validatebox" type="checkbox" name="is_show" value="1" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>备注：</td>
@@ -108,6 +108,7 @@
             }
         },
         submitForm: function() {
+            console.log('submit require');
             $('#window_SpInfo_Form').form('submit',{
                 url: this.url,
                 onSubmit: function(){

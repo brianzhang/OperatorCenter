@@ -136,6 +136,9 @@ def operator_add(sp_id=None):
         return jsonify({'ok': True})
 
     except Exception, e:
+        print '===========ERROR============'
+        print e
+
         return jsonify({'errorMsg': 'error'})
 
 @base_view.route("/cooperate/operator/log/", methods=['GET', 'POST'])

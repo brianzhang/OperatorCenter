@@ -48,3 +48,16 @@ Download: https://pypi.python.org/packages/source/S/SQLAlchemy/SQLAlchemy-0.9.8.
 ```
 http://www.codegood.com/archives/129
 ```
+
+# 业务逻辑
+
+```
+1、 查询该手机号码是否为黑名单
+2、 查询该号码的归属地（省份、地市）
+3、 查询该号码对应的linkid，在表中是否已经存在（linkid 在表中具有唯一性）
+4、 查询该号码当天、对应channelid的总条数；当月对应channelid的总条数
+5、 查询该数据归属的cpid
+6、 查询该数据对应cpid，特定省份当天的总条数（判断是否超限制）
+7、 查询该数据是否扣量（根据预先设置的扣量比例来判断）
+
+```

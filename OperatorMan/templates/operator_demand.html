@@ -5,12 +5,12 @@
         <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
                 <th>开始时间:</th>
-                <td><input class="easyui-datebox" type="text"/></td>
+                <td><input class="easyui-datebox" type="text" name="start_time" id="start_time{{random_key}}"/></td>
                 <th>结束时间:</th>
-                <td><input class="easyui-datebox" type="text"/></td>
+                <td><input class="easyui-datebox" type="text" name="end_time" id="end_time{{random_key}}"/></td>
                 <th>通道:</th>
                 <td>
-                    <select id="channel_id" class="easyui-combobox">
+                    <select class="easyui-combobox" name="channel" id="channel{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for channel in channels%}
                         <option value="{{channel.id}}">{{channel.cha_name}}</option>
@@ -19,43 +19,35 @@
                 </td>
                 <th>渠道:</th>
                 <td>
-                    <select id="sp_id" class="easyui-combobox">
+                    <select class="easyui-combobox" name="cpinfo" id="cpinfo{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
-                        {% for sp_info in sp_info_list %}
-                        <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
+                        {% for cp_info in cp_info_list %}
+                        <option value="{{cp_info.id}}">[{{cp_info.id}}]{{cp_info.name}}</option>
                         {% endfor %}
                     </select>
                 </td>
                 <th>省份:</th>
                 <td>
-                    <select id="sp_id" class="easyui-combobox">
+                    <select class="easyui-combobox" name="provinces" id="provinces{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for province in provinces %}
                         <option value="{{province.id}}">[{{province.id}}]{{province.province}}</option>
                         {% endfor %}
                     </select>
                 </td>
-                <th>比例:</th>
-                <td>
-                    <select id="sp_id" class="easyui-combobox">
-                        <option selected="selected" value=''>--请选择--</option>
-                        <option value="0">正常</option>
-                        <option value="1">扣点</option>
-                    </select>
-                </td>
-                </tr>
-                <tr>
                 <th>状态:</th>
                 <td>
-                    <select id="sp_id" class="easyui-combobox">
+                    <select class="easyui-combobox" name="status" id="status{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
-                        <option value="0">正常</option>
-                        <option value="1">失败</option>
+                        <option value="1">正常</option>
+                        <option value="0">失败</option>
                     </select>
                 </td>
+            </tr>
+            <tr>
                 <th>商务:</th>
                 <td>
-                    <select id="sp_id" class="easyui-combobox">
+                    <select  class="easyui-combobox" name="users" id="users{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for user in users %}
                         <option value="{{user.id}}">[{{user.id}}]{{user.realname}}</option>
@@ -64,7 +56,7 @@
                 </td>
                 <th>类型:</th>
                 <td>
-                    <select id="busi_type" class="easyui-combobox">
+                    <select class="easyui-combobox" name="types" id="types{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
                         <option selected="selected" value="Mobile">号码</option>
                         <option value="SX">指令</option>
@@ -76,39 +68,36 @@
                 </td>
                 <th>筛选方式:</th>
                 <td>
-                    <label for="_radio_search_0"><input type="radio" value="0" id="_radio_search_0"/>当前</label>
-                    <label for="_radio_search_1"><input type="radio" value="1" id="_radio_search_1"/>历史</label>
-                    <label for="_radio_search_2"><input type="radio" value="2" id="_radio_search_2"/>全部</label>
+                    <label for="_radio_search_0"><input type="radio" value="0" id="_radio_search_{{random_key}}" name="order"/>当前</label>
+                    <label for="_radio_search_1"><input type="radio" value="1" id="_radio_search_{{random_key}}" name="order"/>历史</label>
+                    <label for="_radio_search_2"><input type="radio" value="2" id="_radio_search_{{random_key}}" name="order"/>全部</label>
                 </td>
-                <td align="right" colspan="4">
+                <td align="right" colspan="5">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="operator_demand_manange.queryData()" plain="true">查询</a>
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="operator_demand_manange.clearQuery()" plain="true">清空</a>
                 </td>
             </tr>
         </table>
         </div>
         <div data-options="region:'center',split:false"  border="false">
             <table id="operator_demand_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
-                    url="/operator/status/"
+                    url="/operator/demand/"
                     pagination="true"
-                    rownumbers="true" 
-                    fitColumns="true" 
+                    rownumbers="true"
+                    fitColumns="true"
                     singleSelect="true"
                     loadMsg='数据加载中,请稍候...'
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="id" width="15">合作方</th>
-                        <th field="channel_name" width="50">通道号</th>
-                        <th field="operator_info" width="40">手机号码</th>
-                        <th field="product_info" width="40">指令/时长</th>
-                        <th field="busi_info" width="30">端口号</th>
-                        <th field="sx" width="50">LinkID</th>
-                        <th field="spnumber" width="50">归属地</th>
-                        <th field="sx_type" width="40" data-options="formatter: operator_demand_manange.formatCommand">渠道商</th>
-                        <th field="price" width="30">定制时间</th>
-                        <th field="costprice" width="30">状态</th>
-                        <th field="fcpric" width="30">比例</th>
+                        <th field="sp" width="45">合作方</th>
+                        <th field="channel" width="50">通道号</th>
+                        <th field="mobile" width="40">手机号码</th>
+                        <th field="momsg" width="40">指令/时长</th>
+                        <th field="spnumber" width="30">端口号</th>
+                        <th field="linkid" width="50">LinkID</th>
+                        <th field="city" width="50">归属地</th>
+                        <th field="cp" width="40">渠道商</th>
+                        <th field="create_time" width="30" data-options="formatter: operator_demand_manange.formatterDate">定制时间</th>
                     </tr>
                 </thead>
             </table>
@@ -118,7 +107,7 @@
 <script>
 var operator_demand_manange = {
     url: '',
-    datagrid: $('#operator_status_list_dg'),
+    datagrid: $('#operator_demand_list_dg'),
     formatStatus: function(val, row) {
         if (val) {
             return '<span class="icon icon-ok">&nbsp;</span>已开通'
@@ -142,12 +131,15 @@ var operator_demand_manange = {
         }
     },
     queryData: function() {
-        var req_data = {'channel_id': $('#channel_id').combobox('getValue'), 
-           'sp_id': $("#sp_id").combobox('getValue'), 
-           'product_id': $("#product_id").combobox('getValue'), 
-           'operator_id': $("#operator_id").combobox('getValue'),
-           'busi_type': $("#busi_type").combobox('getValue'),
-           'area': $("#area").combobox('getValue')
+        var req_data = {'start_time': $('#start_time{{random_key}}').val(),
+           'end_time': $("#end_time{{random_key}}").val(),
+           'channel': $("#channel{{random_key}}").combobox('getValue'),
+           'cpinfo': $("#cpinfo{{random_key}}").combobox('getValue'),
+           'provinces': $("#provinces{{random_key}}").combobox('getValue'),
+           'status': $("#status{{random_key}}").combobox('getValue'),
+           'users': $("#users{{random_key}}").combobox('getValue'),
+           'types': $("#types{{random_key}}").combobox('getValue'),
+           'order': $("input[name='order'][checked]").val()
         };
         this.datagrid.datagrid('load', req_data)
     },

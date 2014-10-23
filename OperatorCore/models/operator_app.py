@@ -448,6 +448,11 @@ class DataMo(OperatorBase):
     reghour = Column(Integer)
     create_time = Column(DateTime, nullable=False)
 
+    cp_info = relationship(UsrCPInfo)
+    channe_info = relationship(ChaInfo)
+    provinces = relationship(PubProvince)
+    citys = relationship(PubCity)
+    
 class DataMr(OperatorBase):
 
     """docstring for DataMr"""
@@ -469,6 +474,11 @@ class DataMr(OperatorBase):
     regdate = Column(Integer)
     reghour = Column(Integer)
     create_time = Column(DateTime, nullable=False)
+
+    cp_info = relationship(UsrCPInfo)
+    channe_info = relationship(ChaInfo)
+    provinces = relationship(PubProvince)
+    citys = relationship(PubCity)
 
 class DataEverday(OperatorBase):
 
