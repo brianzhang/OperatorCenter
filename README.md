@@ -61,3 +61,28 @@ http://www.codegood.com/archives/129
 7、 查询该数据是否扣量（根据预先设置的扣量比例来判断）
 
 ```
+
+
+# git
+
+```
+.idea
+.gitattributes
+.gitignore
+*.pyc
+settings.py
+*.swp
+*.swo
+*.~
+*.bak
+*.pydevproject
+.project
+
+```
+
+# git core
+
+```
+[core]
+	excludesfile = C:/Users/Administrator/.gitignore
+```
