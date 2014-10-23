@@ -62,3 +62,4 @@ a:hover{ color:Red; text-decoration:underline;}
 
 fieldset{border:1px solid #95B8E7; }
 textarea{margin:1px}
+.hide{display:none; visibility: hidden;}

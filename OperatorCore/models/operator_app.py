@@ -5,8 +5,8 @@ import datetime
 import sys
 #sys.path.append("..")  #windows paths settings.
 
-from sqlalchemy.ext.declarative import declarative_base 
-from sqlalchemy import (Column, BigInteger, Integer, Boolean, Float, Numeric, 
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import (Column, BigInteger, Integer, Boolean, Float, Numeric,
                         String, DateTime, ForeignKey, create_engine, Float,
                         UniqueConstraint, event, and_)
 from sqlalchemy.orm import sessionmaker, relationship
@@ -45,15 +45,15 @@ class SysAdmin(OperatorBase):
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
 
-    def __init__(self, username=None, 
-                    userpwd=None, 
-                    realname=None, 
-                    role_id=None, 
-                    phone=None, 
-                    qq=None, 
-                    email=None, 
-                    is_show=None, 
-                    content=None, 
+    def __init__(self, username=None,
+                    userpwd=None,
+                    realname=None,
+                    role_id=None,
+                    phone=None,
+                    qq=None,
+                    email=None,
+                    is_show=None,
+                    content=None,
                     create_time=None):
 
         self.username = username
@@ -66,19 +66,19 @@ class SysAdmin(OperatorBase):
         self.is_show = is_show
         self.content = content
         self.create_time = create_time
-        
+
     def __repr__(self):
         return '<SysAdmin %s>' % self.username
 
     def is_authenticated(self):
         return True
-    
+
     def is_active(self):
         return True
-    
+
     def is_anonymous(self):
         return False
-    
+
     def get_id(self):
         return unicode(self.id)
 
@@ -108,7 +108,7 @@ class PubProvince(OperatorBase):
     """docstring for PubProvince"""
     __tablename__ = 'pub_province'
     __table_args__ = ({'mysql_engine': 'InnoDB'}, )
-    
+
     id = Column(Integer, primary_key=True)
     province = Column(String(50), nullable=False)
     create_time = Column(DateTime, nullable=False)
@@ -122,7 +122,7 @@ class PubCity(OperatorBase):
     """docstring for PubCity"""
     __tablename__ = 'pub_city'
     __table_args__ = ({'mysql_engine': 'InnoDB'}, )
-    
+
     id = Column(Integer, primary_key=True)
     province = Column(Integer, ForeignKey('pub_province.id'))
     city = Column(String(50), nullable=False)
@@ -199,25 +199,6 @@ class UsrSPInfo(OperatorBase):
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
 
-class UsrSPTongLog(OperatorBase):
-
-    """docstring for UsrSPTongLog"""
-    __tablename__ = 'usr_sptonglog'
-    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
-
-    id = Column(Integer, primary_key=True)
-    channelid = Column(Integer, ForeignKey('sys_admin.id'))
-    spid = Column(Integer, ForeignKey('usr_spinfo.id'))
-    urltype = Column(Integer, nullable=False)
-    mobile = Column(String(11), nullable=False)
-    spnumber = Column(String(15), nullable=False)
-    momsg = Column(String(150), nullable=False)
-    linkid = Column(String(50), nullable=False)
-    tongurl = Column(String(200), nullable=False)
-    is_show = Column(Boolean, nullable=False)
-    tongdate = Column(Integer, nullable=False)
-    create_time = Column(DateTime, nullable=False)
-
 class UsrCPInfo(OperatorBase):
 
     """docstring for UsrCPInfo"""
@@ -242,7 +223,7 @@ class UsrCPInfo(OperatorBase):
 
     admin_info = relationship("SysAdmin")
     bank_info = relationship("UsrCPBank")
-    
+
 class UsrCPBank(OperatorBase):
 
     """docstring for UsrCPBank"""
@@ -253,7 +234,7 @@ class UsrCPBank(OperatorBase):
     cpid = Column(Integer, ForeignKey('usr_cpinfo.id'))
     bankname =  Column(String(50), nullable=False)
     username = Column(String(50), nullable=False)
-    bankcard = Column(String(50), nullable=False) 
+    bankcard = Column(String(50), nullable=False)
     is_show = Column(Boolean, nullable=False)
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
@@ -289,25 +270,6 @@ class UsrProvince(OperatorBase):
     create_time = Column(DateTime, nullable=False)
 
     province_info = relationship("PubProvince")
-    
-class UsrCPTongLog(OperatorBase):
-
-    """docstring for UsrCPTongLog"""
-    __tablename__ = 'usr_cptonglog'
-    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
-
-    id = Column(Integer, primary_key=True)
-    channelid = Column(Integer, ForeignKey('cha_info.id'))
-    cpid = Column(Integer, ForeignKey('usr_cpinfo.id'))
-    urltype = Column(Integer)
-    mobile = Column(String(15), nullable=False)
-    spnumber = Column(String(20), nullable=False)
-    momsg = Column(String(150), nullable=False)
-    linkid = Column(String(50), nullable=False)
-    tongurl = Column(String(200), nullable=False)
-    backmsg = Column(String(50), nullable=False)
-    tongdate = Column(Integer)
-    create_time = Column(DateTime, nullable=False)
 
 class ChaProvince(OperatorBase):
 
@@ -324,7 +286,7 @@ class ChaProvince(OperatorBase):
     content = Column(String(200), nullable=False)
     create_time = Column(DateTime, nullable=False)
     province_info = relationship(PubProvince)
-    
+
 class ChaInfo(OperatorBase):
 
     """docstring for ChaInfo"""
@@ -350,7 +312,7 @@ class ChaInfo(OperatorBase):
     remark = Column(String(2000), nullable=False)
     content = Column(String(200), nullable=False)
     create_time = Column(DateTime, nullable=False)
-    
+
     sp_info = relationship(UsrSPInfo)
     product_info = relationship(PubProducts)
     busi_info = relationship(PubBusiType)
@@ -375,17 +337,17 @@ class UsrChannel(OperatorBase):
     is_show = Column(Boolean, nullable=False)
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
-    
+
     cha_info = relationship(ChaInfo)
     cp_info = relationship(UsrCPInfo)
     user_info = relationship(SysAdmin)
     usr_province = relationship(UsrProvince)
 
 class UsrChannelSync(OperatorBase):
-    
+
     """docstring for UsrChannelSync"""
     __tablename__ = 'usr_channel_sync'
-    __table_args__ = ({'mysql_engine': 'InnoDB'}, )    
+    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
 
     id = Column(Integer, primary_key=True)
     channelid = Column(Integer, ForeignKey('cha_info.id'))
@@ -405,7 +367,7 @@ class UsrChannelSync(OperatorBase):
 class UsrSPSync(OperatorBase):
     """docstring for UsrSPSync"""
     __tablename__ = 'usr_sp_sync'
-    __table_args__ = ({'mysql_engine': 'InnoDB'}, )    
+    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
 
     id = Column(Integer, primary_key=True)
     spid = Column(Integer, ForeignKey('usr_spinfo.id'))
@@ -420,9 +382,51 @@ class UsrSPSync(OperatorBase):
     linkid = Column(String(100), nullable=False)
     msg = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
-    
+
     usr_spinfo = relationship(UsrSPInfo)
     cha_info = relationship(ChaInfo)
+
+class UsrCPTongLog(OperatorBase):
+
+    """docstring for UsrCPTongLog"""
+    __tablename__ = 'usr_cptonglog'
+    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
+
+    id = Column(Integer, primary_key=True)
+    channelid = Column(Integer, ForeignKey('cha_info.id'))
+    cpid = Column(Integer, ForeignKey('usr_cpinfo.id'))
+    urltype = Column(Integer)
+    mobile = Column(String(15), nullable=False)
+    spnumber = Column(String(20), nullable=False)
+    momsg = Column(String(150), nullable=False)
+    linkid = Column(String(50), nullable=False)
+    tongurl = Column(String(200), nullable=False)
+    backmsg = Column(String(50), nullable=False)
+    tongdate = Column(Integer)
+    create_time = Column(DateTime, nullable=False)
+    cp_info = relationship(UsrCPInfo)
+    channe_info = relationship(ChaInfo)
+
+class UsrSPTongLog(OperatorBase):
+
+    """docstring for UsrSPTongLog"""
+    __tablename__ = 'usr_sptonglog'
+    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
+
+    id = Column(Integer, primary_key=True)
+    channelid = Column(Integer, ForeignKey('cha_info.id'))
+    spid = Column(Integer, ForeignKey('usr_spinfo.id'))
+    urltype = Column(Integer, nullable=False)
+    mobile = Column(String(11), nullable=False)
+    spnumber = Column(String(15), nullable=False)
+    momsg = Column(String(150), nullable=False)
+    linkid = Column(String(50), nullable=False)
+    tongurl = Column(String(200), nullable=False)
+    is_show = Column(Boolean, nullable=False)
+    tongdate = Column(Integer, nullable=False)
+    create_time = Column(DateTime, nullable=False)
+    sp_info = relationship(UsrSPInfo)
+    channe_info = relationship(ChaInfo)
 
 class DataMo(OperatorBase):
 
@@ -444,6 +448,11 @@ class DataMo(OperatorBase):
     reghour = Column(Integer)
     create_time = Column(DateTime, nullable=False)
 
+    cp_info = relationship(UsrCPInfo)
+    channe_info = relationship(ChaInfo)
+    provinces = relationship(PubProvince)
+    citys = relationship(PubCity)
+    
 class DataMr(OperatorBase):
 
     """docstring for DataMr"""
@@ -465,6 +474,11 @@ class DataMr(OperatorBase):
     regdate = Column(Integer)
     reghour = Column(Integer)
     create_time = Column(DateTime, nullable=False)
+
+    cp_info = relationship(UsrCPInfo)
+    channe_info = relationship(ChaInfo)
+    provinces = relationship(PubProvince)
+    citys = relationship(PubCity)
 
 class DataEverday(OperatorBase):
 

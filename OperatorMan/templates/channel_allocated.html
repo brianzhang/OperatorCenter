@@ -25,7 +25,7 @@
                 <th>状态:</th>
                 <td>
                     <select name="status" id="allocated_status" class="easyui-combobox">
-                        <option selected="selected" value=''>--请选择--</option>                        
+                        <option selected="selected" value=''>--请选择--</option>
                         <option value="1">正常</option>
                         <option value="0">停止</option>
                     </select>
@@ -37,7 +37,7 @@
                         <option value="spnumber">通道号码</option>
                         <option value="backurl">同步地址</option>
                     </select>
-                    <input name="keyword" id="allocated_keyword"/>
+                    <input name="keyword" id="allocated_keyword" class="easyui-textbox"/>
                 </td>
                 <td align="right">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_allocated_manager.queryData()" plain="true">查询</a>
@@ -49,10 +49,10 @@
         <div data-options="region:'center',split:false"  border="false">
             <table id="channel_allocated_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
                     url="{{action_path}}"
-                    toolbar="#channel_allocated_toolbar" 
+                    toolbar="#channel_allocated_toolbar"
                     pagination="true"
-                    rownumbers="true" 
-                    fitColumns="true" 
+                    rownumbers="true"
+                    fitColumns="true"
                     singleSelect="true"
                     loadMsg='数据加载中,请稍候...'
                     pageSize="20">
@@ -121,9 +121,9 @@
                     </tr>
                     <tr>
                         <td>上行内容：</td>
-                        <td><input class="easyui-validatebox" type="text" name="txt_momsg" data-options="required:true" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_momsg" data-options="required:true" /></td>
                         <td>通道号码：</td>
-                        <td><input class="easyui-validatebox" type="text" name="txt_spnumber" data-options="required:true" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_spnumber" data-options="required:true" /></td>
                     </tr>
                     <tr>
                         <td>分配指令：</td>
@@ -131,9 +131,9 @@
                     </tr>
                     <tr>
                         <td>CP结算单价：</td>
-                        <td><input class="easyui-validatebox" type="text" name="txt_fcprice" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_fcprice" /></td>
                         <td>扣量比例：</td>
-                        <td><input class="easyui-validatebox" type="text" name="txt_bl" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_bl" /></td>
                     </tr>
                     <tr>
                         <td>指令模式：</td>
@@ -145,11 +145,11 @@
                     </tr>
                     <tr>
                         <td>同步地址：</td>
-                        <td colspan="3"><textarea name="txt_backurl" style="width: 315px;"></textarea></td>
+                        <td colspan="3"><textarea name="txt_backurl" style="width: 315px;" class="easyui-textbox"></textarea></td>
                     </tr>
                     <tr>
                         <td>备注：</td>
-                        <td colspan="3"><textarea name="content" style="width: 315px"></textarea></td>
+                        <td colspan="3"><textarea name="content" style="width: 315px" class="easyui-textbox"></textarea></td>
                     </tr>
                 </table>
             </fieldset>
@@ -172,7 +172,7 @@
                     <td colspan="3">
                         <hr />
                         <div id="allocated_channel_city">
-                            
+
                         </div>
                     </td>
                 </tr>
@@ -187,7 +187,7 @@
             <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_allocated_manager.saveChannelAllocated()">保存</a>
             <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_allocated_manager.clearForm()">取消</a>
         </div>
-    </div>    
+    </div>
 </div>
 <script>
     var channel_allocated_manager = {
@@ -210,13 +210,13 @@
                 $('#channel_allocated_manager_window').dialog('open').dialog('setTitle','修改通道分配');
                 $.getJSON(this.url, {}, function(resp) {
                     if(resp.ok) {
-                        $('#channel_allocated_manager_form').form('load',resp.data);      
+                        $('#channel_allocated_manager_form').form('load',resp.data);
                         channel_allocated_manager.labMsg.html('发送 '+resp.data.txt_momsg+' 到'+resp.data.txt_spnumber);
                         $("#allocated_channel_city").html(resp.data.city_html)
                     }
                 });
                 //$('#channel_allocated_manager_form').form('load',row);
-                
+
             }
         },
         setChannelAllocatedStatus: function(status) {
@@ -267,9 +267,9 @@
 
         },
         queryData: function() {
-            var req_data = {'channel_id': $('#allocated_channel_id').combobox('getValue'), 
-               'cp_id': $("#allocated_cp_id").combobox('getValue'), 
-               'status': $("#allocated_status").combobox('getValue'), 
+            var req_data = {'channel_id': $('#allocated_channel_id').combobox('getValue'),
+               'cp_id': $("#allocated_cp_id").combobox('getValue'),
+               'status': $("#allocated_status").combobox('getValue'),
                'other_query': $("#allocated_other_query").combobox('getValue'),
                'keyword': $("#allocated_keyword").val()
             };
@@ -301,7 +301,7 @@
                     //txt_fcprice, txt_bl
                 }
             });
-            
+
         },
         eventBind: function() {
             $("input[name='allocated_province']").unbind("click");

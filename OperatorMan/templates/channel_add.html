@@ -6,10 +6,10 @@
                 <tr>
                     <td width="80px">通道名称：</td>
                     <td>
-                        <input 
-                            class="easyui-validatebox" 
-                            type="text" 
-                            name="cha_name" 
+                        <input
+                            class="easyui-textbox easyui-validatebox"
+                            type="text"
+                            name="cha_name"
                             {% if channel_info %}value="{{channel_info.cha_name}}"{%endif%}
                             data-options="required:true">
                         </input>
@@ -23,12 +23,12 @@
                                 {% if sp_info.id == channel_info.sp_info.id %}
                                     <option value="{{sp_info.id}}" selected="selected">[{{sp_info.id}}]-{{sp_info.name}}</option>
                                 {% else %}
-                                    <option value="{{sp_info.id}}">[{{sp_info.id}}]-{{sp_info.name}}</option>    
+                                    <option value="{{sp_info.id}}">[{{sp_info.id}}]-{{sp_info.name}}</option>
                                 {%endif%}
                             {% else %}
                                 <option value="{{sp_info.id}}">[{{sp_info.id}}]-{{sp_info.name}}</option>
                             {% endif %}
-                            
+
                         {%endfor%}
                         </select>
                     </td>
@@ -37,10 +37,10 @@
                     <td>信息类型：</td>
                     <td>
                         {%for busi in busi_list%}
-                        <label><input type="radio" 
+                        <label><input type="radio"
                             {% if channel_info %}
                                 {% if channel_info.busi_info.id == busi.id%}
-                                checked="checked" 
+                                checked="checked"
                                 {% endif%}
                             {% endif %}
                             name="busi" value="{{busi.id}}"/>{{busi.name}}</label>
@@ -94,9 +94,9 @@
                 </tr>
                 <tr>
                     <td>上行指令：</td>
-                    <td><input class="easyui-validatebox" type="text" {% if channel_info %}value="{{channel_info.sx}}"{%endif%} name="txt_sx" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" {% if channel_info %}value="{{channel_info.sx}}"{%endif%} name="txt_sx" data-options="required:true"></input></td>
                     <td>上行端口：</td>
-                    <td><input class="easyui-validatebox" type="text" {% if channel_info %}value="{{channel_info.spnumber}}"{%endif%} name="txt_prot" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" {% if channel_info %}value="{{channel_info.spnumber}}"{%endif%} name="txt_prot" data-options="required:true"></input></td>
                 </tr>
             </table>
         </fieldset>
@@ -106,31 +106,31 @@
                 <tr>
                     <td width="80px">端口资费：</td>
                     <td>
-                        <input class="easyui-validatebox" type="text" name="txt_price" {% if channel_info %}value="{{channel_info.price}}"{%endif%} data-options="required:true"></input>
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="txt_price" {% if channel_info %}value="{{channel_info.price}}"{%endif%} data-options="required:true"></input>
                     </td>
                     <td>接入单价：</td>
                     <td>
-                        <input class="easyui-validatebox" type="text" name="txt_costprice"  {% if channel_info %}value="{{channel_info.costprice}}"{%endif%} data-options="required:true"></input>
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="txt_costprice"  {% if channel_info %}value="{{channel_info.costprice}}"{%endif%} data-options="required:true"></input>
                     </td>
                 </tr>
                 <tr>
                     <td>分成单价：</td>
                     <td>
-                        <input class="easyui-validatebox" type="text" name="txt_fcpric" {% if channel_info %}value="{{channel_info.fcpric}}"{%endif%} data-options="required:true"></input>
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="txt_fcpric" {% if channel_info %}value="{{channel_info.fcpric}}"{%endif%} data-options="required:true"></input>
                     </td>
                     <td>默认比例：</td>
                     <td>
-                        <input class="easyui-validatebox" style="width: 150px" name="txt_bl" {% if channel_info %}value="{{channel_info.bl}}"{%endif%} data-options="showTip:true">
+                        <input class="easyui-textbox easyui-validatebox" style="width: 150px" name="txt_bl" {% if channel_info %}value="{{channel_info.bl}}"{%endif%} data-options="showTip:true">
                     </td>
                 </tr>
                 <tr>
                     <td>单号日限：</td>
                     <td>
-                        <input class="easyui-validatebox" type="text" name="txt_daymax" {% if channel_info %}value="{{channel_info.daymax}}"{%endif%} data-options="required:true"></input>
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="txt_daymax" {% if channel_info %}value="{{channel_info.daymax}}"{%endif%} data-options="required:true"></input>
                     </td>
                     <td>单号月限：</td>
                     <td>
-                        <input class="easyui-validatebox" type="text" {% if channel_info %}value="{{channel_info.monmax}}"{%endif%} name="txt_monmax" data-options="required:true"></input>
+                        <input class="easyui-textbox easyui-validatebox" type="text" {% if channel_info %}value="{{channel_info.monmax}}"{%endif%} name="txt_monmax" data-options="required:true"></input>
                     </td>
                 </tr>
             </table>
@@ -167,17 +167,17 @@
                     <td colspan="3">
                         <hr />
                         <div id="channel_city">
-                            
+
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td>备注说明：</td>
-                    <td colspan="3"><textarea name="content" style="width: 100%">{% if channel_info %}{{channel_info.remark}}{%endif%}</textarea></td>
+                    <td colspan="3"><textarea class="easyui-textbox" data-options="multiline:true" name="content" style="width: 100%; height: 50px;">{% if channel_info %}{{channel_info.remark}}{%endif%}</textarea></td>
                 </tr>
                 <tr>
                     <td>其他信息：</td>
-                    <td colspan="3"><textarea name="other_content" style="width: 100%">{% if channel_info %}{{channel_info.content}}{%endif%}</textarea></td>
+                    <td colspan="3"><textarea class="easyui-textbox" data-options="multiline:true" name="other_content" style="width: 100%; height: 50px;">{% if channel_info %}{{channel_info.content}}{%endif%}</textarea></td>
                 </tr>
             </table>
         </fieldset>
@@ -204,7 +204,7 @@
                             title: 'Error',
                             msg: result.errorMsg
                         });
-                    } else {                        
+                    } else {
                         channel_manager.reloadData();
                         set_channel_moduel.clearForm();
                     }
@@ -230,7 +230,7 @@
             })
         },
         initialize: function(){
-           this.eventBind(); 
+           this.eventBind();
         }
     };
     (function() {

@@ -1,9 +1,9 @@
 <table id="operator_dg" title="运营商列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
         url="/cooperate/operator/list/"
-        toolbar="#operator_toolbar" 
+        toolbar="#operator_toolbar"
         pagination="true"
-        rownumbers="true" 
-        fitColumns="true" 
+        rownumbers="true"
+        fitColumns="true"
         singleSelect="true"
         pageSize="20">
     <thead>
@@ -13,17 +13,17 @@
             <th field="link_name" width="50">联系人</th>
             <th field="link_phone" width="50">电话号码</th>
             <th field="link_qq" width="50">QQ</th>
-            <th field="link_email" width="50">Email</th>
-            <th field="link_address" width="50">地址</th>
+            <!--<th field="link_email" width="50">Email</th>
+            <th field="link_address" width="50">地址</th>-->
             <th field="is_show" data-options="formatter: operator_list.formatStatus" width="50">合作状态</th>
-            <th field="content" width="50">备注</th>
+            <!--<th field="content" width="50">备注</th>-->
         </tr>
     </thead>
 </table>
 <div id="operator_toolbar">
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="operator_list.addSpInfo()">添加</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="operator_list.editSpInfo()">修改</a>
-    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="operator_list.destroySpInfo()">删除</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="operator_list.destroySpInfo()">合作(停/起)用</a>
 </div>
 
 <div id="window_SpInfo" class="easyui-dialog" style="width:500px;height:470px;padding:10px 20px" closed="true" modal="true">
@@ -32,7 +32,7 @@
             <table cellpadding="5">
                 <tr>
                     <td>运营商名称：</td>
-                    <td><input class="easyui-validatebox" type="text" name="name" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="name" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>商务跟进：</td>
@@ -46,23 +46,23 @@
                 </tr>
                 <tr>
                     <td>姓名：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_name" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_name" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>电话：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_phone" ></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_phone" ></input></td>
                 </tr>
                 <tr>
                     <td>联系人QQ：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_qq" ></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_qq" ></input></td>
                 </tr>
                 <tr>
                     <td>邮箱：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_email" data-options="validType:'email'"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_email" data-options="validType:'email'"></input></td>
                 </tr>
                 <tr>
                     <td>地址：</td>
-                    <td><input class="easyui-validatebox" type="text" name="link_address"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="link_address"></input></td>
                 </tr>
                 <tr>
                     <td>是否合作：</td>
@@ -70,7 +70,7 @@
                 </tr>
                 <tr>
                     <td>备注：</td>
-                    <td><input name="content"></input></td>
+                    <td><input name="content" class="easyui-textbox"></input></td>
                 </tr>
             </table>
         </form>
@@ -85,8 +85,9 @@
     var operator_list = {
         url: '',
         clearForm: function() {
+            $('#window_SpInfo_Form').form('clear'); // clear form data.
             $('#window_SpInfo').dialog('close');        // close the dialog
-            $('#window_SpInfo_Form').datagrid('reload');    // reload the user data
+            $('#operator_dg').datagrid('reload');    // reload the user data
         },
         addSpInfo: function() {
             $('#window_SpInfo').dialog('open').dialog('setTitle','添加运营商信息');
@@ -98,10 +99,16 @@
             if (row){
                 $('#window_SpInfo').dialog('open').dialog('setTitle','修改运营商信息');
                 $('#window_SpInfo_Form').form('load',row);
+                if(row.is_show) {
+                    _check = $('#window_SpInfo_Form').find("input[name='is_show']")[0];
+                    console.log(_check);
+                    $(_check).attr('checked', 'checked');
+                }
                 this.url = '/cooperate/operator/edit/'+row.id+'/';
             }
         },
         submitForm: function() {
+            console.log('submit require');
             $('#window_SpInfo_Form').form('submit',{
                 url: this.url,
                 onSubmit: function(){
@@ -149,5 +156,5 @@
                 return '<span class="icon icon-error">&nbsp;</span>'
             }
         }
-    };    
+    };
 </script>

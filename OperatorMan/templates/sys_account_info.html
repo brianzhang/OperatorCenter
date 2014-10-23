@@ -4,15 +4,15 @@
             <table cellpadding="5">
                 <tr>
                     <td>用户名：</td>
-                    <td><input class="easyui-validatebox" type="text" name="username" data-options="required:true" value="{{user.username}}" readonly="readonly"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="username" data-options="required:true" value="{{user.username}}" readonly="readonly"></input></td>
                 </tr>
                 <tr>
                     <td>密码：</td>
-                    <td><input class="easyui-validatebox" type="password" name="userpwd" value="{{user.userpwd}}" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="password" name="userpwd" value="{{user.userpwd}}" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>昵称：</td>
-                    <td><input class="easyui-validatebox" type="text" name="realname" value="{{user.realname}}" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="realname" value="{{user.realname}}" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>角色组：</td>
@@ -26,15 +26,15 @@
                 </tr>
                 <tr>
                     <td>电话：</td>
-                    <td><input name="phone" value="{{user.phone}}"></input></td>
+                    <td><input name="phone" class="easyui-textbox" value="{{user.phone}}"></input></td>
                 </tr>
                 <tr>
                     <td>QQ：</td>
-                    <td><input name="qq" value="{{user.qq}}"></input></td>
+                    <td><input name="qq" class="easyui-textbox" value="{{user.qq}}"></input></td>
                 </tr>
                 <tr>
                     <td>email：</td>
-                    <td><input name="email" data-options="validType:'email'" value="{{user.email}}"></input></td>
+                    <td><input name="email" class="easyui-textbox" data-options="validType:'email'" value="{{user.email}}"></input></td>
                 </tr>
                 <tr>
                     <td>是否启用：</td>
@@ -42,7 +42,7 @@
                 </tr>
                 <tr>
                     <td>备注：</td>
-                    <td><input name="content" value="{{user.content}}"></input></td>
+                    <td><input name="content" value="{{user.content}}" class="easyui-textbox"></input></td>
                 </tr>
             </table>
         </form>
@@ -76,6 +76,9 @@
         updateReload: function() {
             var _tab = $('#tabs').tabs('getSelected');
             $('#tabs').tabs('update', {tab: _tab, options: {iconCls: 'icon icon-user-info'}});
+        },
+        clearForm: function(){
+          closeTab('close');
         }
     }
 </script>

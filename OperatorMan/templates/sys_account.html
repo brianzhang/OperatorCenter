@@ -1,9 +1,9 @@
 <table id="account_dg" title="账号列表" class="easyui-datagrid" style="width:100;height:100;position: absolute"
         url="/sys/account/list/"
-        toolbar="#account_list_toolbar" 
+        toolbar="#account_list_toolbar"
         pagination="true"
-        rownumbers="true" 
-        fitColumns="true" 
+        rownumbers="true"
+        fitColumns="true"
         singleSelect="true"
         pageSize="20">
     <thead>
@@ -30,15 +30,15 @@
             <table cellpadding="5">
                 <tr>
                     <td>用户名：</td>
-                    <td><input class="easyui-validatebox" type="text" name="username" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="username" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>密码：</td>
-                    <td><input class="easyui-validatebox" type="password" name="userpwd" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="password" name="userpwd" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>昵称：</td>
-                    <td><input class="easyui-validatebox" type="text" name="realname" data-options="required:true"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="realname" data-options="required:true"></input></td>
                 </tr>
                 <tr>
                     <td>角色组：</td>
@@ -52,15 +52,15 @@
                 </tr>
                 <tr>
                     <td>电话：</td>
-                    <td><input name="phone"></input></td>
+                    <td><input name="phone" class="easyui-textbox"></input></td>
                 </tr>
                 <tr>
                     <td>QQ：</td>
-                    <td><input name="qq"></input></td>
+                    <td><input name="qq" class="easyui-textbox"></input></td>
                 </tr>
                 <tr>
                     <td>email：</td>
-                    <td><input name="email" data-options="validType:'email'"></input></td>
+                    <td><input name="email" class="easyui-textbox" data-options="validType:'email'"></input></td>
                 </tr>
                 <tr>
                     <td>是否启用：</td>
@@ -68,7 +68,7 @@
                 </tr>
                 <tr>
                     <td>备注：</td>
-                    <td><input name="content"></input></td>
+                    <td><input name="content" class="easyui-textbox"></input></td>
                 </tr>
             </table>
         </form>
@@ -142,5 +142,5 @@
                 return '<span class="icon icon-error" title="False">&nbsp;</span>'
             }
         }
-    };    
+    };
 </script>
