@@ -6,25 +6,16 @@
             <tr>
                 <th>时间:</th>
                 <td><input class="easyui-datebox" type="text"/></td>
-                <th>通道:</th>
-                <td>
-                    <select id="channel_id" class="easyui-combobox">
-                        <option selected="selected" value=''>--请选择--</option>
-                        {%for channel in channels%}
-                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
-                        {%endfor%}
-                    </select>
-                </td>
                 <td align="right">
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="operator_exploits_manange.queryData()" plain="true">查询</a>
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="operator_exploits_manange.clearQuery()" plain="true">清空</a>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="operator_purpose_manange.queryData()" plain="true">查询</a>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="operator_purpose_manange.clearQuery()" plain="true">清空</a>
                 </td>
             </tr>
         </table>
         </div>
         <div data-options="region:'center',split:false"  border="false">
              <div id="graphic" class="span8">
-                <div id="graphic_region_main" class="main" style="height:400px"></div>
+                <div id="graphic_purpose_main" class="main" style="height:400px"></div>
                 <div>
             </div>
         </div>
@@ -33,10 +24,9 @@
 <script>
 // 路径配置
 require.config({
-    paths:{ 
+    paths:{
         'echarts' : 'http://echarts.baidu.com/build/echarts',
-        'echarts/chart/bar' : 'http://echarts.baidu.com/build/echarts',
-        'echarts/chart/map': 'http://echarts.baidu.com/build/echarts'
+        'echarts/chart/bar' : 'http://echarts.baidu.com/build/echarts'
     }
 });
 
@@ -48,93 +38,164 @@ require(
     ],
     function(ec) {
         // 基于准备好的dom，初始化echarts图表
-        var myChart = ec.init(document.getElementById('graphic_region_main'));
+        var myChart = ec.init(document.getElementById('graphic_purpose_main'));
         var option = {
-        tooltip : {
-            trigger: 'axis'
-        },
-        legend: {
-            data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
-        },
-        toolbox: {
-            show : true,
-            feature : {
-                mark : {show: true},
-                dataView : {show: true, readOnly: false},
-                magicType : {show: true, type: ['line', 'bar', 'stack', 'tiled']},
-                restore : {show: true},
-                saveAsImage : {show: true}
-            }
-        },
-        calculable : true,
-        xAxis : [
-            {
-                type : 'category',
-                boundaryGap : false,
-                data : ['周一','周二','周三','周四','周五','周六','周日']
-            }
-        ],
-        yAxis : [
-            {
-                type : 'value'
-            }
-        ],
-        series : [
-            {
-                name:'邮件营销',
-                type:'line',
-                stack: '总量',
-                itemStyle: {normal: {areaStyle: {
-                    color: 'rgba(255, 69, 0, 0.7)'
-                }}},
-                data:[120, 132, 101, 134, 90, 230, 210]
-            },
-            {
-                name:'联盟广告',
-                type:'line',
-                stack: '总量',
-                itemStyle: {normal: {areaStyle: {
-                    color: 'rgba(30, 144, 255, 0.6)'
-                }}},
-                data:[220, 182, 191, 234, 290, 330, 310]
-            },
-            {
-                name:'视频广告',
-                type:'line',
-                stack: '总量',
-                itemStyle: {normal: {areaStyle: {
-                    color: 'rgba(138, 43, 226, 0.5)'
-                }}},
-                data:[150, 232, 201, 154, 190, 330, 410]
-            },
-            {
-                name:'直接访问',
-                type:'line',
-                stack: '总量',
-                itemStyle: {normal: {areaStyle: {
-                    color: 'rgba(34, 139, 34, 0.4)'
-                }}},
-                data:[320, 332, 301, 334, 390, 330, 320]
-            },
-            {
-                name:'搜索引擎',
-                type:'line',
-                stack: '总量',
-                itemStyle: {normal: {areaStyle: {
-                    color: 'rgba(220, 20, 60, 0.3)'
-                }}},
-                data:[820, 932, 901, 934, 1290, 1330, 1320]
-            }
-        ]
-    };
-                                     
-                            
-        // 为echarts对象加载数据 
-        myChart.setOption(option); 
+              title : {
+                  text: '各省分析',
+                  subtext: '2014-10-24'
+              },
+              tooltip : {
+                  trigger: 'axis'
+              },
+              legend: {
+                  data:['上行','定制','转化率(%)','T-定制', 'T-转化率(%)']
+              },
+              toolbox: {
+                  show : true,
+                  feature : {
+                      mark : {show: true},
+                      dataView : {show: true, readOnly: false},
+                      magicType : {show: true, type: ['line', 'bar']},
+                      restore : {show: true},
+                      saveAsImage : {show: true}
+                  }
+              },
+              calculable : true,
+              xAxis : [
+                  {
+                      type : 'category',
+                      boundaryGap : false,
+                      data : ['西藏',
+                              '青海',
+                              '宁夏',
+                              '海南',
+                              '甘肃',
+                              '贵州',
+                              '新疆',
+                              '云南',
+                              '重庆',
+                              '吉林',
+                              '山西',
+                              '天津',
+                              '江西',
+                              '广西',
+                              '陕西',
+                              '黑龙江',
+                              '内蒙古',
+                              '安徽',
+                              '北京',
+                              '福建',
+                              '上海',
+                              '湖北',
+                              '湖南',
+                              '四川',
+                              '辽宁',
+                              '河北',
+                              '河南',
+                              '浙江',
+                              '山东',
+                              '江苏',
+                              '广东']
+                  }
+              ],
+              yAxis : [
+                  {
+                      type : 'value',
+                      axisLabel : {
+                          formatter: '{value} %'
+                      }
+                  }
+              ],
+              series : [
+                  {
+                      name:'上行',
+                      type:'line',
+                      data:[21, 8, 7, 8, 8, 25, 41, 97, 1228, 625, 341, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
+                      markPoint : {
+                          data : [
+                              {type : 'max', name: '最大值'},
+                              {type : 'min', name: '最小值'}
+                          ]
+                      },
+                      markLine : {
+                          data : [
+                              {type : 'average', name: '平均值'}
+                          ]
+                      }
+                  },
+                  {
+                      name:'定制',
+                      type:'line',
+                      data:[18, 7, 6, 7, 43, 34, 345, 567, 4228, 525, 641, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
+                      markPoint : {
+                          data : [
+                              {type : 'max', name: '最大值'},
+                              {type : 'min', name: '最小值'}
+                          ]
+                      },
+                      markLine : {
+                          data : [
+                              {type : 'average', name: '平均值'}
+                          ]
+                      }
+                  },
+                  {
+                      name:'转化率(%)',
+                      type:'line',
+                      data:[21, 8, 7, 8, 8, 25, 41, 97, 1228, 625, 341, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
+                      markPoint : {
+                          data : [
+                              {type : 'max', name: '最大值'},
+                              {type : 'min', name: '最小值'}
+                          ]
+                      },
+                      markLine : {
+                          data : [
+                              {type : 'average', name: '平均值'}
+                          ]
+                      }
+                  },
+                  {
+                      name:'T-定制',
+                      type:'line',
+                      data:[21, 8, 7, 8, 8, 25, 41, 97, 1228, 625, 341, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
+                      markPoint : {
+                          data : [
+                              {type : 'max', name: '最大值'},
+                              {type : 'min', name: '最小值'}
+                          ]
+                      },
+                      markLine : {
+                          data : [
+                              {type : 'average', name: '平均值'}
+                          ]
+                      }
+                  },
+                  {
+                      name:'T-转化率(%)',
+                      type:'line',
+                      data:[21, 8, 7, 8, 8, 25, 41, 97, 1228, 625, 341, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
+                      markPoint : {
+                          data : [
+                              {type : 'max', name: '最大值'},
+                              {type : 'min', name: '最小值'}
+                          ]
+                      },
+                      markLine : {
+                          data : [
+                              {type : 'average', name: '平均值'}
+                          ]
+                      }
+                  }
+              ]
+          };
+
+        // 为echarts对象加载数据
+        myChart.setOption(option);
     }
 );
 
-var operator_exploits_manange = {
+var operator_purpose_manange = {
     url: '',
     datagrid: $('#operator_exploits_list_dg'),
     formatStatus: function(val, row) {
@@ -160,9 +221,9 @@ var operator_exploits_manange = {
         }
     },
     queryData: function() {
-        var req_data = {'channel_id': $('#channel_id').combobox('getValue'), 
-           'sp_id': $("#sp_id").combobox('getValue'), 
-           'product_id': $("#product_id").combobox('getValue'), 
+        var req_data = {'channel_id': $('#channel_id').combobox('getValue'),
+           'sp_id': $("#sp_id").combobox('getValue'),
+           'product_id': $("#product_id").combobox('getValue'),
            'operator_id': $("#operator_id").combobox('getValue'),
            'busi_type': $("#busi_type").combobox('getValue'),
            'area': $("#area").combobox('getValue')

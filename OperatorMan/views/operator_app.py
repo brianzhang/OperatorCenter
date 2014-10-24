@@ -36,7 +36,7 @@ operator_view = Blueprint('operator_view', __name__, url_prefix='/operator')
 @login_required
 def operator_status():
     '''
-    状态报告
+    状态报告-> CP的数据
     '''
     req = request.args if request.method == 'GET' else request.form
 
@@ -109,7 +109,7 @@ def operator_status():
 @login_required
 def operator_demand():
     '''
-    点播上行
+    点播上行--> SP 的数据信息
     '''
     req = request.args if request.method == 'GET' else request.form
 

@@ -452,7 +452,7 @@ class DataMo(OperatorBase):
     channe_info = relationship(ChaInfo)
     provinces = relationship(PubProvince)
     citys = relationship(PubCity)
-    
+
 class DataMr(OperatorBase):
 
     """docstring for DataMr"""
@@ -498,6 +498,10 @@ class DataEverday(OperatorBase):
     tj_hour = Column(Integer)
     tj_date = Column(Integer)
     create_time = Column(DateTime, nullable=False)
+    sp_info = relationship(UsrCPInfo)
+    channe_info = relationship(ChaInfo)
+    city_info = relationship(PubCity)
+    province_info = relationship(PubProvince)
 
 class AccountSP(OperatorBase):
 
@@ -516,6 +520,9 @@ class AccountSP(OperatorBase):
     js_date = Column(Integer)
     create_time = Column(DateTime, nullable=False)
 
+    sp_info = relationship(UsrSPInfo)
+    channe_info = relationship(ChaInfo)
+
 class AccountCP(OperatorBase):
 
     """docstring for AccountCP"""
@@ -533,6 +540,8 @@ class AccountCP(OperatorBase):
     js_date = Column(Integer)
     create_time = Column(DateTime, nullable=False)
 
+    cp_info = relationship(UsrCPInfo)
+    channe_info = relationship(ChaInfo)
 
 _Session = sessionmaker(bind=operator_engine, expire_on_commit=False)
 

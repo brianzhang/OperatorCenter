@@ -6,25 +6,25 @@
             <tr>
                 <th>开始时间:</th>
                 <td>
-                    <input class="easyui-datebox" type="text" id="txt_start_time"/>
+                    <input class="easyui-datebox" type="text" id="start_time{{random_key}}"/>
                 </td>
                 <th>结束时间:</th>
                 <td>
-                    <input class="easyui-datebox"type="text" id="txt_end_time" />
+                    <input class="easyui-datebox"type="text" id="end_time{{random_key}}" />
                 </td>
 
                 <th>通道:</th>
                 <td>
-                    <select id="channel_id" class="easyui-combobox">
+                    <select id="channel{{random_key}}" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for channel in channels%}
                         <option value="{{channel.id}}">{{channel.cha_name}}</option>
                         {%endfor%}
                     </select>
                 </td>
-                <th>合作方:</th>
+                <th>合作方(SP):</th>
                 <td>
-                    <select id="sp_id" class="easyui-combobox">
+                    <select id="sp{{random_key}}" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for sp_info in sp_info_list %}
                         <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
@@ -48,13 +48,13 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="id" width="15">合作方</th>
+                        <th field="sp" width="15">合作方（SP）</th>
                         <th field="channel_name" width="50">通道名称</th>
-                        <th field="operator_info" width="40">资费</th>
-                        <th field="product_info" width="40">条数</th>
-                        <th field="busi_info" width="30">单价</th>
-                        <th field="sx" width="50">金额</th>
-                        <th field="spnumber" width="50">时间周期</th>
+                        <th field="costprice" width="40">资费</th>
+                        <th field="count" width="40">条数</th>
+                        <th field="price" width="30">单价</th>
+                        <th field="total" width="50">金额</th>
+                        <th field="date_time" width="50" data-options="formatter: financial_cooperate_summary_manager.formatterDate">时间周期</th>
                     </tr>
                 </thead>
             </table>
@@ -91,12 +91,11 @@ var financial_cooperate_summary_manager = {
         }
     },
     queryData: function() {
-        var req_data = {'channel_id': $('#channel_id').combobox('getValue'),
-           'sp_id': $("#sp_id").combobox('getValue'),
-           'product_id': $("#product_id").combobox('getValue'),
-           'operator_id': $("#operator_id").combobox('getValue'),
-           'busi_type': $("#busi_type").combobox('getValue'),
-           'area': $("#area").combobox('getValue')
+        var req_data = {
+          'start_time': $("#start_time{{random_key}}").datetimebox("getValue"),
+          'end_time': $("#end_time{{random_key}}").datetimebox("getValue"),
+          'channel': $('#channel{{random_key}}').combobox('getValue'),
+          'sp': $("#sp{{random_key}}").combobox('getValue')
         };
         this.datagrid.datagrid('load', req_data)
     },

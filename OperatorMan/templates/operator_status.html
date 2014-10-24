@@ -142,8 +142,8 @@ var operator_status_manange = {
         }
     },
     queryData: function() {
-        var req_data = {'start_time': $('#start_time{{random_key}}').val(),
-           'end_time': $("#end_time{{random_key}}").val(),
+        var req_data = {'start_time': $('#start_time{{random_key}}').datetimebox("getValue"),
+           'end_time': $("#end_time{{random_key}}").datetimebox("getValue"),
            'channel': $("#channel{{random_key}}").combobox('getValue'),
            'cpinfo': $("#cpinfo{{random_key}}").combobox('getValue'),
            'provinces': $("#provinces{{random_key}}").combobox('getValue'),

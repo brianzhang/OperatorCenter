@@ -6,16 +6,16 @@
             <tr>
                 <th>开始时间:</th>
                 <td>
-                    <input class="easyui-datebox" type="text" id="start_time{{random_key}}"/>
+                    <input class="easyui-datebox" type="text" name="start_time" id="start_time{{random_key}}"/>
                 </td>
                 <th>结束时间:</th>
                 <td>
-                    <input class="easyui-datebox"type="text" id="txt_end_time{{random_key}}" />
+                    <input class="easyui-datebox"type="text" name="end_time" id="end_time{{random_key}}" />
                 </td>
 
                 <th>通道:</th>
                 <td>
-                    <select id="channels{{random_key}}" class="easyui-combobox">
+                    <select id="channels{{random_key}}" name="channel" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for channel in channels%}
                         <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
@@ -24,7 +24,7 @@
                 </td>
                 <th>合作方:</th>
                 <td>
-                    <select id="spinfo{{random_key}}" class="easyui-combobox">
+                    <select id="spinfo{{random_key}}" name="sp" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for sp_info in sp_info_list %}
                         <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
@@ -79,6 +79,15 @@ var financial_cooperate_manager = {
     datagrid: $('#financial_cooperate_list_dg'),
     update: function(types) {
 
+    },
+    queryData: function() {
+      var req_data = {
+        start_time: $("#start_time{{random_key}}").datetimebox("getValue"),
+        end_time: $("#end_time{{random_key}}").datetimebox("getValue"),
+        channel: $("#channels{{random_key}}").combobox("getValue"),
+        sp: $("#spinfo{{random_key}}").combobox("getValue")
+      };
+      this.datagrid.datagrid('load', req_data)
     }
 }
 </script>
