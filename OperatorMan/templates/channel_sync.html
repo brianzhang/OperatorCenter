@@ -71,7 +71,7 @@
 </div>
 
 
-<div id="set_sync_sesttings_window" class="easyui-dialog" title="添加用户" data-options="iconCls:'icon-save'" style="width:500px;height:400px;padding:10px;" closed="true" modal="true">
+<div id="set_sync_sesttings_window" class="easyui-dialog" title="添加用户" data-options="iconCls:'icon-save'" style="width:500px;height:570px;padding:10px;" closed="true" modal="true">
     <div style="padding:10px 60px 20px 60px">
         <form id="set_sync_sesttings_form" method="post">
             <table cellpadding="5">
@@ -103,7 +103,7 @@
                         <select name="sync_type" class="easyui-combobox">
                             <option selected="selected" value=''>--请选择--</option>
                             <option value="0">上行同步</option>
-                            <option value="1">下行同步</option>
+                            <!--<option value="1">下行同步</option>-->
                             <option value="2">状态报告</option>
                         </select>
                     </td>
@@ -133,8 +133,22 @@
                     <td><input class="easyui-textbox easyui-validatebox" type="text" name="msg"></input></td>
                 </tr>
                 <tr>
-                    <td>是否异步：</td>
-                    <td><label><input type="radio" value="1" name="is_rsync"/>是</label><label><input type="radio" value="0" name="is_rsync"/>否</label></td>
+                    <td>参数(status)：</td>
+                    <td>
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="status" style="width: 60px"></input>=
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="value" style="width: 60px"></input>
+                    </td>
+                </tr>
+                <tr>
+                    <td>接口类型：</td>
+                    <td><label><input type="radio" value="1" name="interface_type"/>单一</label><label><input type="radio" value="0" name="interface_type"/>综合</label></td>
+                </tr>
+                <tr id="interface_type" style="display:none">
+                    <td>关键字(type)：</td>
+                    <td>
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="type" style="width: 60px"></input>=
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="key" style="width: 60px"></input>
+                    </td>
                 </tr>
                 <tr>
                     <td>当前状态：</td>
