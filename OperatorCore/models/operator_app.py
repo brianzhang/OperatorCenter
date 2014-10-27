@@ -155,7 +155,9 @@ class PubMobileArea(OperatorBase):
     city = Column(Integer, ForeignKey('pub_city.id'))
     content = Column(String(100), nullable=False)
     create_time = Column(DateTime, nullable=False)
-
+    city_info = relationship("PubCity")
+    province_info = relationship("PubProvince")
+    
 class PubProducts(OperatorBase):
 
     """docstring for PubProducts"""

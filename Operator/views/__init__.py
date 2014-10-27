@@ -35,3 +35,12 @@ def querySPInfo(sp_id=None):
             return None
     else:
         return None
+
+def get_mobile_attribution(mobile=None):
+    if mobile:
+        mobile = mobile[0:7]
+        mobile_info = g.session.query(PubMobileArea).filter(PubMobileArea.mobile == mobile).all()
+
+        if mobile_info:
+            return mobile_info[0]
+    return None
