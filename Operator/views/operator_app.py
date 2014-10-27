@@ -28,16 +28,16 @@ from Operator.views import querySPInfo
 
 operator_view = Blueprint('operator_view', __name__)
 
-@operator_view.route('/MO/<channel_id>/<SP_ID>/', methods=["GET"])
-def channel_mo(SP_ID=None):
+@operator_view.route('/MO/<int:channel_id>/<SP_ID>/', methods=["GET"])
+def channel_mo(channel_id=None, SP_ID=None):
     sp_info = True#querySPInfo(SP_ID)
     if sp_info:
         return jsonify({'ok': True})
 
     return jsonify({'ok': False, 'SP_ID': SP_ID, 'MSG': 'The SP IS UNDEFINED'})
 
-@operator_view.route('/MR/<channel_id>/<SP_ID>/', methods=["GET"])
-def channel_mr(SP_ID=None):
+@operator_view.route('/MR/<int:channel_id>/<SP_ID>/', methods=["GET"])
+def channel_mr(channel_id=None,SP_ID=None):
     sp_info = True #querySPInfo(SP_ID)
     if sp_info:
         return jsonify({'ok': True})
