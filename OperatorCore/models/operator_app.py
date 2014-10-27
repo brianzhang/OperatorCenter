@@ -302,6 +302,7 @@ class ChaInfo(OperatorBase):
     sx = Column(String(150), nullable=False)
     spnumber = Column(String(20), nullable=False)
     sx_type = Column(Integer)
+    command_moduel = Column(Integer)
     price = Column(Integer)
     costprice = Column(Integer)
     fcpric = Column(Integer)
@@ -360,8 +361,6 @@ class UsrChannelSync(OperatorBase):
     mobile = Column(String(100), nullable=False)
     linkid = Column(String(100), nullable=False)
     msg = Column(String(100), nullable=False)
-    create_time = Column(DateTime, nullable=False)
-
     cha_info = relationship(ChaInfo)
 
 class UsrSPSync(OperatorBase):
@@ -381,6 +380,12 @@ class UsrSPSync(OperatorBase):
     mobile = Column(String(100), nullable=False)
     linkid = Column(String(100), nullable=False)
     msg = Column(String(100), nullable=False)
+
+    status_name = Column(String(100), nullable=False)
+    status_val = Column(String(100), nullable=False)
+    type_name = Column(String(100), nullable=False)
+    type_key = Column(String(100), nullable=False)
+    interface_type = Column(Integer, nullable=False)
     create_time = Column(DateTime, nullable=False)
 
     usr_spinfo = relationship(UsrSPInfo)

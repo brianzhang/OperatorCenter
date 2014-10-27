@@ -74,7 +74,7 @@ def channel_list():
         if channel_list:
             channels = []
             for channel in channel_list:
-                channels.append({'id': channel.id, 
+                channels.append({'id': channel.id,
                                 'channel_name': channel.cha_name,
                                 'operator_info': "[%s] %s" % (channel.spid, channel.sp_info.name),
                                 'product_info': channel.product_info.proname,
@@ -102,8 +102,8 @@ def channel_list():
         products = g.session.query(PubProducts).all()
         busi_list = g.session.query(PubBusiType).all()
 
-        return render_template('channel_list.html', channels=channels, 
-                                            sp_info_list=sp_info_list, 
+        return render_template('channel_list.html', channels=channels,
+                                            sp_info_list=sp_info_list,
                                             busi_list=busi_list,
                                             products=products)
 
@@ -127,6 +127,7 @@ def channel_add_info(channel_id=None):
         channel_info.sx = req_args.get('txt_sx', None)
         channel_info.spnumber = req_args.get('txt_prot', None)
         channel_info.sx_type = req_args.get('command_type', None)
+        channel_info.command_moduel = req_args.get('command_moduel', None)
         channel_info.price = req_args.get('txt_price', 0)
         channel_info.costprice = req_args.get('txt_costprice', 0)
         channel_info.fcpric = req_args.get('txt_fcpric', 0)
@@ -141,22 +142,22 @@ def channel_add_info(channel_id=None):
         black_city = req_args.getlist('city', None)
 
         try:
+
             g.session.add(channel_info)
             g.session.commit()
+            if provinces:
+                g.session.query(ChaProvince).filter(ChaProvince.channelid==channel_info.id).delete()
+                g.session.commit()
 
             for prov in provinces:
 
-                cha_province = g.session.query(ChaProvince).filter(ChaProvince.channelid==channel_info.id).\
-                                filter(ChaProvince.province==int(prov)).first()
-
-                if not cha_province:
-                    cha_province = ChaProvince()
-                    cha_province.create_time = datetime.datetime.now()
+                cha_province = ChaProvince()
+                cha_province.create_time = datetime.datetime.now()
 
                 cha_province.channelid = channel_info.id
                 cha_province.province = int(prov)
                 city_str = []
-                for _city in black_city:                    
+                for _city in black_city:
                     for _c in city_list:
                         if _c.id == int(_city) and _c.province == int(prov):
                             city_str.append(_city)
@@ -169,9 +170,9 @@ def channel_add_info(channel_id=None):
                 g.session.add(cha_province)
                 g.session.commit()
 
-            write_sys_log(2, 
-                        u'设置通道信息', 
-                        u'用户【%s】在【%s】设置了通道信息，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+            write_sys_log(2,
+                        u'设置通道信息',
+                        u'用户【%s】在【%s】设置了通道信息，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr),
                         g.user.id)
 
             return jsonify({'ok': True})
@@ -188,7 +189,7 @@ def channel_add_info(channel_id=None):
         products = g.session.query(PubProducts).all()
         busi_list = g.session.query(PubBusiType).all()
         sp_list = g.session.query(UsrSPInfo).all()
-        
+
         provinces_json = {}
         for prov in provinces:
             provinces_json[prov.id] = []
@@ -198,9 +199,9 @@ def channel_add_info(channel_id=None):
                     prov_item.append({'name': city.city, 'id': city.id})
             provinces_json[prov.id].append(prov_item)
 
-        return render_template('channel_add.html', provinces=provinces, 
-                            products=products, 
-                            busi_list=busi_list, 
+        return render_template('channel_add.html', provinces=provinces,
+                            products=products,
+                            busi_list=busi_list,
                             sp_list=sp_list,
                             action_url=request.path,
                             provinces_json=json.dumps(provinces_json),
@@ -217,25 +218,28 @@ def channel_confige(channel_id=None):
         channel_list = g.session.query(ChaInfo).all()
         cp_info_list = g.session.query(UsrCPInfo).all()
         admins = g.session.query(SysAdmin).all()
-        provinces = g.session.query(PubProvince).all()
+        if channel_id:
+            provinces = g.session.query(ChaProvince).filter(ChaProvince.channelid==channel_id).all()
+        else:
+            provinces = g.session.query(PubProvince).all()
         city_list = g.session.query(PubCity).all()
 
         provinces_json = {}
 
         for prov in provinces:
-            provinces_json[prov.id] = []
+            provinces_json[prov.province] = []
             prov_item = []
             for city in city_list:
-                if city.province == prov.id:
+                if city.province == prov.province:
                     prov_item.append({'name': city.city, 'id': city.id})
-            provinces_json[prov.id].append(prov_item)
+            provinces_json[prov.province].append(prov_item)
 
         if not channel_id:
             channel_id = 0
 
-        return render_template('channel_allocated.html', 
+        return render_template('channel_allocated.html',
                                 provinces=provinces,
-                                action_path=action_path, 
+                                action_path=action_path,
                                 channel_id=int(channel_id),
                                 channel_list=channel_list,
                                 admins=admins,
@@ -263,7 +267,7 @@ def channel_confige(channel_id=None):
         if cp_id:
             query = query.filter(UsrChannel.cpid==cp_id)
 
-        
+
         if other_query:
             if other_query == 'spnumber':
                 query = query.filter(UsrChannel.spnumber==keyword)
@@ -284,7 +288,7 @@ def channel_confige(channel_id=None):
             channels = []
             for channel in channel_allocated_list:
                 channels.append({'id': channel.id,
-                                'channel_name': '[%s] %s' % (channel.cha_info.id, channel.cha_info.cha_name), 
+                                'channel_name': '[%s] %s' % (channel.cha_info.id, channel.cha_info.cha_name),
                                 'cp_name': '[%s] %s' % (channel.cp_info.id, channel.cp_info.name),
                                 'sx_str': u'%s 到 %s' % (channel.momsg, channel.spnumber),
                                 'rysc_url': channel.backurl,
@@ -302,8 +306,8 @@ def  channel_info_get():
     if channel_id:
         channel = g.session.query(ChaInfo).filter(ChaInfo.id == channel_id).one()
         if channel:
-            return jsonify({'ok': True, 'data': {'msg': channel.sx, 
-                                                'spnumber': channel.spnumber, 
+            return jsonify({'ok': True, 'data': {'msg': channel.sx,
+                                                'spnumber': channel.spnumber,
                                                 'fcprice': channel.fcpric,
                                                 'bl': channel.bl}
                             })
@@ -322,10 +326,23 @@ def set_channel_allocated(allocated_id=None):
     if request.method == "GET":
         if allocated_id:
             channel_allocated = g.session.query(UsrChannel).filter(UsrChannel.id==allocated_id).one()
+
             user_province = []
             city_html = ""
+            province_html = ''
+
             if channel_allocated:
-                for province in channel_allocated.usr_province:
+                usr_province = channel_allocated.usr_province
+
+                if not usr_province:
+                  usr_province = g.session.query(ChaProvince).filter(ChaProvince.channelid == channel_allocated.channelid).all()
+                else:
+                    for pro in usr_province:
+                        province_html += """
+                          <label style="color: red">%s</label>
+                          """ % (pro.province_info.province)
+
+                for province in usr_province:
                     user_province.append(province.province)
                     _citys = g.session.query(PubCity).filter(PubCity.province==province.province).all()
                     if _citys:
@@ -335,7 +352,7 @@ def set_channel_allocated(allocated_id=None):
                                 <label><input type="checkbox" province="%s" value="%s" name="city"/>%s</label>
                             """ % (province.province, _city.id, _city.city)
                         city_html += """</div>"""
-                
+
                 return jsonify({'ok': True, 'data': {
                         'channel': channel_allocated.channelid,
                         'sys_admin': channel_allocated.adminid,
@@ -349,7 +366,10 @@ def set_channel_allocated(allocated_id=None):
                         'txt_backurl': channel_allocated.backurl,
                         'content': channel_allocated.content,
                         'allocated_province': user_province,
-                        "city_html": city_html
+                        "city_html": city_html,
+                        "province_html": province_html,
+                        "sx_type": channel_allocated.cha_info.sx_type,
+                        "command_moduel": channel_allocated.cha_info.command_moduel
                         }
                     })
         else:
@@ -360,13 +380,19 @@ def set_channel_allocated(allocated_id=None):
         else:
             channel_allocated = UsrChannel()
             channel_allocated.create_time = datetime.datetime.now()
-        
+        channel_info = g.session.query(ChaInfo).filter(ChaInfo.id==req_args.get("channel", None)).one()
+
         channel_allocated.channelid = req_args.get("channel", None)
         channel_allocated.cpid = req_args.get("cp", None)
         channel_allocated.adminid = req_args.get("sys_admin", None)
-        channel_allocated.momsg = req_args.get("txt_momsg", None)
-        channel_allocated.sx_type = req_args.get("rad_sx_type", None)
-        channel_allocated.spnumber = req_args.get("txt_spnumber", None)
+        channel_allocated.sx_type = channel_info.sx_type
+        if channel_info.command_moduel == 0:
+            channel_allocated.momsg = "%s%s" % (channel_info.sx, req_args.get('moduel_val', ''))
+        elif channel_info.command_moduel == 1:
+            channel_allocated.spnumber = "%s%s" % (channel_info.spnumber, req_args.get('moduel_val', ''))
+        else:
+            channel_allocated.momsg = channel_info.sx
+            channel_allocated.spnumber = channel_info.spnumber
         channel_allocated.fcprice = req_args.get("txt_fcprice", None)
         channel_allocated.bl = req_args.get("txt_bl", None)
         channel_allocated.backurl = req_args.get("txt_backurl", None)
@@ -376,12 +402,15 @@ def set_channel_allocated(allocated_id=None):
         black_city = req_args.getlist('city', None)
 
         try:
-            write_sys_log(2, 
-                    u'分配通道渠道', 
-                    u'用户【%s】在【%s】分配通道渠道，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+            write_sys_log(2,
+                    u'分配通道渠道',
+                    u'用户【%s】在【%s】分配通道渠道，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr),
                     g.user.id)
             g.session.add(channel_allocated)
             g.session.commit()
+            if provinces:
+                g.session.query(UsrProvince).filter(UsrProvince.channelid==channel_allocated.id).delete()
+                g.session.commit()
 
             for prov in provinces:
 
@@ -398,7 +427,7 @@ def set_channel_allocated(allocated_id=None):
                 usr_province.is_show = channel_allocated.is_show
                 usr_province.content = channel_allocated.content
                 city_str = []
-                for _city in black_city:                    
+                for _city in black_city:
                     for _c in city_list:
                         if _c.id == int(_city) and _c.province == int(prov):
                             city_str.append(_city)
@@ -409,8 +438,39 @@ def set_channel_allocated(allocated_id=None):
 
             return jsonify({'ok': True})
         except Exception, e:
-            print e
             return jsonify({'errorMsg': 'error'})
+
+
+@channel_view.route("/confige/test/<channel_id>/", methods=["GET", "POST"])
+@login_required
+def channel_config_test(channel_id=None):
+    if channel_id:
+        usr_channel = g.session.query(UsrChannel).filter(UsrChannel.id==channel_id).one()
+        momsg = usr_channel.momsg
+        spnumber = usr_channel.spnumber
+        url = usr_channel.backurl
+
+        values = {'msg' : momsg,
+                  'spcode' : spnumber,
+                  'mobile': '15815515601',
+                  'linkid': '%s%s' % (spnumber, momsg),
+                  'status': 'DELIVRD'
+        }
+
+        data = urllib.urlencode(values)
+        req = urllib2.Request(url, data)
+
+        try:
+            response = urllib2.urlopen(req)
+            data = response.read()
+            if data == 'OK':
+                return jsonify({'ok': True})
+            else:
+                return jsonify({'ok': False})
+        except Exception, e:
+            return jsonify({'ok': False})
+
+    return jsonify({'ok': False})
 
 @channel_view.route("/confige/status/set/", methods=["POST"])
 @login_required
@@ -432,18 +492,18 @@ def channel_config_status_set():
 
         else:
             change_module = g.session.query(UsrChannel).filter(UsrChannel.id==allocated_id).one()
-        
+
         change_module.is_show = status
         try:
-            write_sys_log(2, 
-                    u'通道状态设置', 
-                    u'用户【%s】在【%s】分配通道渠道，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+            write_sys_log(2,
+                    u'通道状态设置',
+                    u'用户【%s】在【%s】分配通道渠道，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr),
                     g.user.id)
             g.session.add(change_module)
             g.session.commit()
             return jsonify({'ok': True})
         except Exception, e:
-           
+
             return jsonify({'errorMsg': 'error'})
 
 @channel_view.route("/settings/", methods=['GET', 'POST'])
@@ -473,7 +533,7 @@ def channel_settings():
         usr_channel_sync_list = query.all()
 
     	currentpage = int(req_args.get('page', 1))
-        numperpage = int(req_args.get('rows', 20))        
+        numperpage = int(req_args.get('rows', 20))
         start = numperpage * (currentpage - 1)
         total = len(usr_channel_sync_list)
 
@@ -507,7 +567,7 @@ def channel_settings_edit(c_id=None):
         channel_setting_info = UsrChannelSync()
         channel_setting_info.create_time = datetime.datetime.now()
 
-    
+
     channel_setting_info.channelid = req_args.get('channelid', None)
     channel_setting_info.sync_type = req_args.get("sync_type", None)
     channel_setting_info.status_key = req_args.get("status_key", None)
@@ -520,9 +580,9 @@ def channel_settings_edit(c_id=None):
     channel_setting_info.msg = '0'
 
     try:
-        write_sys_log(2, 
-                    u'接口配置', 
-                    u'用户【%s】在【%s】分配接口配置，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+        write_sys_log(2,
+                    u'接口配置',
+                    u'用户【%s】在【%s】分配接口配置，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr),
                     g.user.id)
 
         g.session.add(channel_setting_info)
@@ -562,7 +622,7 @@ def channel_sync():
         usr_channel_sync_list = query.all()
 
         currentpage = int(req_args.get('page', 1))
-        numperpage = int(req_args.get('rows', 20))        
+        numperpage = int(req_args.get('rows', 20))
         start = numperpage * (currentpage - 1)
         total = len(usr_channel_sync_list)
 
@@ -596,23 +656,29 @@ def sync_add(sync_id=None):
         channel_sync_info = UsrSPSync()
         channel_sync_info.create_time = datetime.datetime.now()
 
-    
+
     channel_sync_info.spid = req_args.get('spid', None)
     channel_sync_info.channelid = req_args.get('channelid', None)
     channel_sync_info.sync_type = req_args.get("sync_type", None)
     channel_sync_info.status_key = req_args.get("status_key", None)
-    channel_sync_info.url = req_args.get("url", None)
-    channel_sync_info.is_rsync = req_args.get("is_rsync", False)
+    url = '/MR/%s/%s/' % (channel_sync_info.spid, channel_sync_info.channelid) if channel_sync_info.status_key == '1' else '/MO/%s/%s/' % (channel_sync_info.spid, channel_sync_info.channelid)
+    channel_sync_info.url = url
+    channel_sync_info.is_rsync = True
     channel_sync_info.is_show = req_args.get("is_show", False)
     channel_sync_info.spnumber = req_args.get("spnumber", 0)
     channel_sync_info.mobile = req_args.get("mobile", 0)
     channel_sync_info.linkid = req_args.get("linkid", 0)
     channel_sync_info.msg = req_args.get("msg", 0)
+    channel_sync_info.interface_type = req_args.get('interface_type', 0)
+    channel_sync_info.status_name = req_args.get('status_name', '')
+    channel_sync_info.status_val = req_args.get('status_val', '')
+    channel_sync_info.type_name = req_args.get('type_name', '')
+    channel_sync_info.type_key = req_args.get('type_key', '')
 
     try:
-        write_sys_log(2, 
-                    u'同步地址', 
-                    u'用户【%s】在【%s】分配同步地址，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr), 
+        write_sys_log(2,
+                    u'同步地址',
+                    u'用户【%s】在【%s】分配同步地址，登录IP为：【%s】'%(g.user.realname, datetime.datetime.now(), request.remote_addr),
                     g.user.id)
 
         g.session.add(channel_sync_info)
@@ -622,7 +688,28 @@ def sync_add(sync_id=None):
     except Exception, e:
         return jsonify({'errorMsg': u'添加失败'})
 
-
+@channel_view.route("/sync/info/<sync_id>/", methods=["POST", "GET"])
+def sync_info(sync_id=None):
+  if sync_id:
+      channel_sync_info = g.session.query(UsrSPSync).filter(UsrSPSync.id==sync_id).one()
+      return jsonify({
+        'spid': channel_sync_info.spid,
+        'channelid': channel_sync_info.channelid,
+        'sync_type': channel_sync_info.sync_type,
+        'status_key': channel_sync_info.status_key,
+        'sync_url': channel_sync_info.url,
+        'spnumber': channel_sync_info.spnumber,
+        'mobile': channel_sync_info.mobile,
+        'linkid': channel_sync_info.linkid,
+        'msg': channel_sync_info.msg,
+        'status_name': channel_sync_info.status_name,
+        'status_val': channel_sync_info.status_val,
+        'interface_type': channel_sync_info.interface_type,
+        'type_name': channel_sync_info.type_name,
+        'type_key': channel_sync_info.type_key,
+        'is_show': 1 if channel_sync_info.is_show else 0
+      })
+  return jsonify({'ok': True})
 @channel_view.route("/cover/", methods=['GET'])
 @login_required
 def channel_cover():
@@ -651,7 +738,7 @@ def channel_cover():
         _item['channels1']=_channels1
         _item['channels2']=_channels2
         _item['channels3']=_channels3
-        
+
         render_data.append(_item)
 
     return render_template('channel_cover.html', render_data=json.dumps(render_data))

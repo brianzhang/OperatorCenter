@@ -31,8 +31,7 @@
                     </select>
                 </td>
                 <td align="right" colspan="3">
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_settings_manager.queryData()" plain="true">查询</a>
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="channel_settings_manager.clearQuery()" plain="true">清空</a>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_sync_manager.queryData()" plain="true">查询</a>
                 </td>
             </tr>
         </table>
@@ -78,7 +77,7 @@
                 <tr>
                     <td>运营商：</td>
                     <td>
-                        <select name="spid" class="easyui-combobox" id="">
+                        <select name="spid" class="easyui-combobox easyui-validatebox" id="splist">
                             <option selected="selected" value=''>--请选择--</option>
                             {% for sp in spinfo_list %}
                             <option value="{{sp.id}}">[{{sp.id}}]{{sp.name}}</option>
@@ -89,7 +88,7 @@
                 <tr>
                     <td>通道名称：</td>
                     <td>
-                        <select name="channelid" class="easyui-combobox" id="">
+                        <select name="channelid" class="easyui-combobox easyui-validatebox" id="channellist">
                             <option selected="selected" value=''>--请选择--</option>
                             {% for channel in channels %}
                             <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
@@ -100,10 +99,9 @@
                 <tr>
                     <td> 同步类型：</td>
                     <td>
-                        <select name="sync_type" class="easyui-combobox">
+                        <select name="sync_type" class="easyui-combobox" id="sync_type">
                             <option selected="selected" value=''>--请选择--</option>
-                            <option value="0">上行同步</option>
-                            <!--<option value="1">下行同步</option>-->
+                            <option value="1">上行同步</option>
                             <option value="2">状态报告</option>
                         </select>
                     </td>
@@ -114,11 +112,16 @@
                 </tr>
                 <tr>
                     <td>接口地址：</td>
-                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="url" data-options="required:true"></input></td>
+                    <td>
+                      <label id="sync_url" style="color: red; font-weight: bold;"></label>
+                      <input type="hidden" name="url" ></input>
+                    </td>
                 </tr>
                 <tr>
                     <td>参数(spnumber)：</td>
-                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="spnumber"></input></td>
+                    <td>
+                      <input class="easyui-textbox easyui-validatebox" type="text" name="spnumber"></input>
+                    </td>
                 </tr>
                 <tr>
                     <td>参数(mobile)：</td>
@@ -135,19 +138,19 @@
                 <tr>
                     <td>参数(status)：</td>
                     <td>
-                        <input class="easyui-textbox easyui-validatebox" type="text" name="status" style="width: 60px"></input>=
-                        <input class="easyui-textbox easyui-validatebox" type="text" name="value" style="width: 60px"></input>
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="status_name" style="width: 60px"></input>=
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="status_val" style="width: 60px"></input>
                     </td>
                 </tr>
                 <tr>
                     <td>接口类型：</td>
-                    <td><label><input type="radio" value="1" name="interface_type"/>单一</label><label><input type="radio" value="0" name="interface_type"/>综合</label></td>
+                    <td><label><input type="radio" value="1" name="interface_type"/>单一</label><label><input type="radio" value="2" name="interface_type"/>综合</label></td>
                 </tr>
                 <tr id="interface_type" style="display:none">
                     <td>关键字(type)：</td>
                     <td>
-                        <input class="easyui-textbox easyui-validatebox" type="text" name="type" style="width: 60px"></input>=
-                        <input class="easyui-textbox easyui-validatebox" type="text" name="key" style="width: 60px"></input>
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="type_name" style="width: 60px"></input>=
+                        <input class="easyui-textbox easyui-validatebox" type="text" name="type_key" style="width: 60px"></input>
                     </td>
                 </tr>
                 <tr>
@@ -166,20 +169,34 @@
 <script>
 var channel_sync_manager = {
     url: '',
+    channelId: '',
+    spId: '',
     datagrid: $('#channel_sync_list_dg'),
     clearForm: function() {
             $('#set_sync_sesttings_window').dialog('close');
     },
     addChannel: function() {
+        $('#set_sync_sesttings_form').form('clear');
+        $("#interface_type").hide()
+        $("#interface_type").find('input').val('');
         $('#set_sync_sesttings_window').dialog('open').dialog('setTitle','添加接口');;
         this.url = '/channel/sync/add/';
     },
     editChannel: function() {
         var row = this.datagrid.datagrid('getSelected');
+        $('#set_sync_sesttings_form').form('clear');
         if (row){
             $('#set_sync_sesttings_window').dialog('open').dialog('setTitle','修改接口');
             this.url = '/channel/sync/'+row.id+'/';
-            $('#set_sync_sesttings_form').form('load',row);
+            $.getJSON('/channel/sync/info/'+row.id+'/', {}, function(resp) {
+                $('#set_sync_sesttings_form').form('load',resp);
+                if (resp.interface_type == 2) {
+                    $("#interface_type").show()
+                }else{
+                    $("#interface_type").hide()
+                }
+                $("#sync_url").html(resp.sync_url);
+            });
         }
 
     },
@@ -251,11 +268,8 @@ var channel_sync_manager = {
     syncType: function(val, row) {
         switch(val){
 
-            case 0:
-                return '上行同步'
-
             case 1:
-                return '下行同步'
+                return '上行同步'
 
             case 2:
 
@@ -282,6 +296,49 @@ var channel_sync_manager = {
     },
     clearQuery: function() {
 
+    },
+    eventBind: function() {
+      $("input[name='interface_type']").on('click', function() {
+          val = $(this).val();
+          if(val=='1') {
+              $("#interface_type").hide()
+              $("#interface_type").find('input').val('')
+          }else{
+              $("#interface_type").show()
+          }
+      });
+      $("#channellist").combobox({
+          onSelect: function(r) {
+            channel_sync_manager.channelId = r.value;
+            channel_sync_manager.setURL();
+          }
+      });
+      $("#splist").combobox({
+          onSelect: function(r) {
+            channel_sync_manager.spId = r.value;
+            channel_sync_manager.setURL();
+          }
+      });
+      $("#sync_type").combobox({
+          onSelect: function(r) {
+              channel_sync_manager.types = r.value;
+              channel_sync_manager.setURL();
+          }
+      });
+    },
+    setURL: function() {
+      var url = '';
+      var types = channel_sync_manager.types;
+      if(types == '1') {
+          url = "/MR/"+channel_sync_manager.spId+"/"+channel_sync_manager.channelId+"/";
+      }else{
+          url = "/MO/"+channel_sync_manager.spId+"/"+channel_sync_manager.channelId+"/";
+      }
+      $("#sync_url").html(url);
+    },
+    initialize: function() {
+      this.eventBind();
     }
-}
+};
+channel_sync_manager.initialize();
 </script>

@@ -36,20 +36,23 @@
                 <tr>
                     <td>信息类型：</td>
                     <td>
-                        {%for busi in busi_list%}
-                        <label><input type="radio"
-                            {% if channel_info %}
-                                {% if channel_info.busi_info.id == busi.id%}
-                                checked="checked"
-                                {% endif%}
+                        <select class="easyui-combobox" name="busi">
+                        {% for busi in busi_list %}
+                          {% if channel_info %}
+                            {% if channel_info.busi_info.id == busi.id %}
+                            <option value="{{busi.id}}" selected="selected">[{{busi.id}}]-{{busi.name}}</option>
+                            {% else %}
+                            <option value="{{busi.id}}">[{{busi.id}}]-{{busi.name}}</option>
                             {% endif %}
-                            name="busi" value="{{busi.id}}"/>{{busi.name}}</label>
-                        {%endfor%}
+                          {% else %}
+                            <option value="{{busi.id}}">[{{busi.id}}]-{{busi.name}}</option>
+                          {% endif%}
+                        {% endfor %}
+                        </select>
                     </td>
                     <td>指令模式：</td>
                     <td>
-                        <label><input type="radio" name="command_type" value="0" {% if channel_info %}{%if channel_info.sx_type == 0 %}checked="checked"{%endif%}{%endif%}/>模糊</label>
-                        <label><input type="radio" name="command_type" value="1" {% if channel_info %}{%if channel_info.sx_type == 1 %}checked="checked"{%endif%}{%endif%}/>模糊+精确</label>
+                        <label><input type="radio" name="command_type" value="1" {% if channel_info %}{%if channel_info.sx_type == 1 %}checked="checked"{%endif%}{%endif%}/>模糊</label>
                         <label><input type="radio" name="command_type" value="2" {% if channel_info %}{%if channel_info.sx_type == 2 %}checked="checked"{%endif%}{%endif%}/>双精确</label>
                     </td>
                 </tr>
@@ -87,9 +90,9 @@
                     </td>
                     <td>指令类型：</td>
                     <td>
-                        <label><input type="radio" name="command_moduel" value="0"/>短指令</label>
-                        <label><input type="radio" name="command_moduel" value="1"/>长指令</label>
-                        <label><input type="radio" name="command_moduel" value="2"/>不扩展</label>
+                        <label><input type="radio" {% if channel_info %}{%if channel_info.command_moduel == 0 %}checked="checked"{%endif%}{%endif%} name="command_moduel" value="0" {% if channel_info %}{%if channel_info.sx_type == 2 %}disabled="disabled"{%endif%}{%endif%}/>短指令</label>
+                        <label><input type="radio" {% if channel_info %}{%if channel_info.command_moduel == 1 %}checked="checked"{%endif%}{%endif%} name="command_moduel" value="1" {% if channel_info %}{%if channel_info.sx_type == 2 %}disabled="disabled"{%endif%}{%endif%}/>长指令</label>
+                        <label><input type="radio" {% if channel_info %}{%if channel_info.command_moduel == 2 %}checked="checked"{%endif%}{%endif%} name="command_moduel" value="2"/>不扩展</label>
                     </td>
                 </tr>
                 <tr>
@@ -138,28 +141,32 @@
         <fieldset>
             <legend>地区配置</legend>
             <table>
+                {%if channel_info%}
+                <tr>
+                  <td width="80px">已开通省份：</td>
+                  <td colspan="3">
+                    {%for prov in channel_info.cha_province%}
+                      <label>{{prov.province_info.province}}</lable>
+                    {%endfor%}
+                    <hr />
+                  </td>
+                </td>
+                <!--<tr>
+                  <td width="80px">已屏蔽的城市：</td>
+                  <td colspan="3">
+                  </td>
+                </td>-->
+                {%endif%}
                 <tr>
                     <td width="80px">开通省份：</td>
                     <td colspan="3">
                     {%for province in provinces%}
-                        {% if channel_info %}
-                            {%set is_in_cha = False%}
-                            {%for prov in channel_info.cha_province %}
-                                {% if prov.province == province.id%}
-                                {% set is_in_cha = True%}
-                                <label><input name="province" type="checkbox" checked="checked" text="{{province.province}}" value="{{province.id}}"/>{{province.province}}</label>
-                                {%endif%}
-                            {%endfor%}
-                            {%if not is_in_cha%}
-                            <label><input name="province" type="checkbox" text="{{province.province}}" value="{{province.id}}"/>{{province.province}}</label>
-                            {%endif%}
-                        {%else%}
-                            <label><input name="province" type="checkbox" text="{{province.province}}" value="{{province.id}}"/>{{province.province}}</label>
-                        {% endif %}
+                        <label><input name="province" type="checkbox" text="{{province.province}}" value="{{province.id}}"/>{{province.province}}</label>
                         {%if loop.index % 10 ==0 %}
                         <br />
                         {%endif%}
                     {%endfor%}
+
                     </td>
                 </tr>
                 <tr>
@@ -227,7 +234,18 @@
                 }else{
                     $('#cits_'+val).remove();
                 }
-            })
+            });
+            $("input[name='command_type']").on('click', function(e) {
+              var command_type = $(this).val();
+              if(command_type == '1') {
+                $($("input[name='command_moduel']")[0]).removeAttr('disabled');
+                $($("input[name='command_moduel']")[1]).removeAttr('disabled');
+              }else{
+                $($("input[name='command_moduel']")[0]).attr('disabled', 'disabled');
+                $($("input[name='command_moduel']")[1]).attr('disabled', 'disabled');
+                $($("input[name='command_moduel']")[2]).click();
+              }
+            });
         },
         initialize: function(){
            this.eventBind();

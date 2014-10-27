@@ -89,9 +89,10 @@
                             <select name="channel" id="set_allocated_channel_id" class="easyui-combobox" data-options="required:true, onSelect: channel_allocated_manager.onChannelSelect">
                                 <option selected="selected">--请选择--</option>
                                 {%for channel in channel_list%}
-                                <option value="{{channel.id}}" >[{{channel.id}}]{{channel.cha_name}}</option>
+                                <option value="{{channel.id}}" {% if channel_id == channel.id%}selected="selected"{%endif%}>[{{channel.id}}]{{channel.cha_name}}</option>
                                 {%endfor%}
                             </select>
+                            <input name="sx_type" type="hidden"/>
                         </td>
                         <td>商务跟进：</td>
                         <td>
@@ -120,14 +121,8 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>上行内容：</td>
-                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_momsg" data-options="required:true" /></td>
-                        <td>通道号码：</td>
-                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_spnumber" data-options="required:true" /></td>
-                    </tr>
-                    <tr>
                         <td>分配指令：</td>
-                        <td colspan="3"><labe id="lab_command_info"></labe></td>
+                        <td colspan="3"><div id="lab_command_info"></div></td>
                     </tr>
                     <tr>
                         <td>CP结算单价：</td>
@@ -136,20 +131,12 @@
                         <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_bl" /></td>
                     </tr>
                     <tr>
-                        <td>指令模式：</td>
-                        <td colspan="3">
-                            <lable><input type="radio" name="rad_sx_type" value="0"/>模糊</lable>
-                            <lable><input type="radio" name="rad_sx_type" value="1"/>模糊+精确</lable>
-                            <lable><input type="radio" name="rad_sx_type" value="2"/>精确</lable>
-                        </td>
-                    </tr>
-                    <tr>
                         <td>同步地址：</td>
-                        <td colspan="3"><textarea name="txt_backurl" style="width: 315px;" class="easyui-textbox"></textarea></td>
+                        <td colspan="3"><textarea  class="easyui-textbox" name="txt_backurl" style="width: 315px;"></textarea></td>
                     </tr>
                     <tr>
                         <td>备注：</td>
-                        <td colspan="3"><textarea name="content" style="width: 315px" class="easyui-textbox"></textarea></td>
+                        <td colspan="3"><textarea class="easyui-textbox" name="content" style="width: 315px" ></textarea></td>
                     </tr>
                 </table>
             </fieldset>
@@ -157,10 +144,14 @@
             <legend>地区配置</legend>
             <table>
                 <tr>
+                    <td width="80px">已开通省份：</td>
+                    <td colspan="3" id="opening_province">--</td>
+                </tr>
+                <tr>
                     <td width="80px">开通省份：</td>
                     <td colspan="3">
                     {%for province in provinces%}
-                        <label><input name="allocated_province" type="checkbox" text="{{province.province}}" value="{{province.id}}"/>{{province.province}}</label>
+                        <label><input name="allocated_province" type="checkbox" text="{{province.province_info.province}}" value="{{province.province_info.id}}"/>{{province.province_info.province}}</label>
                         {%if loop.index % 6 ==0 %}
                         <br />
                         {%endif%}
@@ -203,6 +194,7 @@
         },
         editChannelAllocated: function() {
             var row = this.datagrid.datagrid('getSelected');
+            $('#channel_allocated_manager_form').form('clear');
             $("#allocated_channel_city").empty();
             channel_allocated_manager.labMsg.empty();
             if (row){
@@ -211,8 +203,21 @@
                 $.getJSON(this.url, {}, function(resp) {
                     if(resp.ok) {
                         $('#channel_allocated_manager_form').form('load',resp.data);
-                        channel_allocated_manager.labMsg.html('发送 '+resp.data.txt_momsg+' 到'+resp.data.txt_spnumber);
+                        var moduel = resp.data.command_moduel;
+
+                        var _short = '', _long = '';
+
+                        if(moduel == 0) {
+                          _short = ' + <input class="easyui-textbox" style="width:30px" name="moduel_val"/>';
+                        }
+                        if (moduel == 1) {
+                          _long = ' + <input class="easyui-textbox" style="width:30px" name="moduel_val"/>';
+                        }
+                        _render_input = '发送 '+resp.data.txt_momsg+_short+' 到'+resp.data.txt_spnumber+_long;
+
+                        $("#lab_command_info").html(_render_input);
                         $("#allocated_channel_city").html(resp.data.city_html)
+                        $("#opening_province").html(resp.data.province_html);
                     }
                 });
                 //$('#channel_allocated_manager_form').form('load',row);
@@ -264,7 +269,16 @@
             $('#channel_allocated_manager_window').dialog('close');
         },
         testChannelAllocated: function() {
-
+          var row = this.datagrid.datagrid('getSelected');
+          if (row){
+                $.post('/channel/confige/test/'+row.id+'/',{},function(result){
+                    if (result.ok){
+                        $.messager.alert('测试结果','测试调用成功！','info');
+                    } else {
+                        $.messager.alert('测试结果','测试调用失败！','error');
+                    }
+                },'json');
+          }
         },
         queryData: function() {
             var req_data = {'channel_id': $('#allocated_channel_id').combobox('getValue'),
