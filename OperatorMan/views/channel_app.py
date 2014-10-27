@@ -309,7 +309,8 @@ def  channel_info_get():
             return jsonify({'ok': True, 'data': {'msg': channel.sx,
                                                 'spnumber': channel.spnumber,
                                                 'fcprice': channel.fcpric,
-                                                'bl': channel.bl}
+                                                'bl': channel.bl,
+                                                'command_moduel': channel.command_moduel}
                             })
         else:
             return jsonify({'ok': False})

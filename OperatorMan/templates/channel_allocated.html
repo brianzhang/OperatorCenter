@@ -307,12 +307,19 @@
             var channel_id = record.value;
             $.getJSON('/channel/info/get/', {'channel_id': channel_id}, function(resp) {
                 if(resp.ok) {
-                    channel_allocated_manager.labMsg.html('发送 '+resp.data.msg+' 到'+resp.data.spnumber);
-                    $("input[name='txt_momsg']").val(resp.data.msg);
-                    $("input[name='txt_spnumber']").val(resp.data.spnumber);
-                    $("input[name='txt_fcprice']").val(resp.data.fcprice);
-                    $("input[name='txt_bl']").val(resp.data.bl);
-                    //txt_fcprice, txt_bl
+                    var moduel = resp.data.command_moduel;
+
+                    var _short = '', _long = '';
+
+                    if(moduel == 0) {
+                      _short = ' + <input class="easyui-textbox" style="width:30px" name="moduel_val"/>';
+                    }
+                    if (moduel == 1) {
+                      _long = ' + <input class="easyui-textbox" style="width:30px" name="moduel_val"/>';
+                    }
+                    _render_input = '发送 '+resp.data.msg+_short+' 到'+resp.data.spnumber+_long;
+
+                    $("#lab_command_info").html(_render_input);
                 }
             });
 
