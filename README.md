@@ -86,3 +86,7 @@ settings.py
 [core]
 	excludesfile = C:/Users/Administrator/.gitignore
 ```
+
+#gunicorn
+
+gunicorn gunicorn_operator_mian.py operator_app:app
