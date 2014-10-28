@@ -77,7 +77,7 @@
         </div>
     </div>
 </div>
-<div id="channel_allocated_manager_window" class="easyui-dialog" style="width:580px;height:585px;padding:10px 20px" closed="true" modal="true">
+<div id="channel_allocated_manager_window" class="easyui-dialog" style="width:580px;height:525px;padding:10px 20px" closed="true" modal="true">
     <div>
         <form id="channel_allocated_manager_form" method="post">
             <fieldset>
@@ -132,11 +132,7 @@
                     </tr>
                     <tr>
                         <td>同步地址：</td>
-                        <td colspan="3"><input  class="easyui-textbox" name="txt_backurl" style="width: 315px;" /></td>
-                    </tr>
-                    <tr>
-                        <td>备注：</td>
-                        <td colspan="3"><textarea class="easyui-textbox" name="content" style="width: 315px" data-options="multiline:true"></textarea></td>
+                        <td colspan="3"><input  class="easyui-textbox" name="txt_backurl" style="width: 355px;" /></td>
                     </tr>
                 </table>
             </fieldset>
@@ -161,17 +157,18 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>备注说明：</td>
-                        <td colspan="3"><textarea name="allocated_content" style="width: 315px; height: 50px;" class="easyui-textbox" data-options="multiline:true"></textarea></td>
+                        <td>备注：</td>
+                        <td colspan="3"><input class="easyui-textbox" name="content" style="width: 315px; height: 50px;" data-options="multiline:true" /></td>
                     </tr>
                 </table>
               </div>
               <div title="流量分配">
-                  <table id="allocated_channel_province_dg" style="width:100%;height:auto;border:1px solid #ccc;" border="0" cellspacing="0" cellpadding="0" >
+                  <table id="allocated_channel_province_dg" style="width:100%;height:auto;border:1px solid #ccc;" border="0" cellspacing="2" cellpadding="2" >
                     <thead style="height:25px; background-color:#ccc;color: #000000;" >
                         <tr>
                             <th data-options="field:'province'" width="80">开通省份</th>
-                            <th data-options="field:'daymax'" width="70%">日限流量配额</th>
+                            <th data-options="field:'daymax'" width="50%">日限流量配额</th>
+                            <th data-options="field:'content'" width="30%">二次说明</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -373,9 +370,10 @@
                     $("#allocated_channel_province_dg tbody").append(['<tr id="cp_assign_province_row'+val+'">',
                         '<td>'+$(this).attr('text')+'</td>',
                         '<td><input type="text" name="daymax_'+val+'" value="0" /></td>',
+                        '<td><input type="text" name="content_'+val+'"  style="width: 70px" value="" class="easyui-textbox" /></td>',
                         '</tr>'].join(''));
-                    $('input[name="daymax_'+val+'"]').textbox({
-                      width: 70
+                    $("#cp_assign_province_row"+val).find("input").textbox({
+                        width: 70
                     });
                 }else{
                     $("#cp_assign_province"+val).remove();

@@ -165,7 +165,7 @@ def channel_add_info(channel_id=None):
                 cha_province.city = ','.join(city_str)
                 cha_province.daymax = req_args.get("daymax_"+prov, 0)
                 cha_province.is_show = channel_info.is_show
-                cha_province.content = channel_info.content
+                cha_province.content = req_args.get("content_"+prov, "")
 
                 g.session.add(cha_province)
                 g.session.commit()
@@ -349,8 +349,9 @@ def set_channel_allocated(allocated_id=None):
                           <tr id="cp_assign_province_row%s">
                               <td>%s</td>
                               <td><input type="text" name="daymax_%s"  style="width: 70px" value="%s" class="easyui-textbox" /></td>
+                              <td><input type="text" name="content_%s"  style="width: 70px" value="%s" class="easyui-textbox" /></td>
                           </tr>
-                        """ % (pro.province_info.id, pro.province_info.province, pro.province_info.id, pro.daymax)
+                        """ % (pro.province_info.id, pro.province_info.province, pro.province_info.id, pro.daymax, pro.province_info.id, pro.content)
 
                 for province in usr_province:
                     user_province.append(province.province)
@@ -413,10 +414,6 @@ def set_channel_allocated(allocated_id=None):
         else:
             channel_allocated.momsg = channel_info.sx
             channel_allocated.spnumber = channel_info.spnumber
-        print channel_info.sx
-        print '==============================='
-        print channel_allocated.momsg
-        print '==============================='
 
         channel_allocated.fcprice = req_args.get("txt_fcprice", None)
         channel_allocated.bl = req_args.get("txt_bl", None)
@@ -450,7 +447,7 @@ def set_channel_allocated(allocated_id=None):
                 usr_province.province = int(prov)
                 usr_province.daymax = req_args.get("daymax_"+prov, 0)
                 usr_province.is_show = channel_allocated.is_show
-                usr_province.content = channel_allocated.content
+                usr_province.content = req_args.get("content_"+prov, '')
                 city_str = []
                 for _city in black_city:
                     for _c in city_list:
