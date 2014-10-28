@@ -181,11 +181,11 @@
                         </td>
                     </tr>
                     <tr>
-                        <td>备注说明：</td>
+                        <td>下发语：</td>
                         <td colspan="3"><textarea class="easyui-textbox" data-options="multiline:true" name="content" style="width: 100%; height: 80px;">{% if channel_info %}{{channel_info.remark}}{%endif%}</textarea></td>
                     </tr>
                     <tr>
-                        <td>其他信息：</td>
+                        <td>备注：</td>
                         <td colspan="3"><textarea class="easyui-textbox" data-options="multiline:true" name="other_content" style="width: 100%; height: 50px;">{% if channel_info %}{{channel_info.content}}{%endif%}</textarea></td>
                     </tr>
                 </table>
@@ -195,7 +195,8 @@
                     <thead style="height:25px; background-color:#ccc;color: #000000;" >
                         <tr>
                             <th data-options="field:'province'" width="80">开通省份</th>
-                            <th data-options="field:'daymax'" width="50%">日限流量配额</th>
+                            <th data-options="field:'daymax'" width="20%">日限流量配额</th>
+                            <th data-options="field:'remark'" width="40%">二次下发语</th>
                             <th data-options="field:'content'" width="30%">二次说明</th>
                         </tr>
                     </thead>
@@ -204,7 +205,8 @@
                           <tr id="province_row{{prov.province_info.id}}">
                               <td>{{prov.province_info.province}}</td>
                               <td><input type="text" name="daymax_{{prov.province_info.id}}"  style="width: 70px" value="{{prov.daymax}}" class="easyui-textbox" /></td>
-                              <td><input type="text" name="content_{{prov.province_info.id}}"  style="width: 70px" value="{{prov.content}}" class="easyui-textbox" /></td>
+                              <td><input type="text" name="remark_{{prov.province_info.id}}"  style="width: 250px" value="{{prov.remark}}" class="easyui-textbox" /></td>
+                              <td><input type="text" name="content_{{prov.province_info.id}}"  style="width: 200px" value="{{prov.content}}" class="easyui-textbox" /></td>
                           </tr>
                         {%endfor%}
                     </tbody>
@@ -291,7 +293,8 @@
                     $("#channel_province_dg tbody").append(['<tr id="province_row'+val+'">',
                         '<td>'+$(this).attr('text')+'</td>',
                         '<td><input type="text" name="daymax_'+val+'" value="0" /></td>',
-                        '<td><input type="text" name="content_'+val+'"  style="width: 70px" value="" class="easyui-textbox" /></td>',
+                        '<td><input type="text" name="content_'+val+'"  style="width: 250px" value="" class="easyui-textbox" /></td>',
+			'<td><input type="text" name="remark_'+val+'"  style="width: 200px" value="" class="easyui-textbox" /></td>',
                         '</tr>',].join(''));
                     $("#province_row"+val).find("input").textbox({
                       width: 70

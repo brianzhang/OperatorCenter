@@ -166,6 +166,7 @@ def channel_add_info(channel_id=None):
                 cha_province.daymax = req_args.get("daymax_"+prov, 0)
                 cha_province.is_show = channel_info.is_show
                 cha_province.content = req_args.get("content_"+prov, "")
+                cha_province.remark = req_args.get("remark_"+prov, "")
 
                 g.session.add(cha_province)
                 g.session.commit()
@@ -311,6 +312,7 @@ def  channel_info_get():
                                                 'fcprice': channel.fcpric,
                                                 'bl': channel.bl,
                                                 'command_moduel': channel.command_moduel,
+                                                'remark': channel.remark,
                                                 'sx_type': channel.sx_type}
                             })
         else:
@@ -336,12 +338,18 @@ def set_channel_allocated(allocated_id=None):
             is_province = False
             if channel_allocated:
                 usr_province = channel_allocated.usr_province
-
+		cha_province = g.session.query(ChaProvince).filter(ChaProvince.channelid == channel_allocated.channelid).all()
                 if not usr_province:
-                  usr_province = g.session.query(ChaProvince).filter(ChaProvince.channelid == channel_allocated.channelid).all()
+                  usr_province = cha_province
                 else:
                     is_province = True
                     for pro in usr_province:
+                        remark = ''
+                        content = ''
+                        for p in cha_province:
+                            if p.province == pro.province:
+                                 remark = p.remark     
+                                 content = p.content
                         province_html += """
                           <label style="color: red" id="cp_assign_province%s">%s</label>
                           """ % (pro.province_info.id, pro.province_info.province)
@@ -349,9 +357,10 @@ def set_channel_allocated(allocated_id=None):
                           <tr id="cp_assign_province_row%s">
                               <td>%s</td>
                               <td><input type="text" name="daymax_%s"  style="width: 70px" value="%s" class="easyui-textbox" /></td>
-                              <td><input type="text" name="content_%s"  style="width: 70px" value="%s" class="easyui-textbox" /></td>
+                              <td>%s</td>
+                              <td>%s</td>
                           </tr>
-                        """ % (pro.province_info.id, pro.province_info.province, pro.province_info.id, pro.daymax, pro.province_info.id, pro.content)
+                        """ % (pro.province_info.id, pro.province_info.province, pro.province_info.id, pro.daymax, remark, content)
 
                 for province in usr_province:
                     user_province.append(province.province)
@@ -419,7 +428,7 @@ def set_channel_allocated(allocated_id=None):
         channel_allocated.bl = req_args.get("txt_bl", None)
         channel_allocated.backurl = req_args.get("txt_backurl", None)
         channel_allocated.is_show = req_args.get("rad_status", False)
-        channel_allocated.content = req_args.get("content", None)
+        channel_allocated.content = channel_info.remark
         provinces = req_args.getlist('allocated_province', None)
         black_city = req_args.getlist('city', None)
 

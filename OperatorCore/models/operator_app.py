@@ -286,7 +286,8 @@ class ChaProvince(OperatorBase):
     city = Column(String(200), nullable=False)
     daymax = Column(Integer)
     is_show = Column(Boolean, nullable=False)
-    content = Column(String(200), nullable=False)
+    remark = Column(String(2000), nullable=False)
+    content = Column(String(500), nullable=False)
     create_time = Column(DateTime, nullable=False)
     province_info = relationship(PubProvince)
 

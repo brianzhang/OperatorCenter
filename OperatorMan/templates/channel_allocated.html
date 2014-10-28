@@ -149,7 +149,7 @@
                         <td width="80px">开通省份：</td>
                         <td colspan="3">
                         {%for province in provinces%}
-                            <label><input name="allocated_province" type="checkbox" text="{{province.province_info.province}}" value="{{province.province_info.id}}"/>{{province.province_info.province}}</label>
+                            <label><input name="allocated_province" remark="{{province.remark}}" content="{{province.content}}" type="checkbox" text="{{province.province_info.province}}" value="{{province.province_info.id}}"/>{{province.province_info.province}}</label>
                             {%if loop.index % 6 ==0 %}
                             <br />
                             {%endif%}
@@ -158,7 +158,7 @@
                     </tr>
                     <tr>
                         <td>备注：</td>
-                        <td colspan="3"><input class="easyui-textbox" name="content" style="width: 315px; height: 50px;" data-options="multiline:true" /></td>
+                        <td colspan="3"><input class="easyui-textbox" name="content" style="width: 315px; height: 50px;" data-options="multiline:true" ></input></td>
                     </tr>
                 </table>
               </div>
@@ -167,7 +167,8 @@
                     <thead style="height:25px; background-color:#ccc;color: #000000;" >
                         <tr>
                             <th data-options="field:'province'" width="80">开通省份</th>
-                            <th data-options="field:'daymax'" width="50%">日限流量配额</th>
+                            <th data-options="field:'daymax'" width="20%">日限流量配额</th>
+                            <th data-options="field:'remark'" width="40%">二次下发语</th>
                             <th data-options="field:'content'" width="30%">二次说明</th>
                         </tr>
                     </thead>
@@ -230,12 +231,17 @@
                           _long = ' + <input class="easyui-textbox" style="width:30px" name="moduel_val"/>';
                         }
                         _render_input = '发送 '+resp.data.txt_momsg+_short+' 到'+resp.data.txt_spnumber+_long;
-
+                        $("#allocated_province_assign_panel input[name='content']").val(resp.data.remark);
                         $("#lab_command_info").html(_render_input);
                         $("#allocated_channel_city").html(resp.data.city_html)
                         $("#cp_opening_province").html(resp.data.province_html);
                         $("input[name='moduel_val']").textbox({
                           width: 30
+                        });
+                        $("#allocated_province_assign_panel input[name='content']").textbox({
+                            multiline:true,
+                            height: 50,
+                            width: 315
                         });
                         $("#allocated_channel_province_dg tbody").html(resp.data.province_assign_html)
                         $("#allocated_channel_province_dg tbody input").textbox({
@@ -370,7 +376,8 @@
                     $("#allocated_channel_province_dg tbody").append(['<tr id="cp_assign_province_row'+val+'">',
                         '<td>'+$(this).attr('text')+'</td>',
                         '<td><input type="text" name="daymax_'+val+'" value="0" /></td>',
-                        '<td><input type="text" name="content_'+val+'"  style="width: 70px" value="" class="easyui-textbox" /></td>',
+                        '<td>'+$(this).attr('remark')+'</td>',
+                        '<td>'+$(this).attr('content')+'</td>',
                         '</tr>'].join(''));
                     $("#cp_assign_province_row"+val).find("input").textbox({
                         width: 70
