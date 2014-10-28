@@ -157,7 +157,7 @@ class PubMobileArea(OperatorBase):
     create_time = Column(DateTime, nullable=False)
     city_info = relationship("PubCity")
     province_info = relationship("PubProvince")
-    
+
 class PubProducts(OperatorBase):
 
     """docstring for PubProducts"""
@@ -305,9 +305,9 @@ class ChaInfo(OperatorBase):
     spnumber = Column(String(20), nullable=False)
     sx_type = Column(Integer)
     command_moduel = Column(Integer)
-    price = Column(Integer)
-    costprice = Column(Integer)
-    fcpric = Column(Integer)
+    price = Column(Float(), default=0.0)
+    costprice = Column(Float(), default=0.0)
+    fcpric = Column(Float(), default=0.0)
     bl = Column(Integer)
     daymax = Column(Integer)
     monmax = Column(Integer)
@@ -334,7 +334,7 @@ class UsrChannel(OperatorBase):
     momsg = Column(String(150), nullable=False)
     sx_type = Column(Integer)
     spnumber = Column(String(20), nullable=False)
-    fcprice = Column(Integer)
+    fcprice = Column(Float(), default=0.0)
     bl = Column(Integer)
     backurl = Column(String(100), nullable=False)
     is_show = Column(Boolean, nullable=False)
@@ -447,7 +447,7 @@ class DataMo(OperatorBase):
     cpid = Column(Integer, ForeignKey('usr_cpinfo.id'))
     channelid = Column(Integer, ForeignKey('cha_info.id'))
     spnumber = Column(String(20), nullable=False)
-    price = Column(Integer)
+    price = Column(Float(), default=0.0)
     linkid = Column(String(20), nullable=False)
     province = Column(Integer, ForeignKey('pub_province.id'))
     city = Column(Integer, ForeignKey('pub_city.id'))

@@ -169,10 +169,8 @@ var channel_manager = {
     formatCommand: function(val, row) {
         val = parseInt(val);
         switch(val){
-            case 0:
-                return '模糊';
             case 1:
-                return '模糊+精确';
+                return '模糊';
             case 2:
                 return '双精确';
         }

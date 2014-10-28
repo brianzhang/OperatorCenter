@@ -17,8 +17,7 @@
                 <td>
                     <select id="select_sp_sync_type" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
-                        <option value="0">上行同步</option>
-                        <option value="1">下行同步</option>
+                        <option value="1">上行同步</option>
                         <option value="2">状态报告</option>
                     </select>
                 </td>
@@ -279,10 +278,8 @@ var channel_sync_manager = {
     formatCommand: function(val, row) {
         val = parseInt(val);
         switch(val){
-            case 0:
-                return '模糊';
             case 1:
-                return '模糊+精确';
+                return '模糊';
             case 2:
                 return '双精确';
         }
@@ -330,9 +327,9 @@ var channel_sync_manager = {
       var url = '';
       var types = channel_sync_manager.types;
       if(types == '1') {
-          url = "/MR/"+channel_sync_manager.spId+"/"+channel_sync_manager.channelId+"/";
-      }else{
           url = "/MO/"+channel_sync_manager.spId+"/"+channel_sync_manager.channelId+"/";
+      }else{
+          url = "/MR/"+channel_sync_manager.spId+"/"+channel_sync_manager.channelId+"/";
       }
       $("#sync_url").html(url);
     },

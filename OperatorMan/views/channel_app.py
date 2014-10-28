@@ -662,7 +662,7 @@ def sync_add(sync_id=None):
     channel_sync_info.channelid = req_args.get('channelid', None)
     channel_sync_info.sync_type = req_args.get("sync_type", None)
     channel_sync_info.status_key = req_args.get("status_key", None)
-    url = '/MR/%s/%s/' % (channel_sync_info.spid, channel_sync_info.channelid) if channel_sync_info.status_key == '1' else '/MO/%s/%s/' % (channel_sync_info.spid, channel_sync_info.channelid)
+    url = '/MO/%s/%s/' % (channel_sync_info.spid, channel_sync_info.channelid) if channel_sync_info.status_key == '1' else '/MR/%s/%s/' % (channel_sync_info.spid, channel_sync_info.channelid)
     channel_sync_info.url = url
     channel_sync_info.is_rsync = True
     channel_sync_info.is_show = req_args.get("is_show", False)
