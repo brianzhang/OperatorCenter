@@ -163,7 +163,7 @@ def channel_add_info(channel_id=None):
                             city_str.append(_city)
 
                 cha_province.city = ','.join(city_str)
-                cha_province.daymax = channel_info.daymax
+                cha_province.daymax = req_args.get("daymax_"+prov, 0)
                 cha_province.is_show = channel_info.is_show
                 cha_province.content = channel_info.content
 
@@ -310,7 +310,8 @@ def  channel_info_get():
                                                 'spnumber': channel.spnumber,
                                                 'fcprice': channel.fcpric,
                                                 'bl': channel.bl,
-                                                'command_moduel': channel.command_moduel}
+                                                'command_moduel': channel.command_moduel,
+                                                'sx_type': channel.sx_type}
                             })
         else:
             return jsonify({'ok': False})
@@ -331,17 +332,25 @@ def set_channel_allocated(allocated_id=None):
             user_province = []
             city_html = ""
             province_html = ''
-
+            province_assign_html = ''
+            is_province = False
             if channel_allocated:
                 usr_province = channel_allocated.usr_province
 
                 if not usr_province:
                   usr_province = g.session.query(ChaProvince).filter(ChaProvince.channelid == channel_allocated.channelid).all()
                 else:
+                    is_province = True
                     for pro in usr_province:
                         province_html += """
-                          <label style="color: red">%s</label>
-                          """ % (pro.province_info.province)
+                          <label style="color: red" id="cp_assign_province%s">%s</label>
+                          """ % (pro.province_info.id, pro.province_info.province)
+                        province_assign_html += """
+                          <tr id="cp_assign_province_row%s">
+                              <td>%s</td>
+                              <td><input type="text" name="daymax_%s"  style="width: 70px" value="%s" class="easyui-textbox" /></td>
+                          </tr>
+                        """ % (pro.province_info.id, pro.province_info.province, pro.province_info.id, pro.daymax)
 
                 for province in usr_province:
                     user_province.append(province.province)
@@ -349,9 +358,16 @@ def set_channel_allocated(allocated_id=None):
                     if _citys:
                         city_html += """<div id="allocated_cits_%s" style="line-height: 24px;">%s: """  % (province.province, province.province_info.province)
                         for _city in _citys:
+                            _check_str = ''
+                            if is_province:
+                                _balck_city = province.city.split(',')
+                                for bl in _balck_city:
+                                  if len(bl) >0:
+                                    if int(bl) == _city.id:
+                                      _check_str = 'checked="checked"'
                             city_html += """
-                                <label><input type="checkbox" province="%s" value="%s" name="city"/>%s</label>
-                            """ % (province.province, _city.id, _city.city)
+                                <label><input type="checkbox" province="%s" value="%s" name="city" %s />%s</label>
+                            """ % (province.province, _city.id,  _check_str, _city.city)
                         city_html += """</div>"""
 
                 return jsonify({'ok': True, 'data': {
@@ -369,6 +385,7 @@ def set_channel_allocated(allocated_id=None):
                         'allocated_province': user_province,
                         "city_html": city_html,
                         "province_html": province_html,
+                        "province_assign_html": province_assign_html,
                         "sx_type": channel_allocated.cha_info.sx_type,
                         "command_moduel": channel_allocated.cha_info.command_moduel
                         }
@@ -389,11 +406,18 @@ def set_channel_allocated(allocated_id=None):
         channel_allocated.sx_type = channel_info.sx_type
         if channel_info.command_moduel == 0:
             channel_allocated.momsg = "%s%s" % (channel_info.sx, req_args.get('moduel_val', ''))
+            channel_allocated.spnumber = channel_info.spnumber
         elif channel_info.command_moduel == 1:
+            channel_allocated.momsg = channel_info.sx
             channel_allocated.spnumber = "%s%s" % (channel_info.spnumber, req_args.get('moduel_val', ''))
         else:
             channel_allocated.momsg = channel_info.sx
             channel_allocated.spnumber = channel_info.spnumber
+        print channel_info.sx
+        print '==============================='
+        print channel_allocated.momsg
+        print '==============================='
+
         channel_allocated.fcprice = req_args.get("txt_fcprice", None)
         channel_allocated.bl = req_args.get("txt_bl", None)
         channel_allocated.backurl = req_args.get("txt_backurl", None)
@@ -424,7 +448,7 @@ def set_channel_allocated(allocated_id=None):
                 usr_province.adminid = g.user.id
                 usr_province.create_time = datetime.datetime.now()
                 usr_province.province = int(prov)
-                usr_province.daymax = 1000
+                usr_province.daymax = req_args.get("daymax_"+prov, 0)
                 usr_province.is_show = channel_allocated.is_show
                 usr_province.content = channel_allocated.content
                 city_str = []

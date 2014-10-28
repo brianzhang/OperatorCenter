@@ -132,46 +132,65 @@
                     </tr>
                     <tr>
                         <td>同步地址：</td>
-                        <td colspan="3"><textarea  class="easyui-textbox" name="txt_backurl" style="width: 315px;"></textarea></td>
+                        <td colspan="3"><input  class="easyui-textbox" name="txt_backurl" style="width: 315px;" /></td>
                     </tr>
                     <tr>
                         <td>备注：</td>
-                        <td colspan="3"><textarea class="easyui-textbox" name="content" style="width: 315px" ></textarea></td>
+                        <td colspan="3"><textarea class="easyui-textbox" name="content" style="width: 315px" data-options="multiline:true"></textarea></td>
                     </tr>
                 </table>
             </fieldset>
             <fieldset>
             <legend>地区配置</legend>
-            <table>
-                <tr>
-                    <td width="80px">已开通省份：</td>
-                    <td colspan="3" id="opening_province">--</td>
-                </tr>
-                <tr>
-                    <td width="80px">开通省份：</td>
-                    <td colspan="3">
-                    {%for province in provinces%}
-                        <label><input name="allocated_province" type="checkbox" text="{{province.province_info.province}}" value="{{province.province_info.id}}"/>{{province.province_info.province}}</label>
-                        {%if loop.index % 6 ==0 %}
-                        <br />
-                        {%endif%}
-                    {%endfor%}
+            <div class="easyui-tabs" style="height:230px; width: 500px" id="allocated_province_assign_panel">
+              <div title="地区选择" style="padding:10px">
+                  <table>
+                    <tr>
+                      <td width="80px">已开通省份：</td>
+                      <td colspan="3" id="cp_opening_province"></td>
                     </td>
-                </tr>
-                <tr>
-                    <td>屏蔽地市：</td>
-                    <td colspan="3">
-                        <hr />
-                        <div id="allocated_channel_city">
+                    <tr>
+                        <td width="80px">开通省份：</td>
+                        <td colspan="3">
+                        {%for province in provinces%}
+                            <label><input name="allocated_province" type="checkbox" text="{{province.province_info.province}}" value="{{province.province_info.id}}"/>{{province.province_info.province}}</label>
+                            {%if loop.index % 6 ==0 %}
+                            <br />
+                            {%endif%}
+                        {%endfor%}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>备注说明：</td>
+                        <td colspan="3"><textarea name="allocated_content" style="width: 315px; height: 50px;" class="easyui-textbox" data-options="multiline:true"></textarea></td>
+                    </tr>
+                </table>
+              </div>
+              <div title="流量分配">
+                  <table id="allocated_channel_province_dg" style="width:100%;height:auto;border:1px solid #ccc;" border="0" cellspacing="0" cellpadding="0" >
+                    <thead style="height:25px; background-color:#ccc;color: #000000;" >
+                        <tr>
+                            <th data-options="field:'province'" width="80">开通省份</th>
+                            <th data-options="field:'daymax'" width="70%">日限流量配额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
 
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>备注说明：</td>
-                    <td colspan="3"><textarea name="allocated_content" style="width: 100%"></textarea></td>
-                </tr>
-            </table>
+                    </tbody>
+                </table>
+              </div>
+              <div title="屏蔽地区">
+                <table>
+                  <tr>
+                      <td>屏蔽地市：</td>
+                      <td colspan="3">
+                          <div id="allocated_channel_city">
+                          </div>
+                      </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
         </fieldset>
         </form>
         <div style="text-align:center;padding:5px">
@@ -217,7 +236,14 @@
 
                         $("#lab_command_info").html(_render_input);
                         $("#allocated_channel_city").html(resp.data.city_html)
-                        $("#opening_province").html(resp.data.province_html);
+                        $("#cp_opening_province").html(resp.data.province_html);
+                        $("input[name='moduel_val']").textbox({
+                          width: 30
+                        });
+                        $("#allocated_channel_province_dg tbody").html(resp.data.province_assign_html)
+                        $("#allocated_channel_province_dg tbody input").textbox({
+                          width: 70
+                        });
                     }
                 });
                 //$('#channel_allocated_manager_form').form('load',row);
@@ -320,6 +346,10 @@
                     _render_input = '发送 '+resp.data.msg+_short+' 到'+resp.data.spnumber+_long;
 
                     $("#lab_command_info").html(_render_input);
+                    $("input[name='moduel_val']").textbox({
+                      width: 30
+                    });
+                    $("input[name='sx_type']").val(resp.data.sx_type);
                 }
             });
 
@@ -328,15 +358,29 @@
             $("input[name='allocated_province']").unbind("click");
             $("input[name='allocated_province']").on('click', function() {
                 var val = this.value;
-                var _item_list = '<div id="allocated_cits_'+val+'" style="line-height: 24px;">'+$(this).attr('text')+': ';
+
                 if(this.checked) {
+                    if($('#allocated_cits_'+val).length > 0) {
+                      return;
+                    };
+                    var _item_list = '<div id="allocated_cits_'+val+'" style="line-height: 24px;">'+$(this).attr('text')+': ';
                     var ctiys = channel_allocated_manager.city_list[val][0];
                     for(var city in ctiys) {
                         _item_list += '<label><input type="checkbox" province="'+val+'" value="'+ctiys[city]['id']+'" name="city"/>'+ctiys[city]['name']+'</label>';
                     }
                     $("#allocated_channel_city").append(_item_list+"</div>");
+                    $("#cp_opening_province").append('<label style="color: red" id="cp_assign_province'+val+'">'+$(this).attr('text')+'</label> ');
+                    $("#allocated_channel_province_dg tbody").append(['<tr id="cp_assign_province_row'+val+'">',
+                        '<td>'+$(this).attr('text')+'</td>',
+                        '<td><input type="text" name="daymax_'+val+'" value="0" /></td>',
+                        '</tr>'].join(''));
+                    $('input[name="daymax_'+val+'"]').textbox({
+                      width: 70
+                    });
                 }else{
+                    $("#cp_assign_province"+val).remove();
                     $('#allocated_cits_'+val).remove();
+                    $("#cp_assign_province_row"+val).remove();
                 }
             })
         },

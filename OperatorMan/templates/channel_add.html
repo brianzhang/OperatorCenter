@@ -140,53 +140,103 @@
         </fieldset>
         <fieldset>
             <legend>地区配置</legend>
-            <table>
-                {%if channel_info%}
-                <tr>
-                  <td width="80px">已开通省份：</td>
-                  <td colspan="3">
-                    {%for prov in channel_info.cha_province%}
-                      <label>{{prov.province_info.province}}</lable>
-                    {%endfor%}
-                    <hr />
-                  </td>
-                </td>
-                <!--<tr>
-                  <td width="80px">已屏蔽的城市：</td>
-                  <td colspan="3">
-                  </td>
-                </td>-->
-                {%endif%}
-                <tr>
-                    <td width="80px">开通省份：</td>
-                    <td colspan="3">
-                    {%for province in provinces%}
-                        <label><input name="province" type="checkbox" text="{{province.province}}" value="{{province.id}}"/>{{province.province}}</label>
-                        {%if loop.index % 10 ==0 %}
-                        <br />
-                        {%endif%}
-                    {%endfor%}
-
-                    </td>
-                </tr>
-                <tr>
-                    <td>屏蔽地市：</td>
-                    <td colspan="3">
+            <div class="easyui-tabs" style="height:330px; width: 700px" id="province_assign_panel">
+          		<div title="地区选择" style="padding:10px">
+          		    <table>
+                    {%if channel_info%}
+                    <tr>
+                      <td width="80px">已开通省份：</td>
+                      <td colspan="3" id="open_province_list">
+                        {%for prov in channel_info.cha_province%}
+                          <label id="lab_province{{prov.province_info.id}}">{{prov.province_info.province}}</label>
+                        {%endfor%}
                         <hr />
-                        <div id="channel_city">
-
-                        </div>
+                      </td>
                     </td>
-                </tr>
-                <tr>
-                    <td>备注说明：</td>
-                    <td colspan="3"><textarea class="easyui-textbox" data-options="multiline:true" name="content" style="width: 100%; height: 50px;">{% if channel_info %}{{channel_info.remark}}{%endif%}</textarea></td>
-                </tr>
-                <tr>
-                    <td>其他信息：</td>
-                    <td colspan="3"><textarea class="easyui-textbox" data-options="multiline:true" name="other_content" style="width: 100%; height: 50px;">{% if channel_info %}{{channel_info.content}}{%endif%}</textarea></td>
-                </tr>
-            </table>
+                    <!--<tr>
+                      <td width="80px">已屏蔽的城市：</td>
+                      <td colspan="3">
+                      </td>
+                    </td>-->
+                    {%endif%}
+                    <tr>
+                        <td width="80px">开通省份：</td>
+                        <td colspan="3">
+                        {%for province in provinces%}
+
+                            <label><input name="province" type="checkbox" text="{{province.province}}" value="{{province.id}}"
+                              {%if channel_info%}
+                                {%for prov in channel_info.cha_province%}
+                                  {%if prov.province_info.id == province.id%}
+                                  checked="checked"
+                                  {%endif%}
+                                {%endfor%}
+                              {%endif%}
+                              />{{province.province}}</label>
+                            {%if loop.index % 11 ==0 %}
+                            <br />
+                            {%endif%}
+                        {%endfor%}
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>备注说明：</td>
+                        <td colspan="3"><textarea class="easyui-textbox" data-options="multiline:true" name="content" style="width: 100%; height: 80px;">{% if channel_info %}{{channel_info.remark}}{%endif%}</textarea></td>
+                    </tr>
+                    <tr>
+                        <td>其他信息：</td>
+                        <td colspan="3"><textarea class="easyui-textbox" data-options="multiline:true" name="other_content" style="width: 100%; height: 50px;">{% if channel_info %}{{channel_info.content}}{%endif%}</textarea></td>
+                    </tr>
+                </table>
+          		</div>
+          		<div title="流量分配">
+                  <table id="channel_province_dg" style="width:100%;height:auto;border:1px solid #ccc;" border="0" cellspacing="0" cellpadding="0" >
+                    <thead style="height:25px; background-color:#ccc;color: #000000;" >
+                        <tr>
+                            <th data-options="field:'province'" width="80">开通省份</th>
+                            <th data-options="field:'daymax'" width="70%">日限流量配额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for prov in channel_info.cha_province%}
+                          <tr id="province_row{{prov.province_info.id}}">
+                              <td>{{prov.province_info.province}}</td>
+                              <td><input type="text" name="daymax_{{prov.province_info.id}}"  style="width: 70px" value="{{prov.daymax}}" class="easyui-textbox" /></td>
+                          </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+              </div>
+          		<div title="屏蔽地区">
+                <table>
+                  <tr>
+                      <td>屏蔽地市：</td>
+                      <td colspan="3">
+                          <div id="channel_city">
+                            {%for prov in channel_info.cha_province%}
+                              <div id="cits_{{prov.province_info.id}}" style="line-height: 24px;">
+                                {{prov.province_info.province}}:
+                                {% set black_city = prov.city.split(',') %}
+                                {% for city in prov.province_info.citys %}
+                                  <label>
+                                    <input type="checkbox" province="{{prov.province_info.id}}" value="{{city.id}}" name="city"
+                                      {% for bl in black_city%}
+                                        link="{{bl}}"
+                                        {%if bl|int == city.id %}
+                                        checked="checked"
+                                        {% endif%}
+                                      {% endfor %}
+                                    />{{city.city}}</label>
+                                {% endfor %}
+                              </div>
+                            {%endfor%}
+                          </div>
+                      </td>
+                  </tr>
+                </table>
+              </div>
+          	</div>
         </fieldset>
     </form>
     <div style="text-align:center;padding:5px">
@@ -224,15 +274,30 @@
         eventBind: function() {
             $("input[name='province']").on('click', function() {
                 var val = this.value;
-                var _item_list = '<div id="cits_'+val+'" style="line-height: 24px;">'+$(this).attr('text')+': ';
+
                 if(this.checked) {
+                    if($('#cits_'+val).length > 0) {
+                      return;
+                    };
+                    var _item_list = '<div id="cits_'+val+'" style="line-height: 24px;">'+$(this).attr('text')+': ';
                     var ctiys = set_channel_moduel.city_list[val][0];
                     for(var city in ctiys) {
                         _item_list += '<label><input type="checkbox" province="'+val+'" value="'+ctiys[city]['id']+'" name="city"/>'+ctiys[city]['name']+'</label>';
                     }
                     $("#channel_city").append(_item_list+"</div>");
+                    $("#open_province_list").prepend('<label id="lab_province'+val+'">'+$(this).attr('text')+'</label> ');
+                    $("#channel_province_dg tbody").append(['<tr id="province_row'+val+'">',
+                        '<td>'+$(this).attr('text')+'</td>',
+                        '<td><input type="text" name="daymax_'+val+'" value="0" /></td>',
+                        '</tr>'].join(''));
+                    $('input[name="daymax_'+val+'"]').textbox({
+                      width: 70
+                    });
                 }else{
                     $('#cits_'+val).remove();
+                    $("#lab_province"+val).remove();
+                    $("#province_row"+val).remove();
+
                 }
             });
             $("input[name='command_type']").on('click', function(e) {
@@ -244,6 +309,13 @@
                 $($("input[name='command_moduel']")[0]).attr('disabled', 'disabled');
                 $($("input[name='command_moduel']")[1]).attr('disabled', 'disabled');
                 $($("input[name='command_moduel']")[2]).click();
+              }
+            });
+            $("#province_assign_panel").tabs({
+              onSelect: function(title) {
+                if (title == '流量分配') {
+                  //$("#channel_province_dg").datagrid();
+                }
               }
             });
         },

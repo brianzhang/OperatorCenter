@@ -112,6 +112,7 @@ class PubProvince(OperatorBase):
     id = Column(Integer, primary_key=True)
     province = Column(String(50), nullable=False)
     create_time = Column(DateTime, nullable=False)
+    citys = relationship('PubCity')
 
     def __init__(self, arg):
         super(PubProvince, self).__init__()
@@ -302,7 +303,7 @@ class ChaInfo(OperatorBase):
     busi_type = Column(Integer, ForeignKey('pub_busitype.id'))
     operator = Column(String(20), nullable=False)
     sx = Column(String(150), nullable=False)
-    spnumber = Column(String(20), nullable=False)
+    spnumber = Column(String(50), nullable=False)
     sx_type = Column(Integer)
     command_moduel = Column(Integer)
     price = Column(Float(), default=0.0)
@@ -333,7 +334,7 @@ class UsrChannel(OperatorBase):
     adminid = Column(Integer, ForeignKey('sys_admin.id'))
     momsg = Column(String(150), nullable=False)
     sx_type = Column(Integer)
-    spnumber = Column(String(20), nullable=False)
+    spnumber = Column(String(50), nullable=False)
     fcprice = Column(Float(), default=0.0)
     bl = Column(Integer)
     backurl = Column(String(100), nullable=False)
