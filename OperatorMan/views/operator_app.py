@@ -53,6 +53,7 @@ def operator_status():
                                                         random_key = random_key())
     else:
         operator_list = g.session.query(DataMr).order_by(desc(DataMr.id))
+        operator_list = operator_list.filter(ChaInfo.busi_type != 3)
         start_time = req.get('start_time', None)
         end_time = req.get('end_time', None)
         channel = req.get('channel', None)
@@ -125,7 +126,8 @@ def operator_demand():
                                                         users=users,
                                                         random_key=random_key())
     else:
-        operator_list = g.session.query(DataMo).order_by(desc(DataMo.id))
+        operator_list = g.session.query(DataMr).order_by(desc(DataMr.id))
+        operator_list = operator_list.filter(ChaInfo.busi_type == 3)
         start_time = req.get('start_time', None)
         end_time = req.get('end_time', None)
         channel = req.get('channel', None)
@@ -138,16 +140,16 @@ def operator_demand():
         order = req.get('order', None)
         if start_time:
             start_time += '00:00:00'
-            operator_list = operator_list.filter(DataMo.create_time >= start_time)
+            operator_list = operator_list.filter(DataMr.create_time >= start_time)
         if end_time:
             end_time += '00:00:00'
-            operator_list = operator_list.filter(DataMo.create_time <= end_time)
+            operator_list = operator_list.filter(DataMr.create_time <= end_time)
         if channel:
-            operator_list = operator_list.filter(DataMo.channelid == channel)
+            operator_list = operator_list.filter(DataMr.channelid == channel)
         if cpinfo:
-            operator_list = operator_list.filter(DataMo.cpid == cpinfo)
+            operator_list = operator_list.filter(DataMr.cpid == cpinfo)
         if provinces:
-            operator_list = operator_list.filter(DataMo.province == provinces)
+            operator_list = operator_list.filter(DataMr.province == provinces)
         #if
         operator_list = operator_list.all()
         currentpage = int(req.get('page', 1))

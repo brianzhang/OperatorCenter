@@ -4,7 +4,12 @@ Created on 2014-05-26
 @author: brian
 '''
 import hashlib, hmac, re
+import datetime
+import time
 from flask import jsonify, request, session, redirect, g
+from sqlalchemy import or_, desc, func, and_
+from sqlalchemy.orm import subqueryload
+
 from Operator.configs import settings
 
 from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
@@ -44,3 +49,67 @@ def get_mobile_attribution(mobile=None):
         if mobile_info:
             return mobile_info[0]
     return None
+
+
+def get_mobile_is_block(mobile=None):
+    if mobile:
+        black_mb = g.session.query(PubBlackPhone).filter(PubBlackPhone.mobile==mobile).first()
+        if black_mb:
+            return True
+    return False
+
+def get_mobile_mr_count(mobile=None, channelid=None, is_day=False):
+    _session = g.session
+    if mobile and channelid:
+        today = datetime.datetime.today()
+        reg_date = "%s%s%s" % (today.year, today.month, today.day)
+        if is_day:
+            counts = _session.query(DataMr, func.count('mobile').label('count')).\
+                            group_by(DataMr.regdate).\
+                            filter(DataMr.mobile==mobile).\
+                            filter(DataMr.channelid==channelid).\
+                            filter(DataMr.regdate==reg_date).\
+                            order_by(desc(DataMr.mobile)).all()
+            if counts:
+                return counts[0].count
+            return 0
+        else:
+            #2014-10-%
+            like_time = "%s-%s-%%" % (today.year, today.month)
+            counts = _session.query(DataMr, func.count('mobile').label('count')).\
+                                group_by(DataMr.regdate).\
+                                filter(DataMr.mobile==mobile).\
+                                filter(DataMr.channelid==channelid).\
+                                filter(and_(DataMr.create_time.like(like_time))).\
+                                order_by(desc(DataMr.mobile)).all()
+            if counts:
+                return counts[0].count
+            return 0
+def get_channel_province_count(usr_channel_id=None, cp_id=None, province=None):
+    _session = g.session #create_operator_session()
+    if usr_channel_id and cp_id:
+        prov = _session.query(UsrProvince).filter(UsrProvince.channelid==usr_channel_id). filter(UsrProvince.cpid==cp_id).filter(UsrProvince.province == province).first()
+        if prov:
+            return prov.daymax
+    return 0
+def get_channel_count(channelid=None, cp_id=None, province=None, kill_data=None):
+    _session = create_operator_session()
+    if channelid and cp_id:
+        today = datetime.datetime.today()
+        reg_date = "%s%s%s" % (today.year, today.month, today.day)
+        counts = _session.query(DataMr, func.count('id').label('count')).\
+                        group_by(DataMr.cpid).\
+                        filter(DataMr.channelid==channelid).\
+                        filter(DataMr.regdate==reg_date).\
+                        filter(DataMr.cpid == cp_id).\
+                        order_by(desc(DataMr.channelid))
+        if province:
+            counts = counts.filter(DataMr.province==province)
+        if kill_data:
+            counts = counts.filter(DataMr.is_kill==kill_data)
+        counts = counts.all()
+        if counts:
+            #print counts
+            #print '======================='
+            return counts[0].count
+    return 0
