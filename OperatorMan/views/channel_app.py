@@ -348,7 +348,7 @@ def set_channel_allocated(allocated_id=None):
                         content = ''
                         for p in cha_province:
                             if p.province == pro.province:
-                                 remark = p.remark     
+                                 remark = p.remark
                                  content = p.content
                         province_html += """
                           <label style="color: red" id="cp_assign_province%s">%s</label>
@@ -430,7 +430,7 @@ def set_channel_allocated(allocated_id=None):
         channel_allocated.is_show = req_args.get("rad_status", False)
         channel_allocated.content = channel_info.remark
         provinces = req_args.getlist('allocated_province', None)
-        black_city = req_args.getlist('city', None)
+        #black_city = req_args.getlist('city', None)
 
         try:
             write_sys_log(2,
@@ -457,13 +457,7 @@ def set_channel_allocated(allocated_id=None):
                 usr_province.daymax = req_args.get("daymax_"+prov, 0)
                 usr_province.is_show = channel_allocated.is_show
                 usr_province.content = req_args.get("content_"+prov, '')
-                city_str = []
-                for _city in black_city:
-                    for _c in city_list:
-                        if _c.id == int(_city) and _c.province == int(prov):
-                            city_str.append(_city)
-
-                usr_province.city = ','.join(city_str)
+                usr_province.city = ''
                 g.session.add(usr_province)
                 g.session.commit()
 

@@ -16,7 +16,7 @@
                     </td>
                     <td>合作方：</td>
                     <td>
-                        <select class="easyui-combobox" name="sp_info">
+                        <select class="easyui-combobox" name="sp_info" {% if channel_info %}disable="disable" data-options="disable:true"{%endif%}>
                         <option selected="selected" value=''>--请选择--</option>
                         {%for sp_info in sp_list%}
                             {% if channel_info %}

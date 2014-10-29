@@ -177,7 +177,7 @@
                     </tbody>
                 </table>
               </div>
-              <div title="屏蔽地区">
+              <!--<div title="屏蔽地区">
                 <table>
                   <tr>
                       <td>屏蔽地市：</td>
@@ -187,7 +187,7 @@
                       </td>
                   </tr>
                 </table>
-              </div>
+              </div>-->
             </div>
         </fieldset>
         </form>
@@ -212,7 +212,7 @@
         editChannelAllocated: function() {
             var row = this.datagrid.datagrid('getSelected');
             $('#channel_allocated_manager_form').form('clear');
-            $("#allocated_channel_city").empty();
+            //$("#allocated_channel_city").empty();
             channel_allocated_manager.labMsg.empty();
             if (row){
                 this.url = '/channel/confige/set/'+row.id+'/';
@@ -233,7 +233,7 @@
                         _render_input = '发送 '+resp.data.txt_momsg+_short+' 到'+resp.data.txt_spnumber+_long;
                         $("#allocated_province_assign_panel input[name='content']").val(resp.data.remark);
                         $("#lab_command_info").html(_render_input);
-                        $("#allocated_channel_city").html(resp.data.city_html)
+                        //$("#allocated_channel_city").html(resp.data.city_html)
                         $("#cp_opening_province").html(resp.data.province_html);
                         $("input[name='moduel_val']").textbox({
                           width: 30
@@ -371,7 +371,7 @@
                     for(var city in ctiys) {
                         _item_list += '<label><input type="checkbox" province="'+val+'" value="'+ctiys[city]['id']+'" name="city"/>'+ctiys[city]['name']+'</label>';
                     }
-                    $("#allocated_channel_city").append(_item_list+"</div>");
+                    //$("#allocated_channel_city").append(_item_list+"</div>");
                     $("#cp_opening_province").append('<label style="color: red" id="cp_assign_province'+val+'">'+$(this).attr('text')+'</label> ');
                     $("#allocated_channel_province_dg tbody").append(['<tr id="cp_assign_province_row'+val+'">',
                         '<td>'+$(this).attr('text')+'</td>',
