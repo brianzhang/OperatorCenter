@@ -220,10 +220,13 @@ def channel_mr(channel_id=None,SP_ID=None):
                 SEND_COUNT = channel_province_no_kill_count
                 RM_COUNT = channel_province_black_province_count
                 BLACK_COUNT = channel_province_black_mobile_count
-                kill_count = float(SEND_COUNT) / (float(ALL_COUNT) - float(RM_COUNT) - float(BLACK_COUNT))
-                print kill_count
-                kill_count = kill_count * 100
-
+                CHANNEL_COUNT = (float(ALL_COUNT) - float(RM_COUNT) - float(BLACK_COUNT))
+                if CHANNEL_COUNT > 0:
+                    kill_count = float(SEND_COUNT) / CHANNEL_COUNT
+                    kill_count = kill_count * 100
+                else:
+                    kill_count = 0
+                
                 if kill_count > 0:
                     if (int(_kill_bl)+kill_count) > 100:
                         kill_val = 1
