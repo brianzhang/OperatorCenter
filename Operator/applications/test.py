@@ -5,16 +5,16 @@ import time
 def req_url():
 
     mb = 13635390900
-    mb1 = 1581551600
+    mb1 = 15815515600
     mb2 = 13527808000
     lkid = 206500001
-    #url = 'http://127.0.0.1:8802/MR/3/3/'
-    url = 'http://netmad.me/opt/MR/1/8/'
-    for i in range(0, 200):
+    url = 'http://127.0.0.1:8802/MR/3/3/'
+    #url = 'http://netmad.me/opt/MR/1/8/'
+    for i in range(0, 20):
       _mb = random.sample([mb, mb1, mb2], 1)
       values = {'msg' : 'A10',
-          #'sp' : '1668960',
-          'spnum' : '1668960',
+          'sp' : '1668960',
+          #'spnum' : '1668960',
           'mb': '%s' % _mb[0],
           'lkid': '%s' % lkid,
           's': '1'

@@ -32,6 +32,10 @@ from Operator.views import querySPInfo, get_mobile_attribution, \
 
 operator_view = Blueprint('operator_view', __name__)
 
+@operator_view.route('/MO/TEST/', methods=["GET", "POST"])
+def MO_TEST():
+  return "OK"
+
 @operator_view.route('/MO/<int:SP_ID>/<channel_id>/', methods=["GET"])
 def channel_mo(channel_id=None, SP_ID=None):
     req = request.args if request.method == 'GET' else request.form
@@ -179,7 +183,7 @@ def channel_mr(channel_id=None,SP_ID=None):
                 channel_province_no_kill_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  0) # 查询该渠道省份正常下发的总和
                 channel_province_black_province_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  2) # 查询该渠道省份屏蔽地市的流量总和
                 channel_province_black_mobile_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  3) # 查询该渠道省份黑名单流量总和
-
+                req_url = cp[0].backurl
                 _kill_bl = cp[0].bl
                 data_mr.cpid = cp[0].cpid
 
@@ -226,7 +230,7 @@ def channel_mr(channel_id=None,SP_ID=None):
                     kill_count = kill_count * 100
                 else:
                     kill_count = 0
-                
+
                 if kill_count > 0:
                     if (int(_kill_bl)+kill_count) > 100:
                         kill_val = 1
@@ -255,9 +259,24 @@ def channel_mr(channel_id=None,SP_ID=None):
                 cp_log.momsg = msg
                 cp_log.linkid = linkid
                 cp_log.tongurl = request.url
-                cp_log.backmsg = 'OK'
+
                 cp_log.tongdate = "%s%s%s" % (today.year, today.month, today.day)
                 cp_log.create_time = datetime.datetime.now()
+                values = {'msg' : msg,
+                    'spcode': spnumber,
+                    'mobile': mobile,
+                    'linkid': linkid,
+                    'channelid': channel_id
+                }
+                data = urllib.urlencode(values)
+                req = "%s?%s" % (req_url, data)
+                try:
+                    response = urllib.urlopen(req)
+                    data = response.read()
+                    cp_log.backmsg = data
+                except Exception, e:
+                    cp_log.backmsg = 'ERROR'
+
                 g.session.add(cp_log)
 
             sp_log = UsrSPTongLog()
@@ -273,9 +292,38 @@ def channel_mr(channel_id=None,SP_ID=None):
             sp_log.tongdate = "%s%s%s" % (today.year, today.month, today.day)
             sp_log.create_time = datetime.datetime.now()
 
+            #ever_day = g.session.query(DataEverday).filter(DataEverday.channelid==channel_id).\
+            #    filter(DataEverday.cpid==data_mr.cpid).\
+            #    filter(DataEverday.province==data_mr.province).\
+            #    filter(DataEverday.city == data_mr.city).\
+            #    filter(DataEverday.tj_hour==data_mr.reghour).first()
+
+            #if ever_day:
+            #    ever_day.mr_all += 1
+            #    if not is_kill:
+            #      ever_day.mr_cp += 1
+            #    ever_day.datetime = datetime.datetime.now()
+            #else:
+            #    ever_day = DataEverday()
+            #    ever_day.channelid = channel_id
+            #    ever_day.cpid = data_mr.cpid
+            #    ever_day.price = data_mr.price
+            #    ever_day.province = data_mr.province
+            #    ever_day.city = data_mr.city
+            #    ever_day.tj_hour = data_mr.reghour
+            #    ever_day.mo_all = 0
+            #    ever_day.mr_all = 1
+            #    if not is_kill:
+            #      ever_day.mr_cp += 1
+            #    else:
+            #      ever_day.mr_cp = 0
+            #    ever_day.tj_date = data_mr.regdate
+            #    ever_day.create_time = datetime.datetime.now()
+
             try:
                 g.session.add(data_mr)
                 g.session.add(sp_log)
+                #g.session.add(ever_day)
                 g.session.commit()
                 return "OK"
             except Exception, e:
