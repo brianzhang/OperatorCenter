@@ -201,23 +201,33 @@ def channel_mr(channel_id=None,SP_ID=None):
                 is_kill = True
                 kill_val = 2
 
+            #print "===========DATA LIST==========="
+            #print 'MAX: %s' % channel_province_day_max
+            #print 'ALL COUNT: %s' % channel_province_all_count
+            #print 'KILL COUNT: %s' % channel_province_kill_count
+            #print 'SEND COUNT: %s' % channel_province_no_kill_count
+            #print 'RM COUNT: %s' % channel_province_black_province_count
+            #print 'BLACK COUNT: %s' % channel_province_black_mobile_count
+            #print 'BL: %s' %_kill_bl
+            #print "===========END==========="
+
             if not is_kill and channel_province_all_count >0:
                 #
                 #扣量=总MR-黑名单-下发数据-屏蔽地区
                 #扣量比例 = 100 - 同步给渠道的总MR数据/（总MR数据 - 黑名单 - 屏蔽地区）
                 #
-                kill_count = 1 -(channel_province_no_kill_count / (channel_province_all_count-channel_province_black_mobile_count-channel_province_black_province_count))
+                ALL_COUNT = channel_province_all_count
+                SEND_COUNT = channel_province_no_kill_count
+                RM_COUNT = channel_province_black_province_count
+                BLACK_COUNT = channel_province_black_mobile_count
+                kill_count = float(SEND_COUNT) / (float(ALL_COUNT) - float(RM_COUNT) - float(BLACK_COUNT))
+                print kill_count
                 kill_count = kill_count * 100
 
-
                 if kill_count > 0:
-                    if _kill_bl > kill_count:
+                    if (int(_kill_bl)+kill_count) > 100:
                         kill_val = 1
                         is_kill = True
-
-                    else:
-                        is_kill = False
-                        kill_val = 0
 
             data_mr.channelid = channel_id
             data_mr.spnumber = spnumber
@@ -264,10 +274,10 @@ def channel_mr(channel_id=None,SP_ID=None):
                 g.session.add(data_mr)
                 g.session.add(sp_log)
                 g.session.commit()
-                return jsonify({'ok': True})
+                return "OK"
             except Exception, e:
-                print e
-                return jsonify({'ok': False})
+                print "ERROR: %s" % e
+                return "False"
             # query mobile attribution
             # query channel sync count
             #  计算是否扣量
