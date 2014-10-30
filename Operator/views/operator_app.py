@@ -89,7 +89,7 @@ def channel_mo(channel_id=None, SP_ID=None):
                             filter(DataEverday.cpid==data_mo.cpid).\
                             filter(DataEverday.province==data_mo.province).\
                             filter(DataEverday.city == data_mo.city).\
-                            filter(DataEverday.tj_hour==data_mo.reghour).one()
+                            filter(DataEverday.tj_hour==data_mo.reghour).first()
 
             if ever_day:
                 ever_day.mo_all += 1
@@ -157,6 +157,12 @@ def channel_mr(channel_id=None,SP_ID=None):
                 if mobile_mo:
                     mobile = mobile_mo.mobile
 
+            if not msg and mobile_mo:
+                msg = mobile_mo.momsg
+
+            if not spnumber and mobile_mo:
+                spnumber = mobile_mo.spnumber
+            
             #UsrProvince
             data_mr = g.session.query(DataMr).filter(DataMr.channelid == channel_id).filter(DataMr.linkid==linkid).first()
 
@@ -312,9 +318,12 @@ def channel_mr(channel_id=None,SP_ID=None):
                 data = urllib.urlencode(values)
                 req = "%s?%s" % (req_url, data)
                 try:
-                    response = urllib.urlopen(req)
-                    data = response.read()
-                    cp_log.backmsg = data
+                    if req_url:
+                        response = urllib.urlopen(req)
+                        data = response.read()
+                        cp_log.backmsg = data
+                    else:
+                        cp_log.backmsg = 'OK'
                 except Exception, e:
                     cp_log.backmsg = 'ERROR'
 
@@ -366,9 +375,11 @@ def channel_mr(channel_id=None,SP_ID=None):
                 g.session.add(sp_log)
                 g.session.add(ever_day)
                 g.session.commit()
+                g.session.close()
                 return "OK"
             except Exception, e:
                 print "ERROR: %s" % e
+                g.session.rollback()
                 return "False"
             # query mobile attribution
             # query channel sync count

@@ -130,8 +130,8 @@ def operator_demand():
                                                         users=users,
                                                         random_key=random_key())
     else:
-        operator_list = g.session.query(DataMr).order_by(desc(DataMr.id))
-        operator_list = operator_list.filter(ChaInfo.busi_type == 3)
+        operator_list = g.session.query(DataMo).order_by(desc(DataMo.id))
+        #operator_list = operator_list.filter(ChaInfo.busi_type == 3)
         start_time = req.get('start_time', None)
         end_time = req.get('end_time', None)
         channel = req.get('channel', None)
@@ -144,16 +144,16 @@ def operator_demand():
         order = req.get('order', None)
         if start_time:
             start_time += '00:00:00'
-            operator_list = operator_list.filter(DataMr.create_time >= start_time)
+            operator_list = operator_list.filter(DataMo.create_time >= start_time)
         if end_time:
             end_time += '00:00:00'
-            operator_list = operator_list.filter(DataMr.create_time <= end_time)
+            operator_list = operator_list.filter(DataMo.create_time <= end_time)
         if channel:
-            operator_list = operator_list.filter(DataMr.channelid == channel)
+            operator_list = operator_list.filter(DataMo.channelid == channel)
         if cpinfo:
-            operator_list = operator_list.filter(DataMr.cpid == cpinfo)
+            operator_list = operator_list.filter(DataMo.cpid == cpinfo)
         if provinces:
-            operator_list = operator_list.filter(DataMr.province == provinces)
+            operator_list = operator_list.filter(DataMo.province == provinces)
         #if
         operator_list = operator_list.all()
         currentpage = int(req.get('page', 1))
@@ -202,6 +202,15 @@ def operator_exploits():
         t_mr = range(1, 24)
         t_zh = range(1, 24)
         fc=range(1, 24)
+        for i in range(0, 23):
+            mo_all[i] = 0
+            mr_all[i] = 0
+            mr_cp[i] = 0
+            t_ok[i] = 0
+            t_mr[i] = 0
+            t_zh[i] = 0
+            fc[i] = 0
+
         if query_data:
                 data_list = {}
                 for item in query_data:

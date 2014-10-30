@@ -119,7 +119,6 @@ def get_channel_count(channelid=None, cp_id=None, province=None, kill_data=-1):
                         filter(DataMr.channelid==channelid).\
                         filter(DataMr.regdate==reg_date).\
                         filter(DataMr.cpid == cp_id)
-
         if province:
             counts = counts.filter(DataMr.province==province)
         if kill_data >= 0:
