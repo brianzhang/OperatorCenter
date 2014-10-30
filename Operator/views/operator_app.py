@@ -8,6 +8,7 @@ import os
 import sys
 import md5
 import random
+import math
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -27,7 +28,7 @@ from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, Pub
 
 from Operator.views import querySPInfo, get_mobile_attribution, \
                 get_mobile_is_block, get_mobile_mr_count, \
-                get_channel_province_count, get_channel_count
+                get_channel_province_count, get_channel_count, get_mobile_city_block
 
 operator_view = Blueprint('operator_view', __name__)
 
@@ -44,7 +45,7 @@ def channel_mo(channel_id=None, SP_ID=None):
             linkid = req.get(channel_info.linkid, None)
             msg = req.get(channel_info.msg, None)
 
-            if channel_info.status_name:                
+            if channel_info.status_name:
                 status_name = req.get(channel_info.status_name, '')
                 status_val = channel_info.status_val
 
@@ -55,7 +56,7 @@ def channel_mo(channel_id=None, SP_ID=None):
             mobile_info = get_mobile_attribution(mobile)
 
             data_mo = g.session.query(DataMo).filter(DataMo.channelid == channel_id).filter(DataMo.linkid==linkid).first()
-            
+
             if data_mo:
                 return "False"
             else:
@@ -106,7 +107,7 @@ def channel_mo(channel_id=None, SP_ID=None):
             try:
                 g.session.add(data_mo)
                 g.session.add(ever_day)
-                g.session.commit()                    
+                g.session.commit()
                 return "OK"
             except Exception, e:
                 return "False"
@@ -126,7 +127,7 @@ def channel_mr(channel_id=None,SP_ID=None):
     req = request.args if request.method == 'GET' else request.form
     sp_info = True#querySPInfo(SP_ID)
     if channel_id and SP_ID:
-        
+
         channel_info = g.session.query(UsrSPSync).filter(UsrSPSync.channelid==channel_id).filter(UsrSPSync.spid==SP_ID).first()
         if channel_info:
 
@@ -135,7 +136,7 @@ def channel_mr(channel_id=None,SP_ID=None):
             linkid = req.get(channel_info.linkid, None)
             msg = req.get(channel_info.msg, None)
 
-            if channel_info.status_name:                
+            if channel_info.status_name:
                 status_name = req.get(channel_info.status_name, '')
                 status_val = channel_info.status_val
 
@@ -146,10 +147,11 @@ def channel_mr(channel_id=None,SP_ID=None):
             if not mobile:
                 mobile_mo = g.session.query(DataMo).filter(DataMo.linkid==linkid).filter(DataMo.channelid==channel_id).first()
                 if mobile_mo:
-                    mobile = mobile_mo.mobile            
-            
+                    mobile = mobile_mo.mobile
+
             #UsrProvince
             data_mr = g.session.query(DataMr).filter(DataMr.channelid == channel_id).filter(DataMr.linkid==linkid).first()
+
             if  data_mr:
                 return "False"
             else:
@@ -164,45 +166,58 @@ def channel_mr(channel_id=None,SP_ID=None):
             month_count = get_mobile_mr_count(mobile, channel_id, False) #query mobile month count
             channel_day_max = channel_info.cha_info.daymax # query channel day max
             channel_month_max = channel_info.cha_info.monmax # query channel  month max
-            
+            is_city_block = get_mobile_city_block(mobile_info.city, mobile_info.province, channel_id) #查询所在城市是否是屏蔽状态
 
             cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).filter(UsrChannel.is_show == True).all()
             _kill_bl = 0
+            kill_val = 0
             if cp_list:
                 cp = random.sample(cp_list, 1)
-                channel_province_day_max = get_channel_province_count(cp[0].id, cp[0].cpid, mobile_info.province) #query province count.
-                channel_province_all_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province) # query channel_count 
-                channel_province_kill_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  1) # kill data
-                channel_province_no_kill_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  0) # no kill data
-                channel_province_black_province_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  2) # black province data
-                channel_province_black_mobile_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  3) # black mobile data
+                channel_province_day_max = get_channel_province_count(cp[0].id, cp[0].cpid, mobile_info.province) # 查询渠道分配的省份日限数量
+                channel_province_all_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province) # 查询该省份今日产生的流量总和
+                channel_province_kill_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  1) # 查询该省份今日扣量的总和
+                channel_province_no_kill_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  0) # 查询该渠道省份正常下发的总和
+                channel_province_black_province_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  2) # 查询该渠道省份屏蔽地市的流量总和
+                channel_province_black_mobile_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  3) # 查询该渠道省份黑名单流量总和
 
                 _kill_bl = cp[0].bl
                 data_mr.cpid = cp[0].cpid
 
+
             if day_count >= channel_day_max and channel_day_max > 0:
                 is_kill = True
-
+                kill_val = 1
             if month_count >= channel_month_max and channel_month_max > 0:
                 is_kill = True
-
+                kill_val = 1
             if channel_province_all_count >= channel_province_day_max and channel_province_day_max > 0:
                 is_kill = True
-            print "=============all_count"
-            print channel_province_all_count
-            print channel_province_black_mobile_count
-            print channel_province_black_province_count
-            print channel_province_no_kill_count
+                kill_val = 1
+            if is_block:
+                is_kill = True
+                kill_val = 3
+
+            if not is_city_block:
+                is_kill = True
+                kill_val = 2
+
             if not is_kill and channel_province_all_count >0:
-                kill_count = channel_province_all_count - channel_province_black_mobile_count - channel_province_black_province_count - channel_province_no_kill_count
-                print "=============kill_count"
-                print kill_count
+                #
+                #扣量=总MR-黑名单-下发数据-屏蔽地区
+                #扣量比例 = 100 - 同步给渠道的总MR数据/（总MR数据 - 黑名单 - 屏蔽地区）
+                #
+                kill_count = 1 -(channel_province_no_kill_count / (channel_province_all_count-channel_province_black_mobile_count-channel_province_black_province_count))
+                kill_count = kill_count * 100
+
+
                 if kill_count > 0:
-                    if (channel_province_all_count / kill_count) < 2:
+                    if _kill_bl > kill_count:
+                        kill_val = 1
                         is_kill = True
-                        print '=================is kill============='
+
                     else:
-                        print '=================no kill============='
+                        is_kill = False
+                        kill_val = 0
 
             data_mr.channelid = channel_id
             data_mr.spnumber = spnumber
@@ -214,27 +229,44 @@ def channel_mr(channel_id=None,SP_ID=None):
             data_mr.regdate = "%s%s%s" % (today.year, today.month, today.day)
             data_mr.reghour = today.hour
             data_mr.state = True
-            data_mr.is_kill = is_kill
+            data_mr.is_kill = kill_val
             data_mr.create_time = datetime.datetime.now()
-            
+
+            if not is_kill:
+                cp_log = UsrCPTongLog()
+                cp_log.channelid = channel_id
+                cp_log.cpid = data_mr.cpid
+                cp_log.urltype = 2
+                cp_log.mobile = mobile
+                cp_log.spnumber = spnumber
+                cp_log.momsg = msg
+                cp_log.linkid = linkid
+                cp_log.tongurl = request.url
+                cp_log.backmsg = 'OK'
+                cp_log.tongdate = "%s%s%s" % (today.year, today.month, today.day)
+                cp_log.create_time = datetime.datetime.now()
+                g.session.add(cp_log)
+
             sp_log = UsrSPTongLog()
             sp_log.channelid = channel_id
             sp_log.spid = SP_ID
-            sp_log. urltype = 2
+            sp_log.urltype = 2
             sp_log.mobile = mobile
             sp_log.spnumber = spnumber
-            sp_log.momsg = spnumber
+            sp_log.momsg = msg
             sp_log.linkid = linkid
             sp_log.tongurl = request.url
             sp_log.is_show = True
             sp_log.tongdate = "%s%s%s" % (today.year, today.month, today.day)
             sp_log.create_time = datetime.datetime.now()
+
             try:
                 g.session.add(data_mr)
                 g.session.add(sp_log)
                 g.session.commit()
-                return jsonify({'ok': True}) 
+                return jsonify({'ok': True})
             except Exception, e:
+                print e
                 return jsonify({'ok': False})
             # query mobile attribution
             # query channel sync count

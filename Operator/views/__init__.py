@@ -58,6 +58,23 @@ def get_mobile_is_block(mobile=None):
             return True
     return False
 
+def get_mobile_city_block(city=None, province=None, channel_id=None):
+    _session = g.session #create_operator_session()
+    if city and province:
+        citys = _session.query(ChaProvince).\
+                filter(ChaProvince.channelid==channel_id).\
+                filter(ChaProvince.province==province).first()
+        if citys:
+            ct = "%s" % citys.city
+            if ct:
+                _index = ct.rfind("%s" % city)
+                if _index>=0:
+                  return False
+                return True
+            else:
+                return True
+    return True
+
 def get_mobile_mr_count(mobile=None, channelid=None, is_day=False):
     _session = g.session
     if mobile and channelid:
@@ -92,20 +109,20 @@ def get_channel_province_count(usr_channel_id=None, cp_id=None, province=None):
         if prov:
             return prov.daymax
     return 0
-def get_channel_count(channelid=None, cp_id=None, province=None, kill_data=None):
+
+def get_channel_count(channelid=None, cp_id=None, province=None, kill_data=-1):
     _session = create_operator_session()
     if channelid and cp_id:
         today = datetime.datetime.today()
         reg_date = "%s%s%s" % (today.year, today.month, today.day)
         counts = _session.query(DataMr, func.count('id').label('count')).\
-                        group_by(DataMr.cpid).\
                         filter(DataMr.channelid==channelid).\
                         filter(DataMr.regdate==reg_date).\
-                        filter(DataMr.cpid == cp_id).\
-                        order_by(desc(DataMr.channelid))
+                        filter(DataMr.cpid == cp_id)
+
         if province:
             counts = counts.filter(DataMr.province==province)
-        if kill_data:
+        if kill_data >= 0:
             counts = counts.filter(DataMr.is_kill==kill_data)
         counts = counts.all()
         if counts:
