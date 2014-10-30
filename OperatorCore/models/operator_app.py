@@ -13,8 +13,8 @@ from sqlalchemy.orm import sessionmaker, relationship
 from OperatorCore.configs import settings
 
 
-operator_engine = create_engine('%s?charset=utf8' % settings.DB_SPOTLIGHT_URI, encoding='utf-8',
-                             convert_unicode=True, pool_size=settings.DB_POOL_SIZE,
+operator_engine = create_engine('%s?charset=utf8' % settings.DB_OPERATOR_URI, encoding='utf-8',
+                             convert_unicode=True, pool_size=settings.DB_POOL_SIZE, max_overflow = settings.DB_MAX_OVERFLOW,
                              pool_recycle=settings.DB_POOL_RECYCLE_TIMEOUT, echo=settings.DB_DEBUG)
 
 OperatorBase = declarative_base(bind=operator_engine)

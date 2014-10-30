@@ -70,6 +70,10 @@ def operator_status():
         if end_time:
             end_time += '00:00:00'
             operator_list = operator_list.filter(DataMr.create_time <= end_time)
+        else:
+            today = datetime.datetime.today()
+            regdate = "%s%s%s" % (today.year, today.month, today.day)
+            operator_list = operator_list.filter(DataMr.regdate == regdate)
         if channel:
             operator_list = operator_list.filter(DataMr.channelid == channel)
         if cpinfo:
@@ -184,10 +188,45 @@ def operator_exploits():
     if request.method == 'GET':
         channels = g.session.query(ChaInfo).all()
         sp_info_list = g.session.query(UsrSPInfo).all()
+        today = datetime.datetime.today()
+        regdate = "%s%s%s" % (today.year, today.month, today.day)
+        query_data = g.session.query(DataEverday.tj_hour, func.sum(DataEverday.mo_all).label('mo_all'), \
+                                    func.sum(DataEverday.mr_all).label('mr_all'), \
+                                    func.sum(DataEverday.mr_cp).label('mr_cp')).\
+                                    filter(DataEverday.tj_date ==regdate).group_by(DataEverday.tj_hour).all()
+
+        mo_all = range(1, 24)
+        mr_all = range(1, 24)
+        mr_cp = range(1, 24)
+        t_ok = range(1, 24)
+        t_mr = range(1, 24)
+        t_zh = range(1, 24)
+        fc=range(1, 24)
+        if query_data:
+                data_list = {}
+                for item in query_data:
+                    mo_all[item.tj_hour] = item.mo_all
+                    mr_all[item.tj_hour] = item.mr_all
+                    mr_cp[item.tj_hour] = item.mr_cp
+                    t_ok[item.tj_hour] = (item.mo_all / item.mr_all)
+                    t_mr[item.tj_hour] =  (item.mr_all - item.mr_cp)
+                    t_zh[item.tj_hour] = 0
+                    fc[item.tj_hour] = ((float(item.mr_cp) / float(item.mr_all)) * 100)
+
         return render_template('operator_exploits.html',channels=channels,
                                                         sp_info_list=sp_info_list,
-                                                        query_type='time')
+                                                        query_type='time',
+                                                        mo_all = json.dumps(mo_all),
+                                                        mr_all = json.dumps(mr_all),
+                                                        mr_cp = json.dumps(mr_cp),
+                                                        t_ok = json.dumps(t_ok),
+                                                        t_mr = json.dumps(t_mr),
+                                                        t_zh = json.dumps(t_zh),
+                                                        fc = json.dumps(fc),
+                                                        regdate=regdate
+                                                        )
     else:
+
         return jsonify({'rows': [], 'total': 0})
 
 @operator_view.route("/region/", methods=['GET', 'POST'])

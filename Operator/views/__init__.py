@@ -111,7 +111,7 @@ def get_channel_province_count(usr_channel_id=None, cp_id=None, province=None):
     return 0
 
 def get_channel_count(channelid=None, cp_id=None, province=None, kill_data=-1):
-    _session = create_operator_session()
+    _session = g.session
     if channelid and cp_id:
         today = datetime.datetime.today()
         reg_date = "%s%s%s" % (today.year, today.month, today.day)

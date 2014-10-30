@@ -4,22 +4,28 @@ import time
 
 def req_url():
 
-    mb = 13635390900
-    mb1 = 15815515600
-    mb2 = 13527808000
-    lkid = 206500001
-    url = 'http://127.0.0.1:8802/MR/3/3/'
+    mb = 13635390800
+    mb1 = 15815515700
+    mb2 = 13527808600
+    lkid = 206900000
+    #url = 'http://127.0.0.1:8802/MR/3/3/'
+    url = "http://127.0.0.1:8802/MR/100/1/"
     #url = 'http://netmad.me/opt/MR/1/8/'
-    for i in range(0, 20):
+    for i in range(0, 89):
       _mb = random.sample([mb, mb1, mb2], 1)
-      values = {'msg' : 'A10',
-          'sp' : '1668960',
-          #'spnum' : '1668960',
-          'mb': '%s' % _mb[0],
-          'lkid': '%s' % lkid,
-          's': '1'
+      #values = {'msg' : 'A10',
+      #    'sp' : '1668960',
+      #    #'spnum' : '1668960',
+      #    'mb': '%s' % _mb[0],
+      #    'lkid': '%s' % lkid,
+      #    's': '1'
+      #}
+      values = {'msg' : '10065487',
+          'spnumber' : '8502',
+          'mobile': '%s' % _mb[0],
+          'linkid': '%s' % lkid,
+          'status': 'OK'
       }
-
       data = urllib.urlencode(values)
 
 
@@ -40,7 +46,7 @@ def req_url():
       mb1 += 1
       mb2 += 1
       lkid += 1
-      time.sleep(0.3)
+      time.sleep(0.5)
 
 if __name__ == "__main__":
     req_url()
