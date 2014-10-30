@@ -139,6 +139,10 @@ def channel_mr(channel_id=None,SP_ID=None):
             mobile = req.get(channel_info.mobile, None)
             linkid = req.get(channel_info.linkid, None)
             msg = req.get(channel_info.msg, None)
+            status = req.get(channel_info.status_name, None)
+            status_val = channel_info.status_val
+            type_name = req.get(channel_info.type_name, None)
+            type_val = channel_info.type_key
 
             if channel_info.status_name:
                 status_name = req.get(channel_info.status_name, '')
@@ -148,8 +152,8 @@ def channel_mr(channel_id=None,SP_ID=None):
                 type_name = req.get(channel_info.type_name, '')
                 type_key = channel_info.spnumber
 
-            if not mobile:
-                mobile_mo = g.session.query(DataMo).filter(DataMo.linkid==linkid).filter(DataMo.channelid==channel_id).first()
+            mobile_mo = g.session.query(DataMo).filter(DataMo.linkid==linkid).filter(DataMo.channelid==channel_id).first()
+            if not mobile and mobile_mo:
                 if mobile_mo:
                     mobile = mobile_mo.mobile
 
@@ -245,9 +249,46 @@ def channel_mr(channel_id=None,SP_ID=None):
             today = datetime.datetime.today()
             data_mr.regdate = "%s%s%s" % (today.year, today.month, today.day)
             data_mr.reghour = today.hour
-            data_mr.state = True
+            if status:
+                #status = req.get(channel_info.status_name, None)
+                #status_val = channel_info.status_val
+                #type_name = req.get(channel_info.type_name, None)
+                #type_val = channel_info.type_key
+                if status == status_val:
+                    data_mr.state = True
+                else:
+                    data_mr.state = False
+            else:
+                if type_name:
+                    if type_name == type_val:
+                        data_mr.state = True
+                    else:
+                        data_mr.state = False
+                else:
+                    data_mr.state = True
             data_mr.is_kill = kill_val
             data_mr.create_time = datetime.datetime.now()
+            if not data_mr.state:
+                kill_val = 4
+                is_kill = False
+
+            if not mobile_mo:
+                mobile_mo = DataMo()
+                mobile_mo.mobile = mobile
+                mobile_mo.momsg = msg
+                mobile_mo.cpid = data_mr.cpid
+
+                mobile_mo.channelid = channel_id
+                mobile_mo.spnumber = spnumber
+                mobile_mo.price = data_mr.price
+                mobile_mo.linkid = linkid
+                mobile_mo.province =data_mr.province
+                mobile_mo.city = data_mr.city
+                today = datetime.datetime.today()
+                mobile_mo.regdate = "%s%s%s" % (today.year, today.month, today.day)
+                mobile_mo.reghour = today.hour
+                mobile_mo.create_time = datetime.datetime.now()
+                g.session.add(mobile_mo)
 
             if not is_kill:
                 cp_log = UsrCPTongLog()
@@ -288,42 +329,42 @@ def channel_mr(channel_id=None,SP_ID=None):
             sp_log.momsg = msg
             sp_log.linkid = linkid
             sp_log.tongurl = request.url
-            sp_log.is_show = True
+            sp_log.is_show = data_mr.state
             sp_log.tongdate = "%s%s%s" % (today.year, today.month, today.day)
             sp_log.create_time = datetime.datetime.now()
 
-            #ever_day = g.session.query(DataEverday).filter(DataEverday.channelid==channel_id).\
-            #    filter(DataEverday.cpid==data_mr.cpid).\
-            #    filter(DataEverday.province==data_mr.province).\
-            #    filter(DataEverday.city == data_mr.city).\
-            #    filter(DataEverday.tj_hour==data_mr.reghour).first()
+            ever_day = g.session.query(DataEverday).filter(DataEverday.channelid==channel_id).\
+                filter(DataEverday.cpid==data_mr.cpid).\
+                filter(DataEverday.province==data_mr.province).\
+                filter(DataEverday.city == data_mr.city).\
+                filter(DataEverday.tj_hour==data_mr.reghour).first()
 
-            #if ever_day:
-            #    ever_day.mr_all += 1
-            #    if not is_kill:
-            #      ever_day.mr_cp += 1
-            #    ever_day.datetime = datetime.datetime.now()
-            #else:
-            #    ever_day = DataEverday()
-            #    ever_day.channelid = channel_id
-            #    ever_day.cpid = data_mr.cpid
-            #    ever_day.price = data_mr.price
-            #    ever_day.province = data_mr.province
-            #    ever_day.city = data_mr.city
-            #    ever_day.tj_hour = data_mr.reghour
-            #    ever_day.mo_all = 0
-            #    ever_day.mr_all = 1
-            #    if not is_kill:
-            #      ever_day.mr_cp += 1
-            #    else:
-            #      ever_day.mr_cp = 0
-            #    ever_day.tj_date = data_mr.regdate
-            #    ever_day.create_time = datetime.datetime.now()
+            if ever_day:
+                ever_day.mr_all += 1
+                if not is_kill:
+                  ever_day.mr_cp += 1
+                ever_day.datetime = datetime.datetime.now()
+            else:
+                ever_day = DataEverday()
+                ever_day.channelid = channel_id
+                ever_day.cpid = data_mr.cpid
+                ever_day.price = data_mr.price
+                ever_day.province = data_mr.province
+                ever_day.city = data_mr.city
+                ever_day.tj_hour = data_mr.reghour
+                ever_day.mo_all = 0
+                ever_day.mr_all = 1
+                if not is_kill:
+                  ever_day.mr_cp = 1
+                else:
+                  ever_day.mr_cp = 0
+                ever_day.tj_date = data_mr.regdate
+                ever_day.create_time = datetime.datetime.now()
 
             try:
                 g.session.add(data_mr)
                 g.session.add(sp_log)
-                #g.session.add(ever_day)
+                g.session.add(ever_day)
                 g.session.commit()
                 return "OK"
             except Exception, e:
