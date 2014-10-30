@@ -73,7 +73,7 @@ def get_mobile_city_block(city=None, province=None, channel_id=None):
                 return True
             else:
                 return True
-    return True
+    return False
 
 def get_mobile_mr_count(mobile=None, channelid=None, is_day=False):
     _session = g.session
