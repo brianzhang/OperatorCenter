@@ -69,10 +69,13 @@ def channel_mo(channel_id=None, SP_ID=None):
             data_mo.mobile = mobile
             data_mo.momsg = msg
 
-            cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).filter(UsrChannel.is_show == True).all()
+            cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).\
+                            filter(UsrChannel.spnumber==spnumber).\
+                            filter(UsrChannel.momsg==msg).\
+                            filter(UsrChannel.is_show == True).first()
             if cp_list:
-                cp = random.sample(cp_list, 1)
-                data_mo.cpid = cp[0].cpid
+                cp = cp_list
+                data_mo.cpid = cp.cpid
 
             data_mo.channelid = channel_id
             data_mo.spnumber = spnumber
@@ -81,7 +84,9 @@ def channel_mo(channel_id=None, SP_ID=None):
             data_mo.province = mobile_info.province
             data_mo.city = mobile_info.city
             today = datetime.datetime.today()
-            data_mo.regdate = "%s%s%s" % (today.year, today.month, today.day)
+            _month = today.month if today.month >= 10 else "0%s" % today.month
+            _day = today.day if today.day >= 10 else "0%s"  % today.day
+            data_mo.regdate = "%s%s%s" % (today.year, _month, _day)
             data_mo.reghour = today.hour
             data_mo.create_time = datetime.datetime.now()
 
@@ -184,20 +189,24 @@ def channel_mr(channel_id=None,SP_ID=None):
             channel_month_max = channel_info.cha_info.monmax # query channel  month max
             is_city_block = get_mobile_city_block(mobile_info.city, mobile_info.province, channel_id) #查询所在城市是否是屏蔽状态
 
-            cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).filter(UsrChannel.is_show == True).all()
+            #cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).filter(UsrChannel.is_show == True).all()
+            cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).\
+                            filter(UsrChannel.spnumber==spnumber).\
+                            filter(UsrChannel.momsg==msg).\
+                            filter(UsrChannel.is_show == True).first()
             _kill_bl = 0
             kill_val = 0
             if cp_list:
-                cp = random.sample(cp_list, 1)
-                channel_province_day_max = get_channel_province_count(cp[0].id, cp[0].cpid, mobile_info.province) # 查询渠道分配的省份日限数量
-                channel_province_all_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province) # 查询该省份今日产生的流量总和
-                channel_province_kill_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  1) # 查询该省份今日扣量的总和
-                channel_province_no_kill_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  0) # 查询该渠道省份正常下发的总和
-                channel_province_black_province_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  2) # 查询该渠道省份屏蔽地市的流量总和
-                channel_province_black_mobile_count = get_channel_count(channel_id, cp[0].cpid, mobile_info.province,  3) # 查询该渠道省份黑名单流量总和
-                req_url = cp[0].backurl
-                _kill_bl = cp[0].bl
-                data_mr.cpid = cp[0].cpid
+                cp = cp_list
+                channel_province_day_max = get_channel_province_count(cp.id, cp.cpid, mobile_info.province) # 查询渠道分配的省份日限数量
+                channel_province_all_count = get_channel_count(channel_id, cp.cpid, mobile_info.province) # 查询该省份今日产生的流量总和
+                channel_province_kill_count = get_channel_count(channel_id, cp.cpid, mobile_info.province,  1) # 查询该省份今日扣量的总和
+                channel_province_no_kill_count = get_channel_count(channel_id, cp.cpid, mobile_info.province,  0) # 查询该渠道省份正常下发的总和
+                channel_province_black_province_count = get_channel_count(channel_id, cp.cpid, mobile_info.province,  2) # 查询该渠道省份屏蔽地市的流量总和
+                channel_province_black_mobile_count = get_channel_count(channel_id, cp.cpid, mobile_info.province,  3) # 查询该渠道省份黑名单流量总和
+                req_url = cp.backurl
+                _kill_bl = cp.bl
+                data_mr.cpid = cp.cpid
 
 
             if day_count >= channel_day_max and channel_day_max > 0:
@@ -255,7 +264,9 @@ def channel_mr(channel_id=None,SP_ID=None):
             data_mr.province = mobile_info.province
             data_mr.city = mobile_info.city
             today = datetime.datetime.today()
-            data_mr.regdate = "%s%s%s" % (today.year, today.month, today.day)
+            _month = today.month if today.month >= 10 else "0%s" % today.month
+            _day = today.day if today.day >= 10 else "0%s" %  today.day
+            data_mr.regdate = "%s%s%s" % (today.year, _month, _day)
             data_mr.reghour = today.hour
             if status:
                 #status = req.get(channel_info.status_name, None)

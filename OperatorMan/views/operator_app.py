@@ -73,7 +73,10 @@ def operator_status():
             operator_list = operator_list.filter(DataMr.create_time <= end_time)
         else:
             today = datetime.datetime.today()
-            regdate = "%s%s%s" % (today.year, today.month, today.day)
+            _month = today.month if today.month >= 10 else "0%s" % today.month
+            _day = today.day if today.day >= 10 else "0%s" %  today.day
+            regdate = "%s%s%s" % (today.year, _month, _day)
+
             operator_list = operator_list.filter(DataMr.regdate == regdate)
         if channel:
             operator_list = operator_list.filter(DataMr.channelid == channel)
@@ -217,11 +220,15 @@ def operator_exploits():
                 for item in query_data:
                     t_customize[item.tj_hour] = item.mr_all
                     t_conversion_rate[item.tj_hour] = float(item.mr_all) / float(item.mo_all) * 100
+                    t_conversion_rate[item.tj_hour] = float("%.2f" % t_conversion_rate[item.tj_hour])
                     conversion_rate[item.tj_hour] = float(item.mr_cp) / float(item.mr_all) * 100
+                    conversion_rate[item.tj_hour] = float("%.2f" % conversion_rate[item.tj_hour])
                     into_rate[item.tj_hour] = float(item.mr_cp) / float(item.mr_all) * 100
+                    into_rate[item.tj_hour] = float("%.2f" % into_rate[item.tj_hour])
                     for u in user_count:
                         if u.reghour == item.tj_hour:
                             arpu[item.tj_hour] = float(u.user_count) / float(item.mr_all) * 100
+                            arpu[item.tj_hour] = float("%.2f" % arpu[item.tj_hour])
 
         return render_template('operator_exploits.html',channels=channels,
                                                         sp_info_list=sp_info_list,
@@ -294,11 +301,11 @@ def operator_exploits():
 
         range_date = 24
         if order_type and order_type == 'time':
-          range_date = 24
+            range_date = 24
 
         if month and year and order_type == 'month':
-          range_date = calendar.monthrange(year, month)
-          range_date = range_date[1]+1
+            range_date = calendar.monthrange(int(year), int(month))
+            range_date = range_date[1]+1
 
         if year and not month and order_type == 'year':
           range_date = 13
@@ -308,12 +315,15 @@ def operator_exploits():
         conversion_rate = range(1, range_date)
         into_rate = range(1, range_date)
         arpu = range(1, range_date)
+        xAxis = range(1, range_date)
         for i in range(0, range_date-1):
             t_customize[i] = 0
             t_conversion_rate[i] = 0
             conversion_rate[i] = 0
             into_rate[i] = 0
             arpu[i] = 0
+            xAxis[i] = i + 1
+
         if query_data:
                 data_list = {}
                 for item in query_data:
@@ -321,26 +331,46 @@ def operator_exploits():
                     if order_type == 'time':
                       _index = item.has_index
                     if order_type == 'month':
-                      _index = item.has_index % int('%s%s' % (year, month))
+                        _year_month = int('%s%s' % (year, month))
+                        _index = int(item.has_index) % _year_month
                     if order_type == 'year':
-                      _index = item.has_index % year
-
+                        _index = int(item.has_index) % int(year)
+                    _index -= 1
                     t_customize[_index] = item.mr_all
                     t_conversion_rate[_index] = float(item.mr_all) / float(item.mo_all) * 100
+                    t_conversion_rate[_index]  = float("%.2f" % t_conversion_rate[_index])
                     conversion_rate[_index] = float(item.mr_cp) / float(item.mr_all) * 100
+                    conversion_rate[_index] = float("%.2f" % conversion_rate[_index])
                     into_rate[_index] = float(item.mr_cp) / float(item.mr_all) * 100
-
+                    into_rate[_index] = float("%.2f" % into_rate[_index])
                     for u in user_count:
                         if u.has_index == item.has_index:
                             arpu[_index] = float(u.user_count) / float(item.mr_all) * 100
+                            arpu[_index] = float("%.2f" % arpu[_index])
+
                 data_list['t_customize'] = t_customize
                 data_list['t_conversion_rate'] = t_conversion_rate
                 data_list['conversion_rate'] = conversion_rate
                 data_list['into_rate'] = into_rate
                 data_list['arpu'] = arpu
                 data_list['range'] = range_date
+                data_list['xAxis'] = xAxis
+                data_list['title'] = 'TEST DATA'
 
                 return jsonify({'data': data_list, 'ok': True})
+        else:
+		data_list = {}
+		data_list['t_customize'] = t_customize
+		data_list['t_conversion_rate'] = t_conversion_rate
+		data_list['conversion_rate'] = conversion_rate
+		data_list['into_rate'] = into_rate
+		data_list['arpu'] = arpu
+		data_list['range'] = range_date
+		data_list['xAxis'] = xAxis
+		data_list['title'] = 'TEST DATA'
+
+		return jsonify({'data': data_list, 'ok': True})
+
         return jsonify({'rows': [], 'ok': False})
 
 @operator_view.route("/region/", methods=['GET', 'POST'])
