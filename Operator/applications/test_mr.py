@@ -4,19 +4,21 @@ import time
 
 def req_url():
 
-    mb = 13635391000
-    mb1 = 15815516000
-    mb2 = 13527809000
+    mb = 13635390900
+    mb1 = 15815515800
+    mb2 = 13527808700
     lkid = 208000000
-    url = 'http://127.0.0.1:8802/MO/3/3/'
+    url = 'http://127.0.0.1:8802/MR/3/3/'
+    true_count = 0
+    error_count = 0
     #url = "http://127.0.0.1:8802/MO/100/1/"
     #url = 'http://netmad.me/opt/MR/1/8/'
     for i in range(0, 1000):
-      _mb = random.sample([mb, mb1, mb2], 1)
-      values = {'msg' : 'A10',
+      #_mb = random.sample([mb, mb1, mb2], 1)
+      values = {#'msg' : 'A10',
           'sp' : '1668960',
           #'spnum' : '1668960',
-          'mb': '%s' % _mb[0],
+          #'mb': '%s' % _mb[0],
           'lkid': '%s' % lkid,
           's': 'OK'
       }
@@ -36,17 +38,18 @@ def req_url():
           data = response.read()
           print 'DATA: %s' % data
           if data == 'OK':
-              print 'True'
+              true_count += 1
           else:
-              print 'False'
+              error_count += 1
       except Exception, e:
-          print e
+          error_count += 1
           print 'error'
-      mb += 1
-      mb1 += 1
-      mb2 += 1
+      print '=======info list========'
+      print '======Success: %s=======' % true_count
+      print '======ERROR: %s=========' % error_count
+      print '========================'
       lkid += 1
-      time.sleep(0.5)
+      time.sleep(0.1)
 
 if __name__ == "__main__":
     req_url()

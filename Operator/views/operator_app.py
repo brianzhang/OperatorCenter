@@ -112,8 +112,10 @@ def channel_mo(channel_id=None, SP_ID=None):
                 g.session.add(data_mo)
                 g.session.add(ever_day)
                 g.session.commit()
+                g.session.close()
                 return "OK"
             except Exception, e:
+                print 'ERROR: ', e
                 return "False"
             # query mobile attribution
             # query channel sync count
@@ -162,7 +164,7 @@ def channel_mr(channel_id=None,SP_ID=None):
 
             if not spnumber and mobile_mo:
                 spnumber = mobile_mo.spnumber
-            
+
             #UsrProvince
             data_mr = g.session.query(DataMr).filter(DataMr.channelid == channel_id).filter(DataMr.linkid==linkid).first()
 
