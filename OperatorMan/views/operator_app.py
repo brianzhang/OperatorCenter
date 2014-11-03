@@ -218,17 +218,18 @@ def operator_exploits():
         if query_data:
                 data_list = {}
                 for item in query_data:
-                    t_customize[item.tj_hour] = item.mr_all
-                    t_conversion_rate[item.tj_hour] = float(item.mr_all) / float(item.mo_all) * 100
-                    t_conversion_rate[item.tj_hour] = float("%.2f" % t_conversion_rate[item.tj_hour])
-                    conversion_rate[item.tj_hour] = float(item.mr_cp) / float(item.mr_all) * 100
-                    conversion_rate[item.tj_hour] = float("%.2f" % conversion_rate[item.tj_hour])
-                    into_rate[item.tj_hour] = float(item.mr_cp) / float(item.mr_all) * 100
-                    into_rate[item.tj_hour] = float("%.2f" % into_rate[item.tj_hour])
+                    t_customize[item.tj_hour-1] = item.mr_all
+                    item.mo_all = item.mo_all if item.mo_all > 0 else 1
+                    t_conversion_rate[item.tj_hour-1] = float(item.mr_all) / float(item.mo_all) * 100
+                    t_conversion_rate[item.tj_hour-1] = float("%.2f" % t_conversion_rate[item.tj_hour-1])
+                    conversion_rate[item.tj_hour-1] = float(item.mr_cp) / float(item.mr_all) * 100
+                    conversion_rate[item.tj_hour-1] = float("%.2f" % conversion_rate[item.tj_hour-1])
+                    into_rate[item.tj_hour-1] = float(item.mr_cp) / float(item.mr_all) * 100
+                    into_rate[item.tj_hour-1] = float("%.2f" % into_rate[item.tj_hour-1])
                     for u in user_count:
                         if u.reghour == item.tj_hour:
-                            arpu[item.tj_hour] = float(u.user_count) / float(item.mr_all) * 100
-                            arpu[item.tj_hour] = float("%.2f" % arpu[item.tj_hour])
+                            arpu[item.tj_hour-1] = float(u.user_count) / float(item.mr_all) * 100
+                            arpu[item.tj_hour-1] = float("%.2f" % arpu[item.tj_hour-1])
 
         return render_template('operator_exploits.html',channels=channels,
                                                         sp_info_list=sp_info_list,
@@ -337,6 +338,7 @@ def operator_exploits():
                         _index = int(item.has_index) % int(year)
                     _index -= 1
                     t_customize[_index] = item.mr_all
+                    item.mo_all = item.mo_all if item.mo_all > 0 else 1
                     t_conversion_rate[_index] = float(item.mr_all) / float(item.mo_all) * 100
                     t_conversion_rate[_index]  = float("%.2f" % t_conversion_rate[_index])
                     conversion_rate[_index] = float(item.mr_cp) / float(item.mr_all) * 100

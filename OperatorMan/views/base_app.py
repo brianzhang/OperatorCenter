@@ -46,7 +46,6 @@ def manager_home():
 @base_view.route('/login/', methods=['GET', 'POST'])
 def login():
     req = request.args if request.method == 'GET' else request.form
-
     if request.method == 'GET':
         return render_template('login.html')
     else:
