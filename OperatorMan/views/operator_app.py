@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import calendar
 import time
 import urllib2, urllib
 import simplejson as json
@@ -11,7 +12,7 @@ import md5
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-from sqlalchemy import or_, desc, func
+from sqlalchemy import or_, desc, func, distinct, CHAR, sql
 from sqlalchemy.orm import subqueryload
 
 from datetime import timedelta
@@ -189,54 +190,158 @@ def operator_exploits():
         channels = g.session.query(ChaInfo).all()
         sp_info_list = g.session.query(UsrSPInfo).all()
         today = datetime.datetime.today()
-        regdate = "%s%s%s" % (today.year, today.month, today.day)
+        _month = today.month if today.month >10 else '0%s' % today.month
+        _day = today.day if today.day >10 else '0%s' % today.day
+        regdate = "%s%s%s" % (today.year, _month, _day)
         query_data = g.session.query(DataEverday.tj_hour, func.sum(DataEverday.mo_all).label('mo_all'), \
                                     func.sum(DataEverday.mr_all).label('mr_all'), \
                                     func.sum(DataEverday.mr_cp).label('mr_cp')).\
                                     filter(DataEverday.tj_date ==regdate).group_by(DataEverday.tj_hour).all()
 
-        mo_all = range(1, 24)
-        mr_all = range(1, 24)
-        mr_cp = range(1, 24)
-        t_ok = range(1, 24)
-        t_mr = range(1, 24)
-        t_zh = range(1, 24)
-        fc=range(1, 24)
+        user_count = g.session.query(DataMr.reghour, func.count(distinct(DataMr.mobile)).label('user_count')).filter(DataMr.regdate==regdate).group_by(DataMr.reghour).all()
+
+        t_customize = range(1, 24)
+        t_conversion_rate = range(1, 24)
+        conversion_rate = range(1, 24)
+        into_rate = range(1, 24)
+        arpu = range(1, 24)
         for i in range(0, 23):
-            mo_all[i] = 0
-            mr_all[i] = 0
-            mr_cp[i] = 0
-            t_ok[i] = 0
-            t_mr[i] = 0
-            t_zh[i] = 0
-            fc[i] = 0
+            t_customize[i] = 0
+            t_conversion_rate[i] = 0
+            conversion_rate[i] = 0
+            into_rate[i] = 0
+            arpu[i] = 0
 
         if query_data:
                 data_list = {}
                 for item in query_data:
-                    mo_all[item.tj_hour] = item.mo_all
-                    mr_all[item.tj_hour] = item.mr_all
-                    mr_cp[item.tj_hour] = item.mr_cp
-                    t_ok[item.tj_hour] = (item.mo_all / item.mr_all)
-                    t_mr[item.tj_hour] =  (item.mr_all - item.mr_cp)
-                    t_zh[item.tj_hour] = 0
-                    fc[item.tj_hour] = ((float(item.mr_cp) / float(item.mr_all)) * 100)
+                    t_customize[item.tj_hour] = item.mr_all
+                    t_conversion_rate[item.tj_hour] = float(item.mr_all) / float(item.mo_all) * 100
+                    conversion_rate[item.tj_hour] = float(item.mr_cp) / float(item.mr_all) * 100
+                    into_rate[item.tj_hour] = float(item.mr_cp) / float(item.mr_all) * 100
+                    for u in user_count:
+                        if u.reghour == item.tj_hour:
+                            arpu[item.tj_hour] = float(u.user_count) / float(item.mr_all) * 100
 
         return render_template('operator_exploits.html',channels=channels,
                                                         sp_info_list=sp_info_list,
                                                         query_type='time',
-                                                        mo_all = json.dumps(mo_all),
-                                                        mr_all = json.dumps(mr_all),
-                                                        mr_cp = json.dumps(mr_cp),
-                                                        t_ok = json.dumps(t_ok),
-                                                        t_mr = json.dumps(t_mr),
-                                                        t_zh = json.dumps(t_zh),
-                                                        fc = json.dumps(fc),
-                                                        regdate=regdate
+                                                        t_customize = json.dumps(t_customize),
+                                                        t_conversion_rate = json.dumps(t_conversion_rate),
+                                                        conversion_rate = json.dumps(conversion_rate),
+                                                        into_rate = json.dumps(into_rate),
+                                                        arpu = json.dumps(arpu),
+                                                        regdate=regdate,
+                                                        random_key = random_key()
                                                         )
     else:
+        order_type = req.get('order_type', None)
+        time = req.get('time', None)
+        month = req.get('month', None)
+        year = req.get('year', None)
+        channelid = req.get('channel_id', None)
+        sp_id = req.get("sp_id", None)
+        today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s%s%s" % (today.year, _month, _day)
 
-        return jsonify({'rows': [], 'total': 0})
+        query_data = g.session.query(func.sum(DataEverday.mo_all).label('mo_all'), \
+                                    func.sum(DataEverday.mr_all).label('mr_all'), \
+                                    func.sum(DataEverday.mr_cp).label('mr_cp'))
+
+        user_count = g.session.query(DataMr.reghour, func.count(distinct(DataMr.mobile)).label('user_count'))
+
+
+        if channelid:
+          query_data = query_data.filter(DataEverday.channelid==channelid)
+          user_count = user_count.filter(DataMr.channelid==channelid)
+        if sp_id:
+          query_data = query_data.filter(ChaInfo.spid==sp_id)
+          user_count = user_count.filter(ChaInfo.spid==sp_id)
+
+        if order_type:
+          if time and order_type == 'time':
+            time = time.replace('-', '')
+            query_data = query_data.add_column(DataEverday.tj_hour.label('has_index')).filter(DataEverday.tj_date == time).group_by(DataEverday.tj_hour)
+            user_count = user_count.add_column(DataMr.regdate.label('has_index')).filter(DataMr.regdate==time).group_by(DataMr.reghour)
+
+          if month and year and order_type == 'month':
+            _month_s = '%s%s01' % (year, month)
+            _month_e = '%s%s31' % (year, month)
+
+            query_data = query_data.add_column(func.convert(DataEverday.tj_date, sql.literal_column('CHAR(8)')).label('has_index')).\
+                        filter(DataEverday.tj_date >= _month_s).filter(DataEverday.tj_date <= _month_e).\
+                        group_by(func.convert(DataEverday.tj_date, sql.literal_column('CHAR(8)')))
+
+            user_count = user_count.add_column(func.convert(DataMr.regdate, sql.literal_column('CHAR(8)')).label('has_index')).\
+                        filter(DataMr.regdate >= _month_s).\
+                        filter(DataMr.regdate <= _month_e).\
+                        group_by(func.convert(DataMr.regdate, sql.literal_column('CHAR(8)')))
+
+          if year and not month and order_type == 'year':
+            _month_s = '%s0101' % year
+            _month_e = '%s1231' % year
+
+            query_data = query_data.add_column(func.convert(DataEverday.tj_date, sql.literal_column('CHAR(6)')).label('has_index')).filter(DataEverday.tj_date >= _month_s).filter(DataEverday.tj_date <= _month_e).group_by(func.convert(DataEverday.tj_date, sql.literal_column('CHAR(6)')))
+            user_count = user_count.add_column(func.convert(DataMr.regdate, sql.literal_column('CHAR(6)')).label('has_index')).\
+                        filter(DataMr.regdate >= _month_s).\
+                        filter(DataMr.regdate <= _month_e).\
+                        group_by(func.convert(DataMr.regdate, sql.literal_column('CHAR(6)')))
+
+        query_data = query_data.all()
+        user_count = user_count.all()
+
+        range_date = 24
+        if order_type and order_type == 'time':
+          range_date = 24
+
+        if month and year and order_type == 'month':
+          range_date = calendar.monthrange(year, month)
+          range_date = range_date[1]+1
+
+        if year and not month and order_type == 'year':
+          range_date = 13
+
+        t_customize = range(1, range_date)
+        t_conversion_rate = range(1, range_date)
+        conversion_rate = range(1, range_date)
+        into_rate = range(1, range_date)
+        arpu = range(1, range_date)
+        for i in range(0, range_date-1):
+            t_customize[i] = 0
+            t_conversion_rate[i] = 0
+            conversion_rate[i] = 0
+            into_rate[i] = 0
+            arpu[i] = 0
+        if query_data:
+                data_list = {}
+                for item in query_data:
+                    _index = 0
+                    if order_type == 'time':
+                      _index = item.has_index
+                    if order_type == 'month':
+                      _index = item.has_index % int('%s%s' % (year, month))
+                    if order_type == 'year':
+                      _index = item.has_index % year
+
+                    t_customize[_index] = item.mr_all
+                    t_conversion_rate[_index] = float(item.mr_all) / float(item.mo_all) * 100
+                    conversion_rate[_index] = float(item.mr_cp) / float(item.mr_all) * 100
+                    into_rate[_index] = float(item.mr_cp) / float(item.mr_all) * 100
+
+                    for u in user_count:
+                        if u.has_index == item.has_index:
+                            arpu[_index] = float(u.user_count) / float(item.mr_all) * 100
+                data_list['t_customize'] = t_customize
+                data_list['t_conversion_rate'] = t_conversion_rate
+                data_list['conversion_rate'] = conversion_rate
+                data_list['into_rate'] = into_rate
+                data_list['arpu'] = arpu
+                data_list['range'] = range_date
+
+                return jsonify({'data': data_list, 'ok': True})
+        return jsonify({'rows': [], 'ok': False})
 
 @operator_view.route("/region/", methods=['GET', 'POST'])
 @login_required
