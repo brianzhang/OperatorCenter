@@ -105,10 +105,11 @@ def operator_status():
                                     'linkid': item.linkid,
                                     'spnumber': item.spnumber,
                                     'city': "%s-%s" % (item.provinces.province, item.citys.city),
-                                    'cp': item.cp_info.name,
+                                    'cp': "[%s]%s" % (item.cp_info.id, item.cp_info.name),
                                     'create_time': item.create_time,
                                     'status': item.state,
-                                    'is_kill': item.is_kill})
+                                    'is_kill': item.is_kill,
+                                    'id': item.id})
 
             return jsonify({'rows': operator_data, 'total': total})
         else:

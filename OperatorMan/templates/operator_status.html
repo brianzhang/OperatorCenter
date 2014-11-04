@@ -5,15 +5,15 @@
         <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
                 <th>开始时间:</th>
-                <td><input class="easyui-datebox" type="text" name="start_time" id="start_time{{random_key}}"/></td>
+                <td><input class="easyui-datebox" type="text" name="start_time" id="start_time{{random_key}}" value='2014-11-04'/></td>
                 <th>结束时间:</th>
-                <td><input class="easyui-datebox" type="text" name="end_time" id="end_time{{random_key}}"/></td>
+                <td><input class="easyui-datebox" type="text" name="end_time" id="end_time{{random_key}}" value='2014-11-04'/></td>
                 <th>通道:</th>
                 <td>
                     <select class="easyui-combobox" name="channel" id="channel{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for channel in channels%}
-                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                        <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
                         {%endfor%}
                     </select>
                 </td>
@@ -31,7 +31,7 @@
                     <select class="easyui-combobox" name="provinces" id="provinces{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for province in provinces %}
-                        <option value="{{province.id}}">[{{province.id}}]{{province.province}}</option>
+                        <option value="{{province.id}}">{{province.province}}</option>
                         {% endfor %}
                     </select>
                 </td>
@@ -39,8 +39,8 @@
                 <td>
                     <select  class="easyui-combobox" name="is_kill" id="is_kill{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
-                        <option value="1">正常</option>
-                        <option value="0">扣点</option>
+                        <option value="0">正常</option>
+                        <option value="1">扣点</option>
                     </select>
                 </td>
             </tr>
@@ -90,13 +90,14 @@
             <table id="operator_status_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
                     url="/operator/status/"
                     pagination="true"
-                    rownumbers="true"
+                    rownumbers="false"
                     fitColumns="true"
                     singleSelect="true"
                     loadMsg='数据加载中,请稍候...'
                     pageSize="20">
                 <thead>
                     <tr>
+                        <th data-options="field:'id',checkbox:true"></th>
                         <th field="sp" width="45">合作方</th>
                         <th field="channel" width="50">通道号</th>
                         <th field="mobile" width="40">手机号码</th>
@@ -142,7 +143,7 @@ var operator_status_manange = {
     },
     formatterDate: function(val, row) {
         var date = new Date(val);
-        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
+        return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()+' '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
     },
     formatCommand: function(val, row) {
         val = parseInt(val);
@@ -171,6 +172,19 @@ var operator_status_manange = {
     },
     clearQuery: function() {
 
+    },
+    timer: null,
+    initialize: function() {
+       var _this = this;
+       window.clearInterval(this.timer);
+       this.timer = window.setInterval(function() {
+          if($('#operator_status_list_dg').length > 0){
+              _this.datagrid.datagrid('load');
+          }else{
+             window.clearInterval(_this.timer);
+          }
+       }, 60000);
     }
 };
+operator_status_manange.initialize();
 </script>

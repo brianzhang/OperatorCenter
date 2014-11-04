@@ -13,7 +13,7 @@
                     <select class="easyui-combobox" name="channel" id="channel{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for channel in channels%}
-                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                        <option value="{{channel.id}}">[channel.id]{{channel.cha_name}}</option>
                         {%endfor%}
                     </select>
                 </td>
@@ -31,7 +31,7 @@
                     <select class="easyui-combobox" name="provinces" id="provinces{{random_key}}">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for province in provinces %}
-                        <option value="{{province.id}}">[{{province.id}}]{{province.province}}</option>
+                        <option value="{{province.id}}">{{province.province}}</option>
                         {% endfor %}
                     </select>
                 </td>
@@ -117,7 +117,7 @@ var operator_demand_manange = {
     },
     formatterDate: function(val, row) {
         var date = new Date(val);
-        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
+        return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()+' '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
     },
     formatCommand: function(val, row) {
         val = parseInt(val);
@@ -143,6 +143,15 @@ var operator_demand_manange = {
     },
     clearQuery: function() {
 
+    },
+    timer: null,
+    initialize: function() {
+       var _this = this;
+       window.clearInterval(this.timer);
+       this.timer = window.setInterval(function() {
+           _this.datagrid.datagrid('load');
+       }, 60000);
     }
 };
+operator_demand_manange.initialize();
 </script>
