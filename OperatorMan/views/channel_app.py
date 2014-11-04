@@ -178,7 +178,9 @@ def channel_add_info(channel_id=None):
 
             return jsonify({'ok': True})
         except Exception, e:
+            print '================ERROR============'
             print e
+            print '================ERROR============'
             return jsonify({'ok': False, 'errorMsg': u'设置通道失败.'})
 
     else:
