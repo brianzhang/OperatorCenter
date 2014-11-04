@@ -202,67 +202,34 @@ var operator_purpose_manange = {
                       ],
                       yAxis : [
                           {
-                              type : 'value',
-                              axisLabel : {
-                                  formatter: '{value} %'
-                              }
+                              type : 'value'
                           }
                       ],
                       series : [
                           {
                               name:'转化率(%)',
-                              type:'line',
-                              data: data.conversion_rate,
-                              markPoint : {
-                                  data : [
-                                      {type : 'max', name: '最大值'},
-                                      {type : 'min', name: '最小值'}
-                                  ]
-                              }
+                              type:'bar',
+                              data: data.conversion_rate
                           },
                           {
                               name:'T-定制',
-                              type:'line',
-                              data:data.t_customize,
-                              markPoint : {
-                                  data : [
-                                      {type : 'max', name: '最大值'},
-                                      {type : 'min', name: '最小值'}
-                                  ]
-                              }
+                              type:'bar',
+                              data:data.t_customize
                           },
                           {
                               name:'T-转化率(%)',
-                              type:'line',
-                              data: data.t_conversion_rate,
-                              markPoint : {
-                                  data : [
-                                      {type : 'max', name: '最大值'},
-                                      {type : 'min', name: '最小值'}
-                                  ]
-                              }
+                              type:'bar',
+                              data: data.t_conversion_rate
                           },
                           {
                               name:'分成比(%)',
-                              type:'line',
-                              data: data.into_rate,
-                              markPoint : {
-                                  data : [
-                                      {type : 'max', name: '最大值'},
-                                      {type : 'min', name: '最小值'}
-                                  ]
-                              }
+                              type:'bar',
+                              data: data.into_rate
                           },
                           {
                               name:'Arpu值',
-                              type:'line',
-                              data: data.arpu,
-                              markPoint : {
-                                  data : [
-                                      {type : 'max', name: '最大值'},
-                                      {type : 'min', name: '最小值'}
-                                  ]
-                              }
+                              type:'bar',
+                              data: data.arpu
                           }
                       ]
                   };
@@ -283,7 +250,6 @@ var operator_purpose_manange = {
         var lab_text = $("#lab_txt_{{random_key}}");
 
         order_type.on('click', function() {
-          console.log('ok....');
           var is_checked = $(this).is(":checked");
           if (is_checked) {
             item_time.hide();
