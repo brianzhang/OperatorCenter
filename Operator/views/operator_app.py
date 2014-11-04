@@ -226,17 +226,18 @@ def channel_mr(channel_id=None,SP_ID=None):
                 is_kill = True
                 kill_val = 2
 
-            #print "===========DATA LIST==========="
-            #print 'MAX: %s' % channel_province_day_max
-            #print 'ALL COUNT: %s' % channel_province_all_count
-            #print 'KILL COUNT: %s' % channel_province_kill_count
-            #print 'SEND COUNT: %s' % channel_province_no_kill_count
-            #print 'RM COUNT: %s' % channel_province_black_province_count
-            #print 'BLACK COUNT: %s' % channel_province_black_mobile_count
-            #print 'BL: %s' %_kill_bl
-            #print "===========END==========="
+            print "===========DATA LIST==========="
+            print 'MAX: %s' % channel_province_day_max
+            print 'ALL COUNT: %s' % channel_province_all_count
+            print 'KILL COUNT: %s' % channel_province_kill_count
+            print 'SEND COUNT: %s' % channel_province_no_kill_count
+            print 'RM COUNT: %s' % channel_province_black_province_count
+            print 'BLACK COUNT: %s' % channel_province_black_mobile_count
+            print 'BL: %s' %_kill_bl
+            print "===========END==========="
 
             if not is_kill and channel_province_all_count >0:
+                print '===================IS KILL========================'
                 #
                 #扣量=总MR-黑名单-下发数据-屏蔽地区
                 #扣量比例 = 100 - 同步给渠道的总MR数据/（总MR数据 - 黑名单 - 屏蔽地区）
@@ -256,6 +257,10 @@ def channel_mr(channel_id=None,SP_ID=None):
                     if (int(_kill_bl)+kill_count) > 100:
                         kill_val = 1
                         is_kill = True
+                print '===============================KILL VAL:========================='
+                print 'VAL: ', kill_val
+                print 'Status: ', is_kill
+                print '===============================KILL VAL:========================='
 
             data_mr.channelid = channel_id
             data_mr.spnumber = spnumber
@@ -291,23 +296,23 @@ def channel_mr(channel_id=None,SP_ID=None):
                 kill_val = 4
                 is_kill = False
 
-            if not mobile_mo:
-                mobile_mo = DataMo()
-                mobile_mo.mobile = mobile
-                mobile_mo.momsg = msg
-                mobile_mo.cpid = data_mr.cpid
+            #if not mobile_mo: 暂不插入
+            #    mobile_mo = DataMo()
+            #    mobile_mo.mobile = mobile
+            #    mobile_mo.momsg = msg
+            #    mobile_mo.cpid = data_mr.cpid
 
-                mobile_mo.channelid = channel_id
-                mobile_mo.spnumber = spnumber
-                mobile_mo.price = data_mr.price
-                mobile_mo.linkid = linkid
-                mobile_mo.province =data_mr.province
-                mobile_mo.city = data_mr.city
-                today = datetime.datetime.today()
-                mobile_mo.regdate = "%s%s%s" % (today.year, today.month, today.day)
-                mobile_mo.reghour = today.hour
-                mobile_mo.create_time = datetime.datetime.now()
-                g.session.add(mobile_mo)
+            #    mobile_mo.channelid = channel_id
+            #    mobile_mo.spnumber = spnumber
+            #    mobile_mo.price = data_mr.price
+            #    mobile_mo.linkid = linkid
+            #    mobile_mo.province =data_mr.province
+            #    mobile_mo.city = data_mr.city
+            #    today = datetime.datetime.today()
+            #    mobile_mo.regdate = "%s%s%s" % (today.year, today.month, today.day)
+            #    mobile_mo.reghour = today.hour
+            #    mobile_mo.create_time = datetime.datetime.now()
+            #    g.session.add(mobile_mo)
 
             if not is_kill:
                 cp_log = UsrCPTongLog()

@@ -79,7 +79,9 @@ def get_mobile_mr_count(mobile=None, channelid=None, is_day=False):
     _session = g.session
     if mobile and channelid:
         today = datetime.datetime.today()
-        reg_date = "%s%s%s" % (today.year, today.month, today.day)
+        _month = today.month if today.month >= 10 else "0%s" % today.month
+        _day = today.day if today.day >= 10 else "0%s"  % today.day
+        reg_date = "%s%s%s" % (today.year, _month, _day)
         if is_day:
             counts = _session.query(DataMr, func.count('mobile').label('count')).\
                             group_by(DataMr.regdate).\
@@ -92,7 +94,7 @@ def get_mobile_mr_count(mobile=None, channelid=None, is_day=False):
             return 0
         else:
             #2014-10-%
-            like_time = "%s-%s-%%" % (today.year, today.month)
+            like_time = "%s-%s-%%" % (today.year, _month)
             counts = _session.query(DataMr, func.count('mobile').label('count')).\
                                 group_by(DataMr.regdate).\
                                 filter(DataMr.mobile==mobile).\
@@ -114,7 +116,9 @@ def get_channel_count(channelid=None, cp_id=None, province=None, kill_data=-1):
     _session = g.session
     if channelid and cp_id:
         today = datetime.datetime.today()
-        reg_date = "%s%s%s" % (today.year, today.month, today.day)
+        _month = today.month if today.month >= 10 else "0%s" % today.month
+        _day = today.day if today.day >= 10 else "0%s"  % today.day
+        reg_date = "%s%s%s" % (today.year, _month, _day)
         counts = _session.query(DataMr, func.count('id').label('count')).\
                         filter(DataMr.channelid==channelid).\
                         filter(DataMr.regdate==reg_date).\

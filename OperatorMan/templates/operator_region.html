@@ -2,20 +2,62 @@
     <div fit="true">
         <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
         <!--高级查询部分-->
-        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <table border="0" cellspacing="0" cellpadding="0" width="100%" id="tool_{{random_key}}">
             <tr>
-                <th>时间:</th>
-                <td><input class="easyui-datebox" type="text"/></td>
+                <th><label id="lab_txt_{{random_key}}">时间:</label></th>
+                <td>
+                    <label id="item_time_{{random_key}}">
+                      <input class="easyui-datebox" type="text" id="datebox_time_{{random_key}}"/>
+                    </label>
+                    <label id="item_year_{{random_key}}" style="display:none">
+                      <select class="easyui-combobox" id="combobox_year_{{random_key}}">
+                          <option selected="selected" value=''>--年--</option>
+                          <option value='2013'>2013</option>
+                          <option value='2014'>2014</option>
+                      </select>
+                    </lable>
+                    <label id="item_month_{{random_key}}" style="display:none">
+                      <select class="easyui-combobox" id="combobox_month_{{random_key}}">
+                          <option selected="selected" value=''>--月--</option>
+                          {% for i in range(1, 12)%}
+                          <option value='{{i}}'>{% if i<10 %}0{{i}}{%else%}{{i}}{%endif%}</option>
+                          {% endfor%}
+                      </select>
+                    </label>
+                </td>
+                <th>通道:</th>
+                <td>
+                    <select id="channel_id_{{random_key}}" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {%for channel in channels%}
+                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                        {%endfor%}
+                    </select>
+                </td>
+                <th>合作方:</th>
+                <td>
+                    <select id="sp_id_{{random_key}}" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {% for sp_info in sp_info_list %}
+                        <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <th>筛选方式:</th>
+                <td>
+                    <label for="_radio_search1_{{random_key}}"><input type="radio" value="time" id="_radio_search1_{{random_key}}" name="order_type" checked="checked"/>时段</label>
+                    <label for="_radio_search2_{{random_key}}"><input type="radio" value="month" id="_radio_search2_{{random_key}}" name="order_type"/>日段</label>
+                    <label for="_radio_search3_{{random_key}}"><input type="radio" value="year" id="_radio_search3_{{random_key}}" name="order_type"/>月段</label>
+                </td>
                 <td align="right">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="operator_purpose_manange.queryData()" plain="true">查询</a>
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-remove'" src="javascript:;" onclick="operator_purpose_manange.clearQuery()" plain="true">清空</a>
                 </td>
             </tr>
         </table>
         </div>
         <div data-options="region:'center',split:false"  border="false">
              <div id="graphic" class="span8">
-                <div id="graphic_purpose_main" class="main" style="height:400px"></div>
+                <div id="graphic_purpose_main" class="main" style="height:600px; width:98%"></div>
                 <div>
             </div>
         </div>
@@ -31,170 +73,6 @@ require.config({
 });
 
 // 使用
-require(
-    [
-        'echarts',
-        'echarts/chart/bar' // 使用柱状图就加载bar模块，按需加载
-    ],
-    function(ec) {
-        // 基于准备好的dom，初始化echarts图表
-        var myChart = ec.init(document.getElementById('graphic_purpose_main'));
-        var option = {
-              title : {
-                  text: '各省分析',
-                  subtext: '2014-10-24'
-              },
-              tooltip : {
-                  trigger: 'axis'
-              },
-              legend: {
-                  data:['上行','定制','转化率(%)','T-定制', 'T-转化率(%)']
-              },
-              toolbox: {
-                  show : true,
-                  feature : {
-                      mark : {show: true},
-                      dataView : {show: true, readOnly: false},
-                      magicType : {show: true, type: ['line', 'bar']},
-                      restore : {show: true},
-                      saveAsImage : {show: true}
-                  }
-              },
-              calculable : true,
-              xAxis : [
-                  {
-                      type : 'category',
-                      boundaryGap : false,
-                      data : ['西藏',
-                              '青海',
-                              '宁夏',
-                              '海南',
-                              '甘肃',
-                              '贵州',
-                              '新疆',
-                              '云南',
-                              '重庆',
-                              '吉林',
-                              '山西',
-                              '天津',
-                              '江西',
-                              '广西',
-                              '陕西',
-                              '黑龙江',
-                              '内蒙古',
-                              '安徽',
-                              '北京',
-                              '福建',
-                              '上海',
-                              '湖北',
-                              '湖南',
-                              '四川',
-                              '辽宁',
-                              '河北',
-                              '河南',
-                              '浙江',
-                              '山东',
-                              '江苏',
-                              '广东']
-                  }
-              ],
-              yAxis : [
-                  {
-                      type : 'value',
-                      axisLabel : {
-                          formatter: '{value} %'
-                      }
-                  }
-              ],
-              series : [
-                  {
-                      name:'上行',
-                      type:'line',
-                      data:[21, 8, 7, 8, 8, 25, 41, 97, 1228, 625, 341, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
-                      markPoint : {
-                          data : [
-                              {type : 'max', name: '最大值'},
-                              {type : 'min', name: '最小值'}
-                          ]
-                      },
-                      markLine : {
-                          data : [
-                              {type : 'average', name: '平均值'}
-                          ]
-                      }
-                  },
-                  {
-                      name:'定制',
-                      type:'line',
-                      data:[18, 7, 6, 7, 43, 34, 345, 567, 4228, 525, 641, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
-                      markPoint : {
-                          data : [
-                              {type : 'max', name: '最大值'},
-                              {type : 'min', name: '最小值'}
-                          ]
-                      },
-                      markLine : {
-                          data : [
-                              {type : 'average', name: '平均值'}
-                          ]
-                      }
-                  },
-                  {
-                      name:'转化率(%)',
-                      type:'line',
-                      data:[21, 8, 7, 8, 8, 25, 41, 97, 1228, 625, 341, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
-                      markPoint : {
-                          data : [
-                              {type : 'max', name: '最大值'},
-                              {type : 'min', name: '最小值'}
-                          ]
-                      },
-                      markLine : {
-                          data : [
-                              {type : 'average', name: '平均值'}
-                          ]
-                      }
-                  },
-                  {
-                      name:'T-定制',
-                      type:'line',
-                      data:[21, 8, 7, 8, 8, 25, 41, 97, 1228, 625, 341, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
-                      markPoint : {
-                          data : [
-                              {type : 'max', name: '最大值'},
-                              {type : 'min', name: '最小值'}
-                          ]
-                      },
-                      markLine : {
-                          data : [
-                              {type : 'average', name: '平均值'}
-                          ]
-                      }
-                  },
-                  {
-                      name:'T-转化率(%)',
-                      type:'line',
-                      data:[21, 8, 7, 8, 8, 25, 41, 97, 1228, 625, 341, 266, 269, 183, 380, 304, 307, 458, 241, 237, 324, 313, 389, 43],
-                      markPoint : {
-                          data : [
-                              {type : 'max', name: '最大值'},
-                              {type : 'min', name: '最小值'}
-                          ]
-                      },
-                      markLine : {
-                          data : [
-                              {type : 'average', name: '平均值'}
-                          ]
-                      }
-                  }
-              ]
-          };
-
-        // 为echarts对象加载数据
-        myChart.setOption(option);
-    }
-);
-
 var operator_purpose_manange = {
     url: '',
     datagrid: $('#operator_exploits_list_dg'),
@@ -221,17 +99,211 @@ var operator_purpose_manange = {
         }
     },
     queryData: function() {
-        var req_data = {'channel_id': $('#channel_id').combobox('getValue'),
-           'sp_id': $("#sp_id").combobox('getValue'),
-           'product_id': $("#product_id").combobox('getValue'),
-           'operator_id': $("#operator_id").combobox('getValue'),
-           'busi_type': $("#busi_type").combobox('getValue'),
-           'area': $("#area").combobox('getValue')
+        var channel = $("#channel_id_{{random_key}}").combobox('getValue');
+        var sp = $("#sp_id_{{random_key}}").combobox('getValue');
+        var toolEL = $("#tool_{{random_key}}");
+
+        var req_data = {'channel_id': channel,
+           'sp_id': sp,
+           'order_type': toolEL.find('input:radio[name="order_type"]:checked').val()
         };
-        this.datagrid.datagrid('load', req_data)
+        if (req_data.order_type == 'time') {
+          req_data['time'] = $("#datebox_time_{{random_key}}").datetimebox('getValue');
+        };
+        if(req_data.order_type == 'month') {
+          req_data['month'] = $("#combobox_month_{{random_key}}").combobox('getValue');
+          req_data['year'] =  $("#combobox_year_{{random_key}}").combobox('getValue');
+        };
+
+        if(req_data.order_type == 'year') {
+          req_data['year'] =  $("#combobox_year_{{random_key}}").combobox('getValue');
+        };
+
+        $.ajax({
+          url: '/operator/region/',
+          data: req_data,
+          dataType: 'json',
+          type: 'POST',
+          success: function(resp, status) {
+                if (resp.ok) {
+                    operator_purpose_manange.loadGraphic(resp.data);
+                }
+            }
+        });
+    },
+    loadGraphic: function(data) {
+
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar' // 使用柱状图就加载bar模块，按需加载
+            ],
+            function(ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('graphic_purpose_main'));
+                var option = {
+                      title : {
+                          text: '各省分析',
+                          subtext: data.title
+                      },
+                      tooltip : {
+                          trigger: 'axis'
+                      },
+                      legend: {
+                          data:['转化率(%)','T-定制', 'T-转化率(%)', '分成比(%)', 'Arpu值']
+                      },
+                      toolbox: {
+                          show : true,
+                          feature : {
+                              mark : {show: true},
+                              dataView : {show: true, readOnly: false},
+                              magicType : {show: true, type: ['line', 'bar']},
+                              restore : {show: true},
+                              saveAsImage : {show: true}
+                          }
+                      },
+                      calculable : true,
+                      xAxis : [
+                          {
+                              type : 'category',
+                              boundaryGap : false,
+                              data : ['北京',
+                                      '天津',
+                                      '河北',
+                                      '山西',
+                                      '内蒙古',
+                                      '辽宁',
+                                      '吉林',
+                                      '黑龙江',
+                                      '上海',
+                                      '江苏',
+                                      '浙江',
+                                      '安徽',
+                                      '福建',
+                                      '江西',
+                                      '山东',
+                                      '河南',
+                                      '湖北',
+                                      '湖南',
+                                      '广东',
+                                      '广西',
+                                      '海南',
+                                      '重庆',
+                                      '四川',
+                                      '贵州',
+                                      '云南',
+                                      '西藏',
+                                      '陕西',
+                                      '甘肃',
+                                      '青海',
+                                      '宁夏',
+                                      '新疆']
+                          }
+                      ],
+                      yAxis : [
+                          {
+                              type : 'value',
+                              axisLabel : {
+                                  formatter: '{value} %'
+                              }
+                          }
+                      ],
+                      series : [
+                          {
+                              name:'转化率(%)',
+                              type:'line',
+                              data: data.conversion_rate,
+                              markPoint : {
+                                  data : [
+                                      {type : 'max', name: '最大值'},
+                                      {type : 'min', name: '最小值'}
+                                  ]
+                              }
+                          },
+                          {
+                              name:'T-定制',
+                              type:'line',
+                              data:data.t_customize,
+                              markPoint : {
+                                  data : [
+                                      {type : 'max', name: '最大值'},
+                                      {type : 'min', name: '最小值'}
+                                  ]
+                              }
+                          },
+                          {
+                              name:'T-转化率(%)',
+                              type:'line',
+                              data: data.t_conversion_rate,
+                              markPoint : {
+                                  data : [
+                                      {type : 'max', name: '最大值'},
+                                      {type : 'min', name: '最小值'}
+                                  ]
+                              }
+                          },
+                          {
+                              name:'分成比(%)',
+                              type:'line',
+                              data: data.into_rate,
+                              markPoint : {
+                                  data : [
+                                      {type : 'max', name: '最大值'},
+                                      {type : 'min', name: '最小值'}
+                                  ]
+                              }
+                          },
+                          {
+                              name:'Arpu值',
+                              type:'line',
+                              data: data.arpu,
+                              markPoint : {
+                                  data : [
+                                      {type : 'max', name: '最大值'},
+                                      {type : 'min', name: '最小值'}
+                                  ]
+                              }
+                          }
+                      ]
+                  };
+
+                // 为echarts对象加载数据
+                myChart.setOption(option);
+            }
+        );
     },
     clearQuery: function() {
+    },
+    eventBind: function() {
+        var toolEL = $("#tool_{{random_key}}");
+        var order_type = toolEL.find('input[name="order_type"]');
+        var item_time = $("#item_time_{{random_key}}");
+        var item_month = $("#item_month_{{random_key}}");
+        var item_year = $("#item_year_{{random_key}}");
+        var lab_text = $("#lab_txt_{{random_key}}");
 
+        order_type.on('click', function() {
+          console.log('ok....');
+          var is_checked = $(this).is(":checked");
+          if (is_checked) {
+            item_time.hide();
+            item_month.hide();
+            if($(this).val() == 'time') {
+              item_year.hide();
+              lab_text.text('时间：');
+            }else{
+              _text = $(this).val() == 'month' ? '月份：' : '年份：';
+              lab_text.text(_text);
+              item_year.show();
+            }
+            $("#item_"+$(this).val()+"_{{random_key}}").show();
+          }
+        });
+    },
+    initialize: function() {
+      this.loadGraphic({{data|safe}});
+      this.eventBind();
     }
 };
+operator_purpose_manange.initialize();
 </script>
