@@ -4,19 +4,16 @@
         <!--高级查询部分-->
         <table border="0" cellspacing="0" cellpadding="0" width="100%" id="tool_{{random_key}}">
             <tr>
-                <th><label id="lab_txt_{{random_key}}">时间:</label></th>
-                <td>
-                    <label id="item_time_{{random_key}}">
-                      <input class="easyui-datebox" type="text" id="datebox_time_{{random_key}}"/>
-                    </label>
-                    <label id="item_year_{{random_key}}" style="display:none">
+                <th><label id="lab_txt_{{random_key}}">日段:</label></th>
+                <td nowrap="nowrap">
+                    <label id="item_year_{{random_key}}" style="display:block">
                       <select class="easyui-combobox" id="combobox_year_{{random_key}}">
                           <option selected="selected" value=''>--年--</option>
                           <option value='2013'>2013</option>
                           <option value='2014'>2014</option>
                       </select>
-                    </lable>
-                    <label id="item_month_{{random_key}}" style="display:none">
+                    </label>
+                    <label id="item_month_{{random_key}}" style="display:block">
                       <select class="easyui-combobox" id="combobox_month_{{random_key}}">
                           <option selected="selected" value=''>--月--</option>
                           {% for i in range(1, 12)%}
@@ -45,231 +42,130 @@
                 </td>
                 <th>筛选方式:</th>
                 <td>
-                    <label for="_radio_search1_{{random_key}}"><input type="radio" value="time" id="_radio_search1_{{random_key}}" name="order_type" checked="checked"/>时段</label>
-                    <label for="_radio_search2_{{random_key}}"><input type="radio" value="month" id="_radio_search2_{{random_key}}" name="order_type"/>日段</label>
+                    <label for="_radio_search2_{{random_key}}"><input type="radio" value="month" checked="checked" id="_radio_search2_{{random_key}}" name="order_type"/>日段</label>
                     <label for="_radio_search3_{{random_key}}"><input type="radio" value="year" id="_radio_search3_{{random_key}}" name="order_type"/>月段</label>
                 </td>
-                <td align="right">
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="operator_purpose_manange.queryData()" plain="true">查询</a>
+                <td align="right" colspan="4">
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" id="queryBtn{{random_key}}" plain="true">查询</a>
                 </td>
             </tr>
         </table>
         </div>
         <div data-options="region:'center',split:false"  border="false">
-             <div id="graphic" class="span8">
-                <div id="graphic_purpose_main" class="main" style="height:600px; width:98%"></div>
-                <div>
-            </div>
+             <table id="operator_region_list_dg"></table>
         </div>
     </div>
 </div>
 <script>
-// 路径配置
-require.config({
-    paths:{
-        'echarts' : 'http://echarts.baidu.com/build/echarts',
-        'echarts/chart/bar' : 'http://echarts.baidu.com/build/echarts'
-    }
-});
-
-// 使用
-var operator_purpose_manange = {
-    url: '',
-    datagrid: $('#operator_exploits_list_dg'),
-    formatStatus: function(val, row) {
-        if (val) {
-            return '<span class="icon icon-ok">&nbsp;</span>已开通'
-        }else {
-            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
-        }
-    },
-    formatterDate: function(val, row) {
-        var date = new Date(val);
-        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
-    },
-    formatCommand: function(val, row) {
-        val = parseInt(val);
-        switch(val){
-            case 0:
-                return '模糊';
-            case 1:
-                return '模糊+精确';
-            case 2:
-                return '双精确';
-        }
-    },
-    queryData: function() {
-        var channel = $("#channel_id_{{random_key}}").combobox('getValue');
-        var sp = $("#sp_id_{{random_key}}").combobox('getValue');
-        var toolEL = $("#tool_{{random_key}}");
-
-        var req_data = {'channel_id': channel,
-           'sp_id': sp,
-           'order_type': toolEL.find('input:radio[name="order_type"]:checked').val()
-        };
-        if (req_data.order_type == 'time') {
-          req_data['time'] = $("#datebox_time_{{random_key}}").datetimebox('getValue');
-        };
-        if(req_data.order_type == 'month') {
-          req_data['month'] = $("#combobox_month_{{random_key}}").combobox('getValue');
-          req_data['year'] =  $("#combobox_year_{{random_key}}").combobox('getValue');
-        };
-
-        if(req_data.order_type == 'year') {
-          req_data['year'] =  $("#combobox_year_{{random_key}}").combobox('getValue');
-        };
-
-        $.ajax({
-          url: '/operator/region/',
-          data: req_data,
-          dataType: 'json',
-          type: 'POST',
-          success: function(resp, status) {
-                if (resp.ok) {
-                    operator_purpose_manange.loadGraphic(resp.data);
-                }
+(function() {
+    var operator_purpose_manange = {
+        url: '',
+        datagrid: $('#operator_region_list_dg'),
+        renderGrid: function(data, types) {
+            var _title = '';
+            if(types=='time') {
+                _title = '时段分析';
             }
-        });
-    },
-    loadGraphic: function(data) {
 
-        require(
-            [
-                'echarts',
-                'echarts/chart/bar' // 使用柱状图就加载bar模块，按需加载
-            ],
-            function(ec) {
-                // 基于准备好的dom，初始化echarts图表
-                var myChart = ec.init(document.getElementById('graphic_purpose_main'));
-                var option = {
-                      title : {
-                          text: '各省分析',
-                          subtext: data.title
-                      },
-                      tooltip : {
-                          trigger: 'axis'
-                      },
-                      legend: {
-                          data:['转化率(%)','T-定制', 'T-转化率(%)', '分成比(%)', 'Arpu值']
-                      },
-                      toolbox: {
-                          show : true,
-                          feature : {
-                              mark : {show: true},
-                              dataView : {show: true, readOnly: false},
-                              magicType : {show: true, type: ['line', 'bar']},
-                              restore : {show: true},
-                              saveAsImage : {show: true}
-                          }
-                      },
-                      calculable : true,
-                      xAxis : [
-                          {
-                              type : 'category',
-                              boundaryGap : false,
-                              data : ['北京',
-                                      '天津',
-                                      '河北',
-                                      '山西',
-                                      '内蒙古',
-                                      '辽宁',
-                                      '吉林',
-                                      '黑龙江',
-                                      '上海',
-                                      '江苏',
-                                      '浙江',
-                                      '安徽',
-                                      '福建',
-                                      '江西',
-                                      '山东',
-                                      '河南',
-                                      '湖北',
-                                      '湖南',
-                                      '广东',
-                                      '广西',
-                                      '海南',
-                                      '重庆',
-                                      '四川',
-                                      '贵州',
-                                      '云南',
-                                      '西藏',
-                                      '陕西',
-                                      '甘肃',
-                                      '青海',
-                                      '宁夏',
-                                      '新疆']
-                          }
-                      ],
-                      yAxis : [
-                          {
-                              type : 'value'
-                          }
-                      ],
-                      series : [
-                          {
-                              name:'转化率(%)',
-                              type:'bar',
-                              data: data.conversion_rate
-                          },
-                          {
-                              name:'T-定制',
-                              type:'bar',
-                              data:data.t_customize
-                          },
-                          {
-                              name:'T-转化率(%)',
-                              type:'bar',
-                              data: data.t_conversion_rate
-                          },
-                          {
-                              name:'分成比(%)',
-                              type:'bar',
-                              data: data.into_rate
-                          },
-                          {
-                              name:'Arpu值',
-                              type:'bar',
-                              data: data.arpu
-                          }
-                      ]
-                  };
-
-                // 为echarts对象加载数据
-                myChart.setOption(option);
+            if(types=='month'){
+                _title = '日段分析';
             }
-        );
-    },
-    clearQuery: function() {
-    },
-    eventBind: function() {
-        var toolEL = $("#tool_{{random_key}}");
-        var order_type = toolEL.find('input[name="order_type"]');
-        var item_time = $("#item_time_{{random_key}}");
-        var item_month = $("#item_month_{{random_key}}");
-        var item_year = $("#item_year_{{random_key}}");
-        var lab_text = $("#lab_txt_{{random_key}}");
 
-        order_type.on('click', function() {
-          var is_checked = $(this).is(":checked");
-          if (is_checked) {
-            item_time.hide();
-            item_month.hide();
-            if($(this).val() == 'time') {
-              item_year.hide();
-              lab_text.text('时间：');
+            if(types=='year'){
+                _title = '月段分析';
+            }
+            this.datagrid.datagrid({
+                title: _title,
+                data: data,
+                showFooter: true,
+                singleSelect: true,
+                fitColumns: true,
+                columns:[[
+                    {field:'province',title: '省份',width:100},
+                    {field:'mo_all',title:'上行',width:100, align:'right'},
+                    {field:'t_customize',title:'T定制',width:100, align:'right', styler: this.rowStyler},
+                    {field:'t_conversion_rate',title:'T转换率',width:100, align:'right', styler: this.rowStyler},
+                    {field:'conversion_rate',title:'转化率',width:100,align:'right', styler: this.rowStyler},
+                    {field:'into_rate',title:'分成比',width:100,align:'right', styler: this.rowStyler},
+                    {field:'arpu',title:'Arpu值',width:100,align:'right', styler: this.rowStyler}
+                ]]
+            });
+        },
+        rowStyler: function(value,row,index) {
+            if (value < 20){
+                return 'background-color:#ffee00;color:red;';
             }else{
-              _text = $(this).val() == 'month' ? '月份：' : '年份：';
-              lab_text.text(_text);
-              item_year.show();
+                return 'background-color:#fff;color:ffee00;font-weight: bold';
             }
-            $("#item_"+$(this).val()+"_{{random_key}}").show();
-          }
-        });
-    },
-    initialize: function() {
-      this.loadGraphic({{data|safe}});
-      this.eventBind();
-    }
-};
-operator_purpose_manange.initialize();
+        },
+        queryData: function() {
+            var channel = $("#channel_id_{{random_key}}").combobox('getValue');
+            var sp = $("#sp_id_{{random_key}}").combobox('getValue');
+            var toolEL = $("#tool_{{random_key}}");
+            var _this = this;
+            var req_data = {'channel_id': channel,
+               'sp_id': sp,
+               'order_type': toolEL.find('input:radio[name="order_type"]:checked').val()
+            };
+            if (req_data.order_type == 'time') {
+              req_data['time'] = $("#datebox_time_{{random_key}}").datetimebox('getValue');
+            };
+            if(req_data.order_type == 'month') {
+              req_data['month'] = $("#combobox_month_{{random_key}}").combobox('getValue');
+              req_data['year'] =  $("#combobox_year_{{random_key}}").combobox('getValue');
+            };
+
+            if(req_data.order_type == 'year') {
+              req_data['year'] =  $("#combobox_year_{{random_key}}").combobox('getValue');
+            };
+
+            $.ajax({
+              url: '/operator/region/',
+              data: req_data,
+              dataType: 'json',
+              type: 'POST',
+              success: function(resp, status) {
+                    if (resp.ok) {
+                        _this.renderGrid(resp.data, resp.order_type);
+                    }
+                }
+            });
+        },
+        eventBind: function() {
+            var toolEL = $("#tool_{{random_key}}");
+            var order_type = toolEL.find('input[name="order_type"]');
+            var item_time = $("#item_time_{{random_key}}");
+            var item_month = $("#item_month_{{random_key}}");
+            var item_year = $("#item_year_{{random_key}}");
+            var lab_text = $("#lab_txt_{{random_key}}");
+            var queryBtn = $("#queryBtn{{random_key}}");
+            var _this = this;
+            order_type.on('click', function() {
+              var is_checked = $(this).is(":checked");
+              if (is_checked) {
+                item_time.hide();
+                item_month.hide();
+                if($(this).val() == 'time') {
+                  item_year.hide();
+                  lab_text.text('时间：');
+                }else{
+                  _text = $(this).val() == 'month' ? '月份：' : '年份：';
+                  lab_text.text(_text);
+                  item_year.show();
+                }
+                $("#item_"+$(this).val()+"_{{random_key}}").show();
+              }
+            });
+            queryBtn.on("click", function() {
+                _this.queryData();
+            });
+        },
+        initialize: function() {
+          this.renderGrid({{data|safe}}, '{{query_type}}');
+          this.eventBind();
+        }
+    };
+    operator_purpose_manange.initialize();
+})();
+// 使用
 </script>
