@@ -507,7 +507,7 @@ class DataEverday(OperatorBase):
     tj_hour = Column(Integer)
     tj_date = Column(Integer)
     create_time = Column(DateTime, nullable=False)
-    sp_info = relationship(UsrCPInfo)
+    cp_info = relationship(UsrCPInfo)
     channe_info = relationship(ChaInfo)
     city_info = relationship(PubCity)
     province_info = relationship(PubProvince)

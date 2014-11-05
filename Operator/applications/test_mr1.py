@@ -11,7 +11,7 @@ def req_url():
     mb4 = 18211010000
     mb5 = 13006660000
     mb6 = 13166850000
-    lkid = 215000000
+    lkid = 216000000
     #url = 'http://127.0.0.1:8802/MR/3/3/'
     true_count = 0
     error_count = 0

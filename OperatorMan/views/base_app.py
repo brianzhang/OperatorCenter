@@ -135,7 +135,6 @@ def operator_add(sp_id=None):
         return jsonify({'ok': True})
 
     except Exception, e:
-        print '===========ERROR============'
         print e
 
         return jsonify({'errorMsg': 'error'})
