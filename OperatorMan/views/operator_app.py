@@ -8,7 +8,7 @@ import simplejson as json
 import os
 import sys
 import md5
-
+import math
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
@@ -22,7 +22,7 @@ import flask.ext.wtf as wtf
 
 from werkzeug import secure_filename
 from OperatorMan.configs import settings
-from OperatorMan.views import ok_json, fail_json, hash_password, write_sys_log, random_key
+from OperatorMan.views import ok_json, fail_json, hash_password, write_sys_log, random_key, get_send_html
 from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
                 create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UsrSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
                 UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP, UsrChannelSync, \
@@ -46,15 +46,18 @@ def operator_status():
         cp_info_list = g.session.query(UsrCPInfo).all()
         provinces = g.session.query(PubProvince).all()
         users = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
-
+        today = datetime.datetime.today()
+        _month = today.month if today.month >= 10 else "0%s" % today.month
+        _day = today.day if today.day >= 10 else "0%s" %  today.day
+        curr_date = "%s-%s-%s" % (today.year, _month, _day)
         return  render_template('operator_status.html', channels=channels,
                                                         cp_info_list=cp_info_list,
                                                         provinces=provinces,
                                                         users=users,
-                                                        random_key = random_key())
+                                                        random_key = random_key(),
+                                                        curr_date = curr_date)
     else:
         operator_list = g.session.query(DataMr).order_by(desc(DataMr.id))
-        operator_list = operator_list.filter(ChaInfo.busi_type != 3)
         start_time = req.get('start_time', None)
         end_time = req.get('end_time', None)
         channel = req.get('channel', None)
@@ -65,12 +68,25 @@ def operator_status():
         users = req.get('users', None)
         types = req.get('types', None)
         order = req.get('order', None)
+
+        stmt = g.session.query(func.count(DataMr.id).label("cp_count")).filter(DataMr.is_kill==0).filter(DataMr.state==True)
+        
+        stats_query = g.session.query(func.count(distinct(DataMr.channelid)).label('channel_count'), \
+                                    func.count(distinct(DataMr.mobile)).label('mobile_count'),\
+                                    func.count(DataMr.id).label('id_count'),\
+                                    func.count(DataMr.state).label('status')
+                                    )
+
         if start_time:
-            start_time += '00:00:00'
+            start_time += ' 00:00:00'
             operator_list = operator_list.filter(DataMr.create_time >= start_time)
+            stats_query = stats_query.filter(DataMr.create_time >= start_time)
+            stmt = stmt.filter(DataMr.create_time >= start_time)
         if end_time:
-            end_time += '00:00:00'
+            end_time += ' 23:59:59'
             operator_list = operator_list.filter(DataMr.create_time <= end_time)
+            stats_query = stats_query.filter(DataMr.create_time <= end_time)
+            stmt = stmt.filter(DataMr.create_time <= end_time)
         else:
             today = datetime.datetime.today()
             _month = today.month if today.month >= 10 else "0%s" % today.month
@@ -78,6 +94,9 @@ def operator_status():
             regdate = "%s%s%s" % (today.year, _month, _day)
 
             operator_list = operator_list.filter(DataMr.regdate == regdate)
+            stats_query = stats_query.filter(DataMr.regdate == regdate)
+            stmt = stmt.filter(DataMr.regdate == regdate)
+
         if channel:
             operator_list = operator_list.filter(DataMr.channelid == channel)
         if cpinfo:
@@ -89,12 +108,30 @@ def operator_status():
         if status:
             operator_list = operator_list.filter(DataMr.state == status)
         #if
-        operator_list = operator_list.all()
+        #query_data.add_column(DataEverday.tj_hour.label('has_index'))
+        #stmt.c.cp_count.label("cp_count")
+        #.subquery()
+        stmt = stmt.subquery()
+        stats_query = stats_query.add_column(stmt.c.cp_count.label("cp_count"))
+        stats_query = stats_query.first()
+
         currentpage = int(req.get('page', 1))
         numperpage = int(req.get('rows', 20))
         start = numperpage * (currentpage - 1)
-        total = len(operator_list)
-        operator_list = operator_list[start:(numperpage+start)]
+        start = math.fabs(start)
+        total = 0
+        stats_data = {}
+        if stats_query:
+            stats_data['id_count'] = stats_query.id_count
+            stats_data['channel_count'] = stats_query.channel_count
+            stats_data['mobile_count'] = stats_query.mobile_count
+            stats_data['status'] = stats_query.status
+            stats_data['cp_count'] = stats_query.cp_count
+            stats_data['error_count'] = stats_query.id_count - stats_query.status
+            total = stats_query.id_count
+
+        operator_list = operator_list.offset(start).limit(numperpage).all()
+        #operator_list = operator_list[start:(numperpage+start)]
         if operator_list:
             operator_data = []
             for item in operator_list:
@@ -108,10 +145,10 @@ def operator_status():
                                     'cp': "[%s]%s" % (item.cp_info.id, item.cp_info.name),
                                     'create_time': item.create_time,
                                     'status': item.state,
-                                    'is_kill': item.is_kill,
+                                    'is_kill': get_send_html(item.state, item.is_kill),
                                     'id': item.id})
 
-            return jsonify({'rows': operator_data, 'total': total})
+            return jsonify({'rows': operator_data, 'total': total, 'stats_data': stats_data})
         else:
             return jsonify({'rows': [], 'total': 0})
 
@@ -128,12 +165,16 @@ def operator_demand():
         cp_info_list = g.session.query(UsrCPInfo).all()
         provinces = g.session.query(PubProvince).all()
         users = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
-
+        today = datetime.datetime.today()
+        _month = today.month if today.month >= 10 else "0%s" % today.month
+        _day = today.day if today.day >= 10 else "0%s" %  today.day
+        curr_date = "%s-%s-%s" % (today.year, _month, _day)
         return  render_template('operator_demand.html', channels=channels,
                                                         cp_info_list=cp_info_list,
                                                         provinces=provinces,
                                                         users=users,
-                                                        random_key=random_key())
+                                                        random_key=random_key(),
+                                                        curr_date=curr_date)
     else:
         operator_list = g.session.query(DataMo).order_by(desc(DataMo.id))
         #operator_list = operator_list.filter(ChaInfo.busi_type == 3)
@@ -148,11 +189,19 @@ def operator_demand():
         types = req.get('types', None)
         order = req.get('order', None)
         if start_time:
-            start_time += '00:00:00'
+            start_time += ' 00:00:00'
             operator_list = operator_list.filter(DataMo.create_time >= start_time)
         if end_time:
-            end_time += '00:00:00'
+            end_time += ' 23:59:59'
             operator_list = operator_list.filter(DataMo.create_time <= end_time)
+        else:
+            today = datetime.datetime.today()
+            _month = today.month if today.month >= 10 else "0%s" % today.month
+            _day = today.day if today.day >= 10 else "0%s" %  today.day
+            regdate = "%s%s%s" % (today.year, _month, _day)
+
+            operator_list = operator_list.filter(DataMo.regdate == regdate)
+
         if channel:
             operator_list = operator_list.filter(DataMo.channelid == channel)
         if cpinfo:

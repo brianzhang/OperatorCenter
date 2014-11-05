@@ -120,8 +120,7 @@ def channel_mo(channel_id=None, SP_ID=None):
                 g.session.close()
                 return "OK"
             except Exception, e:
-                print 'ERROR: ', e
-                return "False"
+                return "ERROR"
             # query mobile attribution
             # query channel sync count
             #  计算是否扣量
@@ -129,7 +128,7 @@ def channel_mo(channel_id=None, SP_ID=None):
             # if not  is_kill
             # sync CP data.
 
-        return "False"
+        return "ERROR"
 
     return jsonify({'ok': False, 'SP_ID': SP_ID, 'MSG': 'The SP IS UNDEFINED'})
 
@@ -194,8 +193,8 @@ def channel_mr(channel_id=None,SP_ID=None):
                             filter(UsrChannel.spnumber==spnumber).\
                             filter(UsrChannel.momsg==msg).\
                             filter(UsrChannel.is_show == True).first()
-            _kill_bl = 0
-            kill_val = 0
+            _kill_bl = 0 #扣量比列
+            kill_val = 0 #扣量代码： 0不扣量，1计算比列扣量， 2省份屏蔽扣量， 3 黑名单扣量
             if cp_list:
                 cp = cp_list
                 channel_province_day_max = get_channel_province_count(cp.id, cp.cpid, mobile_info.province) # 查询渠道分配的省份日限数量
@@ -207,7 +206,9 @@ def channel_mr(channel_id=None,SP_ID=None):
                 req_url = cp.backurl
                 _kill_bl = cp.bl
                 data_mr.cpid = cp.cpid
-
+            else:
+                is_kill = True
+                kill_val = 1
 
             if day_count >= channel_day_max and channel_day_max > 0:
                 is_kill = True
@@ -226,18 +227,8 @@ def channel_mr(channel_id=None,SP_ID=None):
                 is_kill = True
                 kill_val = 2
 
-            print "===========DATA LIST==========="
-            print 'MAX: %s' % channel_province_day_max
-            print 'ALL COUNT: %s' % channel_province_all_count
-            print 'KILL COUNT: %s' % channel_province_kill_count
-            print 'SEND COUNT: %s' % channel_province_no_kill_count
-            print 'RM COUNT: %s' % channel_province_black_province_count
-            print 'BLACK COUNT: %s' % channel_province_black_mobile_count
-            print 'BL: %s' %_kill_bl
-            print "===========END==========="
-
             if not is_kill and channel_province_all_count >0:
-                print '===================IS KILL========================'
+                
                 #
                 #扣量=总MR-黑名单-下发数据-屏蔽地区
                 #扣量比例 = 100 - 同步给渠道的总MR数据/（总MR数据 - 黑名单 - 屏蔽地区）
@@ -257,10 +248,6 @@ def channel_mr(channel_id=None,SP_ID=None):
                     if (int(_kill_bl)+kill_count) > 100:
                         kill_val = 1
                         is_kill = True
-                print '===============================KILL VAL:========================='
-                print 'VAL: ', kill_val
-                print 'Status: ', is_kill
-                print '===============================KILL VAL:========================='
 
             data_mr.channelid = channel_id
             data_mr.spnumber = spnumber
@@ -296,24 +283,6 @@ def channel_mr(channel_id=None,SP_ID=None):
                 kill_val = 4
                 is_kill = False
 
-            #if not mobile_mo: 暂不插入
-            #    mobile_mo = DataMo()
-            #    mobile_mo.mobile = mobile
-            #    mobile_mo.momsg = msg
-            #    mobile_mo.cpid = data_mr.cpid
-
-            #    mobile_mo.channelid = channel_id
-            #    mobile_mo.spnumber = spnumber
-            #    mobile_mo.price = data_mr.price
-            #    mobile_mo.linkid = linkid
-            #    mobile_mo.province =data_mr.province
-            #    mobile_mo.city = data_mr.city
-            #    today = datetime.datetime.today()
-            #    mobile_mo.regdate = "%s%s%s" % (today.year, today.month, today.day)
-            #    mobile_mo.reghour = today.hour
-            #    mobile_mo.create_time = datetime.datetime.now()
-            #    g.session.add(mobile_mo)
-
             if not is_kill:
                 cp_log = UsrCPTongLog()
                 cp_log.channelid = channel_id
@@ -322,8 +291,7 @@ def channel_mr(channel_id=None,SP_ID=None):
                 cp_log.mobile = mobile
                 cp_log.spnumber = spnumber
                 cp_log.momsg = msg
-                cp_log.linkid = linkid
-                cp_log.tongurl = request.url
+                cp_log.linkid = linkid              
 
                 cp_log.tongdate = "%s%s%s" % (today.year, today.month, today.day)
                 cp_log.create_time = datetime.datetime.now()
@@ -335,12 +303,17 @@ def channel_mr(channel_id=None,SP_ID=None):
                 }
                 data = urllib.urlencode(values)
                 req = "%s?%s" % (req_url, data)
+
+                cp_log.tongurl = req
+
                 try:
                     if req_url:
                         response = urllib.urlopen(req)
                         data = response.read()
                         cp_log.backmsg = data
+                        data_mr.state = True
                     else:
+                        data_mr.state = False
                         cp_log.backmsg = 'OK'
                 except Exception, e:
                     cp_log.backmsg = 'ERROR'
@@ -396,9 +369,8 @@ def channel_mr(channel_id=None,SP_ID=None):
                 g.session.close()
                 return "OK"
             except Exception, e:
-                print "ERROR: %s" % e
                 g.session.rollback()
-                return "False"
+                return "ERROR"
             # query mobile attribution
             # query channel sync count
             #  计算是否扣量
@@ -406,6 +378,6 @@ def channel_mr(channel_id=None,SP_ID=None):
             # if not  is_kill
             # sync CP data.
 
-        return jsonify({'ok': False})
+        return "ERROR"
 
     return jsonify({'ok': False, 'SP_ID': SP_ID, 'MSG': 'The SP IS UNDEFINED'})
