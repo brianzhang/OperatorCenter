@@ -5,17 +5,16 @@
         <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
                 <th>时间:</th>
-                <td><input class="easyui-datebox" type="text"/></td>
+                <td><input class="easyui-datebox" type="text" id="txt_date{{random_key}}" value="{{regdate}}"/></td>
                 <td align="right">
-                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="operator_purpose_manange.queryData()" plain="true">查询</a>
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" id="queryBtn{{random_key}}" plain="true">查询</a>
                 </td>
             </tr>
         </table>
         </div>
         <div data-options="region:'center',split:false"  border="false">
              <table id="operator_purpose_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
-                    url="/operator/pupose/detail/"
-                    toolbar="#financial_cooperate_list_toolbar"
+                    url="/operator/purpose/"
                     pagination="true"
                     rownumbers="true"
                     fitColumns="true"
@@ -24,16 +23,15 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="regdate" width="15">ID</th>
-                        <th field="regdate" width="25">合作方(SP)</th>
-                        <th field="spname" width="30">通道号</th>
-                        <th field="channel" width="20">上行</th>
-                        <th field="price" width="20">定制</th>
-                        <th field="costprice" width="20">转化率(%)</th>
-                        <th field="count" width="20">T-定制</th>
-                        <th field="total" width="20">T-转化率(%)</th>
-                        <th field="total" width="40">ARPU值（定制/用户）</th>
-                        <th field="total" width="20">分成率(%)</th>
+                        <th field="sp_info" width="25">合作方(SP)</th>
+                        <th field="channel" width="30">通道</th>
+                        <th field="mo_all" width="20">上行</th>
+                        <th field="mr_all" width="20">定制</th>
+                        <th field="conversion_rate" width="20">转化率(%)</th>
+                        <th field="t_customize" width="20">T-定制</th>
+                        <th field="t_conversion_rate" width="20">T-转化率(%)</th>
+                        <th field="arpu" width="40">ARPU值（定制/用户）</th>
+                        <th field="into_rate" width="20">分成率(%)</th>
                     </tr>
                 </thead>
             </table>
@@ -42,43 +40,23 @@
 </div>
 <script>
 
-var operator_purpose_manange = {
-    url: '',
-    datagrid: $('#operator_exploits_list_dg'),
-    formatStatus: function(val, row) {
-        if (val) {
-            return '<span class="icon icon-ok">&nbsp;</span>已开通'
-        }else {
-            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
-        }
-    },
-    formatterDate: function(val, row) {
-        var date = new Date(val);
-        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
-    },
-    formatCommand: function(val, row) {
-        val = parseInt(val);
-        switch(val){
-            case 0:
-                return '模糊';
-            case 1:
-                return '模糊+精确';
-            case 2:
-                return '双精确';
-        }
-    },
-    queryData: function() {
-        var req_data = {'channel_id': $('#channel_id').combobox('getValue'),
-           'sp_id': $("#sp_id").combobox('getValue'),
-           'product_id': $("#product_id").combobox('getValue'),
-           'operator_id': $("#operator_id").combobox('getValue'),
-           'busi_type': $("#busi_type").combobox('getValue'),
-           'area': $("#area").combobox('getValue')
-        };
-        this.datagrid.datagrid('load', req_data)
-    },
-    clearQuery: function() {
-
-    }
-};
+(function() {
+    var operator_purpose_manange = {
+        url: '',
+        datagrid: $('#operator_purpose_list_dg'),
+        queryData: function() {
+            var req_data = {'date_time': $('#txt_date{{random_key}}').datetimebox('getValue')};
+            this.datagrid.datagrid('load', req_data)
+        },
+        eventBind: function() {
+            var queryBtn = $("#queryBtn{{random_key}}");
+            var _this = this;
+            queryBtn.on('click', function() {
+                _this.queryData();
+            });
+        },
+        initialize: function() {this.eventBind();}
+    };
+    operator_purpose_manange.initialize();
+})();
 </script>

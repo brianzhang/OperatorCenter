@@ -8,6 +8,7 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 import datetime
+import calendar
 import time
 import hashlib, hmac, re
 import string
@@ -79,6 +80,7 @@ def query_stats_data(req=None):
     footers = []
     if req:
         order_type = req.get('order_type', 'time')
+        print '----------------', order_type
         today = datetime.datetime.today()
         _month = today.month if today.month >10 else '0%s' % today.month
         _day = today.day if today.day >10 else '0%s' % today.day
@@ -111,7 +113,7 @@ def query_stats_data(req=None):
           if time and order_type == 'time':
             time = time.replace('-', '')
             query_data = query_data.add_column(DataEverday.tj_hour.label('has_index')).filter(DataEverday.tj_date == time).group_by(DataEverday.tj_hour)
-            user_count = user_count.add_column(DataMr.regdate.label('has_index')).filter(DataMr.regdate==time).group_by(DataMr.reghour)
+            user_count = user_count.add_column(DataMr.reghour.label('has_index')).filter(DataMr.regdate==time).group_by(DataMr.reghour)
 
           if month and year and order_type == 'month':
             _month_s = '%s%s01' % (year, month)
@@ -152,6 +154,12 @@ def query_stats_data(req=None):
 
         for i in range(0, range_date-1):
             _timer = '%s:00 - %s:00' % (i, i+1) if order_type=='time' else '%s' % (i+1)
+            if order_type=='time':
+                _timer = '%s:00 - %s:00' % (i, i+1)
+            elif order_type == 'month':
+                _timer = u'%s 号' % (i+1)
+            else:
+                _timer = u'%s 月' % (i+1)
             data_list.append({
                 'timer': _timer,
                 'mo_all': 0,
@@ -236,8 +244,8 @@ def query_province_stats(req=None):
     if req:
         today = datetime.datetime.today()       
 
-        order_type = req.get('order_type', 'month')
-        time = req.get('time', None)
+        order_type = req.get('order_type', 'day')
+        time = req.get('day', None)
         month = req.get('month', None)
         year = req.get('year', None)
         channelid = req.get('channel_id', None)
@@ -262,9 +270,9 @@ def query_province_stats(req=None):
           user_count = user_count.filter(ChaInfo.spid==sp_id)
 
         if order_type:
-          if time and order_type == 'time':
+          if time and order_type == 'day':
             time = time.replace('-', '')
-            query_data = query_data.add_column(DataEverday.tj_hour.label('has_index')).filter(DataEverday.tj_date == time).group_by(DataEverday.province)
+            query_data = query_data.add_column(DataEverday.tj_date.label('has_index')).filter(DataEverday.tj_date == time).group_by(DataEverday.province)
             user_count = user_count.add_column(DataMr.regdate.label('has_index')).filter(DataMr.regdate==time).group_by(DataMr.province)
 
           if month and year and order_type == 'month':
@@ -303,13 +311,12 @@ def query_province_stats(req=None):
                 'arpu': 0
             })
 
-
+        _mo_all = 0
+        _t_customize = 0
+        _t_conversion_rate = 0
+        _conversion_rate = 0
+        _into_rate = 0
         if query_data:
-            _mo_all = 0
-            _t_customize = 0
-            _t_conversion_rate = 0
-            _conversion_rate = 0
-            _into_rate = 0
             for item in query_data:
                 _index = item.province - 1
                 data_master = data_list[_index]
@@ -368,17 +375,66 @@ def query_channel_status(req):
                                     func.sum(DataEverday.mr_cp).label('mr_cp'), DataEverday.channelid)
         date_time = date_time.replace('-', '')
         user_count = g.session.query(DataMr.channelid, func.count(distinct(DataMr.mobile)).label('user_count'))
-        query_data = query_data.add_column(DataEverday.tj_hour.label('has_index')).filter(DataEverday.tj_date == date_time).group_by(DataEverday.channelid)
+        query_data = query_data.add_column(DataEverday.tj_date.label('has_index')).filter(DataEverday.tj_date == date_time).group_by(DataEverday.channelid)
         user_count = user_count.add_column(DataMr.regdate.label('has_index')).filter(DataMr.regdate==date_time).group_by(DataMr.channelid)
-        print '======================================'
+        
         query_data = query_data.all()
         user_count = user_count.all()
-        print query_data
-        print user_count
-        print '======================================'
+        
         if query_data:
+            _mo_all = 0
+            _t_customize = 0
+            _t_conversion_rate = 0
+            _conversion_rate = 0
+            _into_rate = 0
             for item in query_data:
-                item[0].channe_info.cha_name
+                #print '======================================'
+                #print item.mo_all
+                #print item.mr_all
+                #print item.mr_cp
+                #print item.has_index
+                #print item[0].channe_info.sp_info.id
+                #print '======================================'
+                data_master = {}
+                t_customize = item.mr_all
+                item.mo_all = item.mo_all if item.mo_all > 0 else 1
+                item.mr_all = item.mr_all if item.mr_all > 0 else 1
+                t_conversion_rate = float(item.mr_all) / float(item.mo_all)
+                t_conversion_rate = float("%.2f" % t_conversion_rate)
+                conversion_rate = float(item.mr_cp) / float(item.mr_all)
+                conversion_rate = float("%.2f" % conversion_rate)
+                into_rate= float(item.mr_cp) / float(item.mr_all)
+                into_rate= float("%.2f" % into_rate)
+                data_master['sp_info'] =  "[%s]%s" % (item[0].channe_info.sp_info.id, item[0].channe_info.sp_info.name)
+                data_master['channel'] = "[%s]%s" % (item[0].channe_info.id, item[0].channe_info.cha_name)
+                data_master['mo_all'] = item.mo_all
+                data_master['mr_all'] = item.mr_all
+                data_master['t_customize'] = t_customize
+                data_master['t_conversion_rate'] = t_conversion_rate
+                data_master['conversion_rate'] = conversion_rate
+                data_master['into_rate'] = into_rate
+
+                _t_customize += t_customize
+                _mo_all += item.mo_all
+                _t_conversion_rate += t_conversion_rate
+                _conversion_rate += conversion_rate
+                _into_rate += into_rate
+
+                for u in user_count:
+                    if u.channelid == item[0].channelid:
+                        arpu = float(u.user_count) / float(item.mr_all)
+                        data_master['arpu'] = float("%.2f" % arpu)
+                data_list.append(data_master)
+
+            footers.append({
+                'sp_info': u'汇总',
+                'mo_all': _mo_all,
+                't_customize': _t_customize,
+                't_conversion_rate': _t_conversion_rate,
+                'conversion_rate': _conversion_rate,
+                'into_rate': _into_rate,
+                'arpu': '--'
+            })
         return {'rows': data_list, 'ok': True,  'footer': footers}
     else:
         return {'rows': data_list, 'ok': False, 'footer': footers}

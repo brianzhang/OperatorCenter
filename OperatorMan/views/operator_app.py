@@ -262,10 +262,16 @@ def operator_region():
     if request.method == 'GET':
         channels = g.session.query(ChaInfo).all()
         sp_info_list = g.session.query(UsrSPInfo).all()
+        today = datetime.datetime.today()
+        _month = today.month if today.month >= 10 else "0%s" % today.month
+        _day = today.day if today.day >= 10 else "0%s" %  today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+
         data = query_province_stats(req)
         return render_template('operator_region.html',channels=channels,
                                                         sp_info_list=sp_info_list,
                                                         query_type='time',
+                                                        regdate= regdate,
                                                         data = json.dumps(data),
                                                         random_key = random_key()
                                                         )
@@ -273,11 +279,18 @@ def operator_region():
         data = query_province_stats(req)
         return jsonify(data)
 
-@operator_view.route("/purpose/", methods=['GET'])
+@operator_view.route("/purpose/", methods=['GET', 'POST'])
 @login_required
 def operator_purpose():
     req = request.args if request.method == 'GET' else request.form
     if request.method == 'GET':
+        today = datetime.datetime.today()
+        _month = today.month if today.month >= 10 else "0%s" % today.month
+        _day = today.day if today.day >= 10 else "0%s" %  today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
         data = query_channel_status(req)
-        return render_template('operator_purpose.html')
+        return render_template('operator_purpose.html', regdate=regdate, data=json.dumps(data), random_key = random_key())
+    else:
+        data = query_channel_status(req)
+        return jsonify(data)
 
