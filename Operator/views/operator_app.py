@@ -62,7 +62,7 @@ def channel_mo(channel_id=None, SP_ID=None):
             data_mo = g.session.query(DataMo).filter(DataMo.channelid == channel_id).filter(DataMo.linkid==linkid).first()
 
             if data_mo:
-                return "False"
+                return "OK"
             else:
                 data_mo = DataMo()
 
@@ -173,7 +173,7 @@ def channel_mr(channel_id=None,SP_ID=None):
             data_mr = g.session.query(DataMr).filter(DataMr.channelid == channel_id).filter(DataMr.linkid==linkid).first()
 
             if  data_mr:
-                return "False"
+                return "OK"
             else:
                 data_mr = DataMr()
 
@@ -301,23 +301,28 @@ def channel_mr(channel_id=None,SP_ID=None):
                     'linkid': linkid,
                     'channelid': channel_id
                 }
-                data = urllib.urlencode(values)
-                req = "%s?%s" % (req_url, data)
+                if req_url:
+                    data = urllib.urlencode(values)
+                    req = "%s?%s" % (req_url, data)
 
-                cp_log.tongurl = req
+                    cp_log.tongurl = req
 
-                try:
-                    if req_url:
-                        response = urllib.urlopen(req)
-                        data = response.read()
-                        cp_log.backmsg = data
-                        data_mr.state = True
-                    else:
-                        data_mr.state = False
-                        cp_log.backmsg = 'OK'
-                except Exception, e:
+                    try:
+                        if req_url:
+                            response = urllib.urlopen(req)
+                            data = response.read()
+                            cp_log.backmsg = data
+                            data_mr.state = True
+                        else:
+                            data_mr.state = False
+                            cp_log.backmsg = 'OK'
+                    except Exception, e:
+                        cp_log.backmsg = 'ERROR'
+                else:
+                    data = urllib.urlencode(values)
+                    req = "%s?%s" % (req_url, data)
+                    cp_log.tongurl = req
                     cp_log.backmsg = 'ERROR'
-
                 g.session.add(cp_log)
 
             sp_log = UsrSPTongLog()

@@ -6,6 +6,8 @@ Created on 2014-05-26
 import hashlib, hmac, re
 import datetime
 import time
+import urllib, urllib2
+import simplejson as json
 from flask import jsonify, request, session, redirect, g
 from sqlalchemy import or_, desc, func, and_
 from sqlalchemy.orm import subqueryload
@@ -41,13 +43,44 @@ def querySPInfo(sp_id=None):
     else:
         return None
 
+def query_mobile_area(mobile=None):
+    if mobile:
+        url = settings.CHECK_URI % mobile
+        #PubMobileArea
+        response = urllib.urlopen(url)
+        try:
+            data = response.read()
+            data = json.loads(data)
+            att = data['result']['att']
+            att = att.split(',')
+            province = att[1]
+            city = att[2]
+            ctype = data['result']['ctype']
+            _p = g.session.query(PubProvince).filter(PubProvince.province == province).first()
+            _c = g.session.query(PubCity).filter(PubCity.province == _p.id).filter(PubCity.city==city).first()
+            mb_area = PubMobileArea()
+            mb_area.mobile = data['result']['par']
+            mb_area.province = _p.id
+            mb_area.city = _c.id
+            mb_area.content = ctype
+            mb_area.create_time = datetime.datetime.now()
+            g.session.add(mb_area)
+            g.session.commit()
+            return True
+        except Exception, e:
+            return False
+    return False
+ 
 def get_mobile_attribution(mobile=None):
     if mobile:
-        mobile = mobile[0:7]
-        mobile_info = g.session.query(PubMobileArea).filter(PubMobileArea.mobile == mobile).all()
-
+        _mobile = mobile[0:7]
+        mobile_info = g.session.query(PubMobileArea).filter(PubMobileArea.mobile == _mobile).all()
         if mobile_info:
             return mobile_info[0]
+        else:
+            if query_mobile_area(mobile):
+                mobile_info = g.session.query(PubMobileArea).filter(PubMobileArea.mobile == _mobile).all()
+                return mobile_info[0]
     return None
 
 

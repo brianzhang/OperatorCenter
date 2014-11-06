@@ -210,7 +210,7 @@ def query_stats_data(req=None):
                 
                 for u in user_count:
                     if u.has_index == item.has_index:
-                        _arpu = float(u.user_count) / float(item.mr_all)
+                        _arpu = float(item.mr_all) / float(u.user_count)
                         data_master['arpu'] =  float("%.2f" % _arpu)
 
             footers.append({
@@ -344,7 +344,7 @@ def query_province_stats(req=None):
 
                 for u in user_count:
                     if u.province == item.province:
-                        arpu = float(u.user_count) / float(item.mr_all)
+                        arpu = float(item.mr_all) / float(u.user_count)
                         data_master['arpu'] = float("%.2f" % arpu)
         footers.append({
                 'province': u'汇总',
@@ -422,7 +422,7 @@ def query_channel_status(req):
 
                 for u in user_count:
                     if u.channelid == item[0].channelid:
-                        arpu = float(u.user_count) / float(item.mr_all)
+                        arpu = float(item.mr_all) / float(u.user_count)
                         data_master['arpu'] = float("%.2f" % arpu)
                 data_list.append(data_master)
 
