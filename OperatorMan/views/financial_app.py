@@ -35,44 +35,59 @@ financial_view = Blueprint('financial_view', __name__, url_prefix='/financial')
 @financial_view.route("/cooperate/detail/", methods=['GET', 'POST'])
 @login_required
 def financial_cooperate_detail():
-    #按天查询SP所关联的通道产生的条数和金额
+    #按天查询SP所关联的通道产生的条数和金额 合作方明细
     req = request.args if request.method == 'GET' else request.form
     if request.method == 'GET':
         channels = g.session.query(ChaInfo).all()
         sp_info_list = g.session.query(UsrSPInfo).all()
-        return render_template('financial_cooperate_detail.html', channels=channels, sp_info_list=sp_info_list, random_key=random_key())
-    else:
+        today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
 
-        start_time = req.get('start_time', None)
-        end_time = req.get('end_time', None)
+        return render_template('financial_cooperate_detail.html', channels=channels, sp_info_list=sp_info_list, random_key=random_key(), regdate=regdate)
+    else:
+        today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+
+        start_time = req.get('start_time', regdate)
+        end_time = req.get('end_time', regdate)
         channel = req.get('channel', None)
         sp = req.get('sp', None)
 
-        query = g.session.query(DataMo, func.count('price').label('total')).group_by(DataMo.regdate).group_by(DataMo.cpid).order_by(desc(DataMo.id))
+        
+
+        query = g.session.query(DataMr, func.count('price').label('total')).group_by(DataMr.regdate).group_by(DataMr.cpid).order_by(desc(DataMr.regdate))
         #query = query.filter
         if start_time:
-          start_time += '00:00:00'
-          query = query.filter(DataMo.create_time >= start_time)
+          start_time += ' 00:00:00'
+          query = query.filter(DataMr.create_time >= start_time)
+
         if end_time:
-          end_time += '00:00:00'
-          query = query.filter(DataMo.create_time <= start_time)
+          end_time += ' 23:59:59'
+          query = query.filter(DataMr.create_time <= end_time)
+
         if channel:
-          query = query.filter(DataMo.channelid == channel)
+          query = query.filter(DataMr.channelid == channel)
 
         if sp:
-          query = query.filter(DataMo.channe_info.sp_info.id == sp)
+          query = query.filter(ChaInfo.spid == sp)
 
         sp_operate_list = query.all()
+        total = len(sp_operate_list)
+        
         currentpage = int(req.get('page', 1))
         numperpage = int(req.get('rows', 20))
-        start = numperpage * (currentpage - 1)
-        total = len(sp_operate_list)
+        start = numperpage * (currentpage - 1)        
+
         sp_operate_list = sp_operate_list[start:(numperpage+start)]
 
         if sp_operate_list:
             sp_operate_data = []
             for item in sp_operate_list:
-                total = item.total
+                count = item.total
                 item = item[0]
                 if item:
                     sp_operate_data.append({'regdate': item.regdate,
@@ -80,8 +95,8 @@ def financial_cooperate_detail():
                                         'channel': "[%s]%s" % (item.channe_info.id, item.channe_info.cha_name),
                                         'price': item.channe_info.price,
                                         'costprice': item.channe_info.costprice,
-                                        'count': total,
-                                        'total': (item.channe_info.price * total)
+                                        'count': count,
+                                        'total': (item.channe_info.price * count)
                                         })
 
             return jsonify({'rows': sp_operate_data, 'total': total})
@@ -100,20 +115,29 @@ def financial_channel_detail():
     if request.method == 'GET':
         channels = g.session.query(ChaInfo).all()
         cp_info_list = g.session.query(UsrCPInfo).all()
-        return render_template('financial_channel_detail.html', channels=channels, cp_info_list=cp_info_list)
+        today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+        return render_template('financial_channel_detail.html', channels=channels, cp_info_list=cp_info_list, regdate=regdate)
     else:
-        start_time = req.get('start_time', None)
-        end_time = req.get('end_time', None)
+        today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+
+        start_time = req.get('start_time', regdate)
+        end_time = req.get('end_time', regdate)
         channel = req.get('channel', None)
         cp = req.get('cp', None)
-        query = g.session.query(DataMr, func.count('price').label('total')).group_by(DataMr.regdate).group_by(DataMr.cpid).order_by(desc(DataMr.id))
+        query = g.session.query(DataMr, func.count('price').label('total')).filter(DataMr.is_kill==0).group_by(DataMr.regdate).group_by(DataMr.cpid).order_by(desc(DataMr.regdate))
         #query = query.filter
         if start_time:
-          start_time += '00:00:00'
+          start_time += ' 00:00:00'
           query = query.filter(DataMr.create_time >= start_time)
         if end_time:
-          end_time += '00:00:00'
-          query = query.filter(DataMr.create_time <= start_time)
+          end_time += ' 23:59:59'
+          query = query.filter(DataMr.create_time <= end_time)
         if channel:
           query = query.filter(DataMr.channelid == channel)
 
@@ -130,7 +154,7 @@ def financial_channel_detail():
         if sp_operate_list:
             sp_operate_data = []
             for item in sp_operate_list:
-                total = item.total
+                count = item.total
                 item = item[0]
                 if item:
                     sp_operate_data.append({'regdate': item.regdate,
@@ -138,8 +162,8 @@ def financial_channel_detail():
                                         'channel': "[%s]%s" % (item.channe_info.id, item.channe_info.cha_name),
                                         'price': item.channe_info.price,
                                         'costprice': item.channe_info.costprice,
-                                        'count': total,
-                                        'total': (item.channe_info.price * total)
+                                        'count': count,
+                                        'total': (item.channe_info.price * count)
                                         })
 
             return jsonify({'rows': sp_operate_data, 'total': total})
@@ -157,8 +181,20 @@ def financial_cooperate_summary():
     if request.method == 'GET':
         channels = g.session.query(ChaInfo).all()
         sp_info_list = g.session.query(UsrSPInfo).all()
-        return render_template('financial_cooperate_summary.html', channels=channels, sp_info_list=sp_info_list, random_key=random_key())
+        today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+
+        return render_template('financial_cooperate_summary.html', channels=channels, sp_info_list=sp_info_list, random_key=random_key(), regdate=regdate)
     else:
+        today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+        start_time = req.get('start_time', regdate)
+        end_time = req.get('end_time', regdate)
+        
         query = g.session.query(AccountSP)
         summarize_lsit = query.all()
         currentpage = int(req.get('page', 1))
@@ -193,7 +229,12 @@ def financial_channel_summary():
         channels = g.session.query(ChaInfo).all()
         cp_info_list = g.session.query(UsrCPInfo).all()
 
-        return render_template('financial_channel_summary.html', channels=channels, cp_info_list=cp_info_list, random_key=random_key())
+        today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+
+        return render_template('financial_channel_summary.html', channels=channels, cp_info_list=cp_info_list, random_key=random_key(), regdate=regdate)
     else:
         query = g.session.query(AccountCP)
         summarize_lsit = query.all()

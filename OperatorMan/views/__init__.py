@@ -80,21 +80,18 @@ def query_stats_data(req=None):
     footers = []
     if req:
         order_type = req.get('order_type', 'time')
-        print '----------------', order_type
+        
         today = datetime.datetime.today()
         _month = today.month if today.month >10 else '0%s' % today.month
         _day = today.day if today.day >10 else '0%s' % today.day
-        regdate = "%s-%s-%s" % (today.year, _month, _day)        
+        regdate = "%s%s%s" % (today.year, _month, _day)        
 
         time = req.get('time', regdate)
         month = req.get('month', None)
         year = req.get('year', None)
         channelid = req.get('channel_id', None)
         sp_id = req.get("sp_id", None)
-        today = datetime.datetime.today()
-        _month = today.month if today.month > 10 else '0%s' % today.month
-        _day = today.day if today.day > 10 else '0%s' % today.day
-        regdate = "%s%s%s" % (today.year, _month, _day)
+        
 
         query_data = g.session.query(func.sum(DataEverday.mo_all).label('mo_all'), \
                                     func.sum(DataEverday.mr_all).label('mr_all'), \
@@ -242,18 +239,20 @@ def query_province_stats(req=None):
     data_list = []
     footers = []
     if req:
-        today = datetime.datetime.today()       
-
-        order_type = req.get('order_type', 'day')
-        time = req.get('day', None)
-        month = req.get('month', None)
-        year = req.get('year', None)
-        channelid = req.get('channel_id', None)
-        sp_id = req.get("sp_id", None)
+        
         today = datetime.datetime.today()
         _month = today.month if today.month > 10 else '0%s' % today.month
         _day = today.day if today.day > 10 else '0%s' % today.day
         regdate = "%s%s%s" % (today.year, _month, _day)
+
+        order_type = req.get('order_type', 'day')
+
+        time = req.get('day', regdate)
+        month = req.get('month', None)
+        year = req.get('year', None)
+        channelid = req.get('channel_id', None)
+        sp_id = req.get("sp_id", None)
+        
 
         query_data = g.session.query(func.sum(DataEverday.mo_all).label('mo_all'), \
                                     func.sum(DataEverday.mr_all).label('mr_all'), \

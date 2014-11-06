@@ -1,6 +1,6 @@
 <div title="状态报告" class="easyui-panel">
     <div fit="true">
-        <div data-options="region:'north',split:false" style="height: 55px;padding:6px;overflow:hidden;" border="false">
+        <div data-options="region:'north',split:false" style="height: 75px;padding:6px;overflow:hidden;" border="false">
         <!--高级查询部分-->
         <table border="0" cellspacing="0" cellpadding="0" width="100%">
             <tr>
@@ -35,6 +35,8 @@
                         {% endfor %}
                     </select>
                 </td>
+            </tr>
+            <tr>
                 <th>比例:</th>
                 <td>
                     <select name="is_kill" id="is_kill{{random_key}}" style="width: 70px">

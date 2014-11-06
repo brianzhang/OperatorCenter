@@ -100,14 +100,19 @@ def operator_status():
 
         if channel:
             operator_list = operator_list.filter(DataMr.channelid == channel)
+            stats_query = stats_query.filter(DataMr.channelid == channel)
         if cpinfo:
             operator_list = operator_list.filter(DataMr.cpid == cpinfo)
+            stats_query = stats_query.filter(DataMr.cpid == cpinfo)
         if provinces:
-            operator_list = operator_list.filter(DataMr.province == provinces)
+            operator_list = operator_list.filter(DataMr.province == province)
+            stats_query = stats_query.filter(DataMr.province == province)
         if is_kill:
             operator_list = operator_list.filter(DataMr.is_kill == is_kill)
+            stats_query = stats_query.filter(DataMr.is_kill == is_kill)
         if status:
             operator_list = operator_list.filter(DataMr.state == status)
+            stats_query = stats_query.filter(DataMr.state == status)
         #if
         #query_data.add_column(DataEverday.tj_hour.label('has_index'))
         #stmt.c.cp_count.label("cp_count")
@@ -243,12 +248,18 @@ def operator_exploits():
     if request.method == 'GET':
         channels = g.session.query(ChaInfo).all()
         sp_info_list = g.session.query(UsrSPInfo).all()
+        today = datetime.datetime.today()
+        _month = today.month if today.month >= 10 else "0%s" % today.month
+        _day = today.day if today.day >= 10 else "0%s" %  today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+
         data = query_stats_data(req)
 
         return render_template('operator_exploits.html',channels=channels,
                                                         sp_info_list=sp_info_list,
                                                         query_type='time',
                                                         render_data=json.dumps(data),
+                                                        regdate=regdate,
                                                         random_key = random_key()
                                                         )
     else:

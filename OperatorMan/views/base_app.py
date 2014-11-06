@@ -425,7 +425,7 @@ def channel_log():
                                     'tongurl': log.tongurl,
                                     'backmsg': log.backmsg,
                                     'tongdate': log.tongdate,
-
+                                    'statsmsg': log.backmsg,
                                     'create_time': log.create_time
                                     })
 

@@ -45,6 +45,7 @@
                     rownumbers="true"
                     fitColumns="true"
                     singleSelect="true"
+                    pageNumber="0"
                     loadMsg='数据加载中,请稍候...'
                     pageSize="20">
                 <thead>
@@ -166,13 +167,13 @@ var channel_settings_manager = {
                     });
                 } else {
                     channel_settings_manager.clearForm();
-                    channel_settings_manager.datagrid.datagrid('reload');    // reload the user data
+                    channel_settings_manager.reloadData();    // reload the user data
                 }
             }
         });
     },
     reloadData: function() {
-        this.datagrid.datagrid('load')
+        this.datagrid.datagrid('load');
     },
     setChannelStatus: function(status) {
         var row = this.datagrid.datagrid('getSelected');
