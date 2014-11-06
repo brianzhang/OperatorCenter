@@ -96,7 +96,7 @@ def financial_cooperate_detail():
                                         'price': item.channe_info.price,
                                         'costprice': item.channe_info.costprice,
                                         'count': count,
-                                        'total': (item.channe_info.price * count)
+                                        'total': (item.channe_info.costprice * count)
                                         })
 
             return jsonify({'rows': sp_operate_data, 'total': total})
@@ -163,7 +163,7 @@ def financial_channel_detail():
                                         'price': item.channe_info.price,
                                         'costprice': item.channe_info.costprice,
                                         'count': count,
-                                        'total': (item.channe_info.price * count)
+                                        'total': (item.channe_info.costprice * count)
                                         })
 
             return jsonify({'rows': sp_operate_data, 'total': total})

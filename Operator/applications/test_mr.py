@@ -11,16 +11,16 @@ def req_url():
     mb4 = 18211010000
     mb5 = 13006660000
     mb6 = 13166850000
-    lkid = 215000000
-    url = 'http://127.0.0.1:8802/MR/3/3/'
+    lkid = 225000000
+    #url = 'http://127.0.0.1:8802/MR/3/3/'
     true_count = 0
     error_count = 0
-    #url = "http://127.0.0.1:8802/MR/100/1/"
+    url = "http://127.0.0.1:8802/MR/100/1/"
     #url = 'http://netmad.me/opt/MR/1/8/'
     for i in range(0, 10000):
-      _mb = random.sample([mb, mb1, mb2, mb3, mb4, mb5, mb6], 1)
-      values = {'msg' : '860',
-          'spnumber' : '19008666',
+      _mb = random.sample([mb, mb2, mb3, mb6], 1)
+      values = {'msg' : '10065487',
+          'spnumber' : '8502',
           'mobile': '%s' % _mb[0],
           'linkid': '%s' % lkid,
           'status': 'OK'
@@ -40,11 +40,10 @@ def req_url():
           error_count += 1
       lkid += 1
       mb += 1
-      mb1 += 1
+      #mb1 += 1
       mb2 += 1
       mb3 += 1
-      mb4 += 1
-      mb5 += 1
+      #mb5 += 1
       mb6 += 1
       time.sleep(0.1)
     print '=======info list========'

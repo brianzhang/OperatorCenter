@@ -7,6 +7,7 @@ import simplejson as json
 import os
 import sys
 import md5
+import math
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -146,17 +147,21 @@ def operator_log():
         return render_template('usr_sptong_log.html')
     else:
         req_args = request.args if request.method == 'GET' else request.form
-        operator_logs_list = g.session.query(UsrSPTongLog).order_by(desc(UsrSPTongLog.id)).all()
+        
         currentpage = int(req_args.get('page', 1))
         numperpage = int(req_args.get('rows', 20))
         start = numperpage * (currentpage - 1)
-        total = len(operator_logs_list)
+        start = math.fabs(start)
+        
 
-        operator_logs_list = operator_logs_list[start:(numperpage+start)]
-
+        operator_logs_list = g.session.query(UsrSPTongLog).order_by(desc(UsrSPTongLog.id)).offset(start).limit(numperpage).all()
+        list_count = g.session.query(func.count(UsrSPTongLog.id).label('id_count')).first()
+        total = list_count.id_count
+        
         if operator_logs_list:
             operator_logs = []
             for log in operator_logs_list:
+        
                 operator_logs.append({'id': log.id,
                                     'channelid': "[%s]%s" % (log.channelid, log.channe_info.cha_name),
                                     'spid': "[%s]%s" % (log.spid, log.sp_info.name),
@@ -403,13 +408,15 @@ def channel_log():
         return render_template('usr_cptong_log.html')
     else:
         req_args = request.args if request.method == 'GET' else request.form
-        channel_logs_list = g.session.query(UsrCPTongLog).order_by(desc(UsrCPTongLog.id)).all()
         currentpage = int(req_args.get('page', 1))
         numperpage = int(req_args.get('rows', 20))
         start = numperpage * (currentpage - 1)
-        total = len(channel_logs_list)
+        start = math.fabs(start)
 
-        channel_logs_list = channel_logs_list[start:(numperpage+start)]
+        channel_logs_list = g.session.query(UsrCPTongLog).order_by(desc(UsrCPTongLog.id)).offset(start).limit(numperpage).all()
+        list_count = g.session.query(func.count(UsrCPTongLog.id).label('id_count')).first()
+
+        total = list_count.id_count
 
         if channel_logs_list:
             channel_logs = []
@@ -534,14 +541,14 @@ def sys_log():
         return render_template('sys_log.html')
     else:
         req_args = request.args if request.method == 'GET' else request.form
-
-        admin_log_list = g.session.query(SysAdminLog).order_by(desc(SysAdminLog.id)).all()
         currentpage = int(req_args.get('page', 1))
         numperpage = int(req_args.get('rows', 20))
         start = numperpage * (currentpage - 1)
-        total = len(admin_log_list)
+        start = math.fabs(start)
 
-        admin_log_list = admin_log_list[start:(numperpage+start)]
+        admin_log_list = g.session.query(SysAdminLog).order_by(desc(SysAdminLog.id)).offset(start).limit(numperpage).all()
+        list_count = g.session.query(func.count(SysAdminLog.id).label('id_count')).first()
+        total = list_count.id_count
 
         if admin_log_list:
             admin_log_list_data = []

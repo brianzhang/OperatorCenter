@@ -386,6 +386,7 @@ def query_channel_status(req):
             _t_conversion_rate = 0
             _conversion_rate = 0
             _into_rate = 0
+            totlal = len(query_data)
             for item in query_data:
                 #print '======================================'
                 #print item.mo_all
@@ -434,6 +435,6 @@ def query_channel_status(req):
                 'into_rate': _into_rate,
                 'arpu': '--'
             })
-        return {'rows': data_list, 'ok': True,  'footer': footers}
+        return {'rows': data_list, 'ok': True,  'footer': footers, 'total': totlal}
     else:
         return {'rows': data_list, 'ok': False, 'footer': footers}
