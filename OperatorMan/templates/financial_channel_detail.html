@@ -58,36 +58,62 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="regdate" width="15">日期</th>
-                        <th field="channel" width="40">通道名称</th>
+                        <th field="id" width="10">序号</th>
+                        <th field="regdate" width="25">日期</th>
                         <th field="cpname" width="50">渠道商</th>
+                        <th field="channel" width="40">通道名称</th>
                         <th field="price" width="40">资费（元）</th>
-                        <th field="costprice" width="50">单价</th>
+                        <th field="fcprice" width="50">结算单价</th>
                         <th field="count" width="50">条数</th>
-                        <th field="total" width="30">汇总</th>
-                        <!--<th field="sx_type" width="40" data-options="formatter: financial_channel_manager.formatCommand">状态</th>-->
+                        <th field="total" width="30">渠道汇总（￥）</th>
+                        <th field="charges_total" width="30">资费汇总（￥）</th>
+                        <th field="status" width="40" data-options="formatter: financial_channel_manager.formatStatus">状态</th>
                     </tr>
                 </thead>
             </table>
             <div id="financial_channel_list_toolbar">
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_channel_manager.update()">单价调整</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_channel_manager.update()">对账</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_channel_manager.update(1)">单价调整</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_channel_manager.update(2)">对账</a>
             </div>
         </div>
     </div>
 </div>
+<div id="financial_channel_manager_dialog" class="easyui-dialog" data-options="iconCls:'icon-save'" style="width:350px;height:170px;padding:10px" closed="true" modal="true">
+    <div style="padding:10px 60px 10px 60px">
+        <form id="financial_channel_manager_form" method="post">
+            <table cellpadding="5">
+                <tr>
+                    <td id="txt_lab{{random_key}}">调整后的价格：</td>
+                    <td>
+                        <input type="hidden" name="id" value="" id="tj_id{{random_key}}" />
+                        <input type="hidden" name="types" value="" id="types{{random_key}}" />
+                        <input class="easyui-textbox easyui-validatebox" type="text" 
+                            name="values" data-options="required:true" style="width: 80px;"></input>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div style="text-align:center;padding:5px">
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_channel_manager.submitForm()">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_channel_manager.closeDialog()">取消</a>
+    </div>
+</div>
 <script>
 var financial_channel_manager = {
-    url: '',
+    url: '/financial/channel/billing/',
+    types: $("#types{{random_key}}"),
+    tjID: $('#tj_id{{random_key}}'),
     datagrid: $('#financial_channel_list_dg'),
+    dialog: $("#financial_channel_manager_dialog"),
     reloadData: function() {
         this.datagrid.datagrid('load')
     },
     formatStatus: function(val, row) {
         if (val) {
-            return '<span class="icon icon-ok">&nbsp;</span>已开通'
+            return '<span class="icon icon-ok">&nbsp;</span>已对账'
         }else {
-            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
+            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>未对账</label>'
         }
     },
     formatterDate: function(val, row) {
@@ -103,8 +129,46 @@ var financial_channel_manager = {
       };
       this.datagrid.datagrid('load', req_data)
     },
+    submitForm: function() {
+        $('#financial_channel_manager_form').form('submit',{
+            url: this.url,
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                if (result.errorMsg){
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    financial_channel_manager.closeDialog();
+                    financial_channel_manager.reloadData();    // reload the user data
+                }
+            }
+        });
+    },
+    closeDialog: function() {
+        this.dialog.dialog('close');
+        this.tjID.val('');
+            this.types.val('');
+    },
     update: function(types) {
-
+        var row = this.datagrid.datagrid('getSelected');
+        $('#financial_channel_manager_form').form('clear');
+        if (row){
+            this.tjID.val(row.id);
+            this.types.val(types);
+            var _txt_lab = $("#txt_lab{{random_key}}");
+            switch(types) {
+                case 1:
+                    this.dialog.dialog('open').dialog('setTitle','单价调整');
+                    _txt_lab.html("调整后的单价:");
+                case 2:
+                    this.dialog.dialog('open').dialog('setTitle','对账调整');
+                    _txt_lab.html("对账后的条数:");
+            }
+        }
     }
 }
 </script>

@@ -59,21 +59,21 @@ def financial_cooperate_detail():
 
         
 
-        query = g.session.query(DataMr, func.count('price').label('total')).group_by(DataMr.regdate).group_by(DataMr.cpid).order_by(desc(DataMr.regdate))
+        query = g.session.query(AccountSP).order_by(desc(AccountSP.js_date))
         #query = query.filter
         if start_time:
           start_time += ' 00:00:00'
-          query = query.filter(DataMr.create_time >= start_time)
+          query = query.filter(AccountSP.create_time >= start_time)
 
         if end_time:
           end_time += ' 23:59:59'
-          query = query.filter(DataMr.create_time <= end_time)
+          query = query.filter(AccountSP.create_time <= end_time)
 
         if channel:
-          query = query.filter(DataMr.channelid == channel)
+          query = query.filter(AccountSP.channelid == channel)
 
         if sp:
-          query = query.filter(ChaInfo.spid == sp)
+          query = query.filter(AccountSP.spid == sp)
 
         sp_operate_list = query.all()
         total = len(sp_operate_list)
@@ -87,16 +87,18 @@ def financial_cooperate_detail():
         if sp_operate_list:
             sp_operate_data = []
             for item in sp_operate_list:
-                count = item.total
-                item = item[0]
                 if item:
-                    sp_operate_data.append({'regdate': item.regdate,
-                                        'spname': "[%s]%s" % (item.channe_info.sp_info.id, item.channe_info.sp_info.name),
+                    sp_operate_data.append({
+                                        'id': item.id,
+                                        'regdate': item.js_date,
+                                        'spname': "[%s]%s" % (item.sp_info.id, item.sp_info.name),
                                         'channel': "[%s]%s" % (item.channe_info.id, item.channe_info.cha_name),
-                                        'price': item.channe_info.price,
-                                        'costprice': item.channe_info.costprice,
-                                        'count': count,
-                                        'total': (item.channe_info.costprice * count)
+                                        'price': item.price,
+                                        'costprice': item.costprice,
+                                        'count': item.count,
+                                        'total': item.totalprice,
+                                        'status': item.js_state,
+                                        'charges_total': (item.price * item.count)
                                         })
 
             return jsonify({'rows': sp_operate_data, 'total': total})
@@ -130,19 +132,20 @@ def financial_channel_detail():
         end_time = req.get('end_time', regdate)
         channel = req.get('channel', None)
         cp = req.get('cp', None)
-        query = g.session.query(DataMr, func.count('price').label('total')).filter(DataMr.is_kill==0).group_by(DataMr.regdate).group_by(DataMr.cpid).order_by(desc(DataMr.regdate))
+
+        query = g.session.query(AccountCP).order_by(desc(AccountCP.js_date))
         #query = query.filter
         if start_time:
           start_time += ' 00:00:00'
-          query = query.filter(DataMr.create_time >= start_time)
+          query = query.filter(AccountCP.create_time >= start_time)
         if end_time:
           end_time += ' 23:59:59'
-          query = query.filter(DataMr.create_time <= end_time)
+          query = query.filter(AccountCP.create_time <= end_time)
         if channel:
-          query = query.filter(DataMr.channelid == channel)
+          query = query.filter(AccountCP.channelid == channel)
 
         if cp:
-          query = query.filter(DataMr.cpid == cp)
+          query = query.filter(AccountCP.cpid == cp)
 
         sp_operate_list = query.all()
         currentpage = int(req.get('page', 1))
@@ -154,16 +157,18 @@ def financial_channel_detail():
         if sp_operate_list:
             sp_operate_data = []
             for item in sp_operate_list:
-                count = item.total
-                item = item[0]
                 if item:
-                    sp_operate_data.append({'regdate': item.regdate,
+                    sp_operate_data.append({
+                                        'id': item.id,
+                                        'regdate': item.js_date,
                                         'cpname': "[%s]%s" % (item.cp_info.id, item.cp_info.name),
                                         'channel': "[%s]%s" % (item.channe_info.id, item.channe_info.cha_name),
-                                        'price': item.channe_info.price,
-                                        'costprice': item.channe_info.costprice,
-                                        'count': count,
-                                        'total': (item.channe_info.costprice * count)
+                                        'price': item.price,
+                                        'fcprice': item.fcprice,
+                                        'count': item.count,
+                                        'total': float('%.2f' % item.totalprice),
+                                        'status': item.js_state,
+                                        'charges_total': float('%.2f' % (item.count*item.price))
                                         })
 
             return jsonify({'rows': sp_operate_data, 'total': total})
@@ -192,11 +197,28 @@ def financial_cooperate_summary():
         _month = today.month if today.month > 10 else '0%s' % today.month
         _day = today.day if today.day > 10 else '0%s' % today.day
         regdate = "%s-%s-%s" % (today.year, _month, _day)
+
         start_time = req.get('start_time', regdate)
         end_time = req.get('end_time', regdate)
+        channel = req.get('channel', None)
+        sp = req.get('sp', None)
+
+        query = g.session.query(AccountSP, func.sum(AccountSP.count).label('count'), func.sum(AccountSP.totalprice).label('totalprice')).group_by(AccountSP.js_date).group_by(AccountSP.spid)
         
-        query = g.session.query(AccountSP)
-        summarize_lsit = query.all()
+        if start_time:
+          start_time += ' 00:00:00'
+          query = query.filter(AccountSP.create_time >= start_time)
+        if end_time:
+          end_time += ' 23:59:59'
+          query = query.filter(AccountSP.create_time <= end_time)
+        if channel:
+          query = query.filter(AccountSP.channelid == channel)
+
+        if sp:
+          query = query.filter(AccountSP.spid == sp)
+
+
+        summarize_lsit = query.order_by(desc(AccountSP.js_date)).all()
         currentpage = int(req.get('page', 1))
         numperpage = int(req.get('rows', 20))
         start = numperpage * (currentpage - 1)
@@ -205,13 +227,13 @@ def financial_cooperate_summary():
         if summarize_lsit:
           render_data = []
           for item in summarize_lsit:
+            count = item.count
+            totalprice = item.totalprice
+            item = item[0]
             render_data.append({
               'sp': "[%s]%s" % (item.sp_info.id, item.sp_info.name),
-              'channel_name': '[%s]%s' % (item.channe_info.id, item.channe_info.cha_name),
-              'costprice': item.costprice,
-              'count': item.count,
-              'price': item.price,
-              'total': item.totalprice,
+              'count': count,
+              'total': float('%.2f' % totalprice),
               'date_time': item.create_time
             })
           return jsonify({'rows': render_data, 'total': total})
@@ -236,8 +258,32 @@ def financial_channel_summary():
 
         return render_template('financial_channel_summary.html', channels=channels, cp_info_list=cp_info_list, random_key=random_key(), regdate=regdate)
     else:
-        query = g.session.query(AccountCP)
-        summarize_lsit = query.all()
+        today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+
+        start_time = req.get('start_time', regdate)
+        end_time = req.get('end_time', regdate)
+        channel = req.get('channel', None)
+        cp = req.get('cp', None)
+
+        query = g.session.query(AccountCP, func.sum(AccountCP.count).label('count'), func.sum(AccountCP.totalprice).label('totalprice')).group_by(AccountCP.js_date).group_by(AccountCP.cpid)
+        
+        if start_time:
+          start_time += ' 00:00:00'
+          query = query.filter(AccountCP.create_time >= start_time)
+        if end_time:
+          end_time += ' 23:59:59'
+          query = query.filter(AccountCP.create_time <= end_time)
+        if channel:
+          query = query.filter(AccountCP.channelid == channel)
+
+        if cp:
+          query = query.filter(AccountCP.cpid == cp)
+
+
+        summarize_lsit = query.order_by(desc(AccountCP.js_date)).all()
         currentpage = int(req.get('page', 1))
         numperpage = int(req.get('rows', 20))
         start = numperpage * (currentpage - 1)
@@ -246,15 +292,71 @@ def financial_channel_summary():
         if summarize_lsit:
           render_data = []
           for item in summarize_lsit:
+            count = item.count
+            totalprice = item.totalprice
+            item = item[0]
             render_data.append({
               'cp': "[%s]%s" % (item.cp_info.id, item.cp_info.name),
-              'channel_name': '[%s]%s' % (item.channe_info.id, item.channe_info.cha_name),
-              'costprice': item.fcprice,
-              'count': item.count,
-              'price': item.price,
-              'total': item.totalprice,
+              'count': count,
+              'total': float('%.2f' % totalprice),
               'date_time': item.create_time
             })
           return jsonify({'rows': render_data, 'total': total})
         else:
           return jsonify({'rows': [], 'total': 0})
+
+#/channel/billing/
+#cooperate
+@financial_view.route("/channel/billing/", methods=['POST'])
+@login_required
+def financial_channel_billing():
+    req = request.args if request.method == 'GET' else request.form
+    if request.method == 'POST':
+        c_id = req.get('id', None)
+        c_types = req.get('types', None)
+        values = req.get('values', None)
+        print c_id, c_types, values
+        print '--------------------------'
+        try:
+            account = g.session.query(AccountCP).filter(AccountCP.id==c_id).first()
+            if account:
+                if c_types == '1':
+                    account.fcprice = values
+                elif c_types == '2':
+                    account.count = values
+                account.totalprice = int(account.count) * float(account.fcprice)
+                g.session.add(account)
+                g.session.commit()
+                return jsonify({'errorMsg': False})
+            else:
+                return jsonify({'errorMsg': u'结算不存在！'})    
+        except Exception, e:
+            return jsonify({'errorMsg': u'设置失败！'})    
+        return jsonify({'errorMsg': False})
+
+@financial_view.route("/cooperate/billing/", methods=['POST'])
+@login_required
+def financial_cooperate_billing():
+    req = request.args if request.method == 'GET' else request.form
+    if request.method == 'POST':
+        c_id = req.get('id', None)
+        c_types = req.get('types', None)
+        values = req.get('values', None)
+        print c_id, c_types, values
+        print '--------------------------'
+        try:
+            account = g.session.query(AccountSP).filter(AccountSP.id==c_id).first()
+            if account:
+                if c_types == '1':
+                    account.costprice = values
+                elif c_types == '2':
+                    account.count = values
+                account.totalprice = int(account.count) * float(account.costprice)
+                g.session.add(account)
+                g.session.commit()
+                return jsonify({'errorMsg': False})
+            else:
+                return jsonify({'errorMsg': u'结算不存在！'})    
+        except Exception, e:
+            return jsonify({'errorMsg': u'设置失败！'})    
+        return jsonify({'errorMsg': False})

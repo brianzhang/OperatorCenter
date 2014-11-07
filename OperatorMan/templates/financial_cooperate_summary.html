@@ -6,11 +6,11 @@
             <tr>
                 <th>开始时间:</th>
                 <td>
-                    <input class="easyui-datebox" type="text" id="start_time{{random_key}}"/>
+                    <input class="easyui-datebox" type="text" id="start_time{{random_key}}" value="{{regdate}}"/>
                 </td>
                 <th>结束时间:</th>
                 <td>
-                    <input class="easyui-datebox"type="text" id="end_time{{random_key}}" />
+                    <input class="easyui-datebox"type="text" id="end_time{{random_key}}"  value="{{regdate}}"/>
                 </td>
 
                 <th>通道:</th>
@@ -49,10 +49,7 @@
                 <thead>
                     <tr>
                         <th field="sp" width="15">合作方（SP）</th>
-                        <th field="channel_name" width="50">通道名称</th>
-                        <th field="costprice" width="40">资费</th>
-                        <th field="count" width="40">条数</th>
-                        <th field="price" width="30">单价</th>
+                        <th field="count" width="40">条数</th>                        
                         <th field="total" width="50">金额</th>
                         <th field="date_time" width="50" data-options="formatter: financial_cooperate_summary_manager.formatterDate">时间周期</th>
                     </tr>
@@ -77,7 +74,7 @@ var financial_cooperate_summary_manager = {
     },
     formatterDate: function(val, row) {
         var date = new Date(val);
-        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
+        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 ';
     },
     formatCommand: function(val, row) {
         val = parseInt(val);
