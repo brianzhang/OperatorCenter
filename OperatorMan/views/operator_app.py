@@ -105,14 +105,18 @@ def operator_status():
             operator_list = operator_list.filter(DataMr.cpid == cpinfo)
             stats_query = stats_query.filter(DataMr.cpid == cpinfo)
         if provinces:
-            operator_list = operator_list.filter(DataMr.province == province)
-            stats_query = stats_query.filter(DataMr.province == province)
+            operator_list = operator_list.filter(DataMr.province == provinces)
+            stats_query = stats_query.filter(DataMr.province == provinces)
         if is_kill:
             operator_list = operator_list.filter(DataMr.is_kill == is_kill)
             stats_query = stats_query.filter(DataMr.is_kill == is_kill)
         if status:
             operator_list = operator_list.filter(DataMr.state == status)
             stats_query = stats_query.filter(DataMr.state == status)
+        if users:
+            operator_list = operator_list.filter(UsrCPInfo.adminid == users)
+            stats_query = stats_query.filter(UsrCPInfo.adminid == users)
+            
         #if
         #query_data.add_column(DataEverday.tj_hour.label('has_index'))
         #stmt.c.cp_count.label("cp_count")
