@@ -78,12 +78,12 @@
                             {% for product in products%}
                                 {% if channel_info %}
                                     {% if product.id == channel_info.product_info.id %}
-                                        <option value="{{product.id}}" selected="selected">{{product.proname}}</option>
+                                        <option value="{{product.id}}" selected="selected">[{{product.id}}]{{product.proname}}</option>
                                     {% else %}
-                                        <option value="{{product.id}}">{{product.proname}}</option>
+                                        <option value="{{product.id}}">[{{product.id}}]{{product.proname}}</option>
                                     {%endif%}
                                 {% else %}
-                                    <option value="{{product.id}}">{{product.proname}}</option>
+                                    <option value="{{product.id}}">[{{product.id}}]{{product.proname}}</option>
                                 {% endif %}
                             {% endfor%}
                         </select>

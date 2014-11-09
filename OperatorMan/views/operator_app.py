@@ -68,8 +68,7 @@ def operator_status():
         status = req.get('status', None)
         users = req.get('users', None)
         types = req.get('types', None)
-        order = req.get('order', None)
-
+        query_value = req.get('values', None)
         stmt = g.session.query(func.count(DataMr.id).label("cp_count")).filter(DataMr.is_kill==0).filter(DataMr.state==True)
         
         stats_query = g.session.query(func.count(distinct(DataMr.channelid)).label('channel_count'), \
@@ -101,22 +100,50 @@ def operator_status():
         if channel:
             operator_list = operator_list.filter(DataMr.channelid == channel)
             stats_query = stats_query.filter(DataMr.channelid == channel)
+            stmt = stmt.filter(DataMr.channelid == channel)
         if cpinfo:
             operator_list = operator_list.filter(DataMr.cpid == cpinfo)
             stats_query = stats_query.filter(DataMr.cpid == cpinfo)
+            stmt = stmt.filter(DataMr.cpid == cpinfo)
         if provinces:
             operator_list = operator_list.filter(DataMr.province == provinces)
             stats_query = stats_query.filter(DataMr.province == provinces)
+            stmt = stmt.filter(DataMr.province == province)
         if is_kill:
             operator_list = operator_list.filter(DataMr.is_kill == is_kill)
             stats_query = stats_query.filter(DataMr.is_kill == is_kill)
+            stmt = stmt.filter(DataMr.is_kill == is_kill)
         if status:
             operator_list = operator_list.filter(DataMr.state == status)
             stats_query = stats_query.filter(DataMr.state == status)
+            stmt = stmt.filter(DataMr.state == status)
         if users:
             operator_list = operator_list.filter(UsrCPInfo.adminid == users)
             stats_query = stats_query.filter(UsrCPInfo.adminid == users)
-            
+            stmt = stmt.filter(UserCPInfo.adminid == users)
+        if types and query_value:
+           if types == 'Mobile':
+               operator_list = operator_list.filter(DataMr.mobile == query_value)
+               stats_query = stats_query.filter(DataMr.mobile == query_value)
+               stmt = stmt.filter(DataMr.mobile == query_value)
+           if types == "SX":
+               operator_list = operator_list.filter(DataMr.momsg == query_value)
+               stats_query = stats_query.filter(DataMr.momsg == query_value)
+               stmt = stmt.filter(DataMr.momsg == query_value)
+           if types == 'SPNumber':
+               operator_list = operator_list.filter(DataMr.spnumber == query_value)
+               stats_query = stats_query.filter(DataMr.spnumber == query_value)
+               stmt = stmt.filter(DataMr.spunmber == query_value)
+           if types == 'City':
+               _city = g.session.query(PubCity).filter(PubCity.city==query_value).first()
+               if _city:
+                   operator_list = operator_list.filter(DataMr.city == _city.id)
+                   stats_query = stats_query.filter(DataMr.city == _city.id)
+                   stmt = stmt.filter(DataMr.city == _city.id)
+           if types == 'LinkID':
+               operator_list = operator_list.filter(DataMr.linkid == query_value)
+               stats_query = stats_query.filter(DataMr.linkid == query_value)
+               stmt = stmt.filter(DataMr.linkid == query_value)
         #if
         #query_data.add_column(DataEverday.tj_hour.label('has_index'))
         #stmt.c.cp_count.label("cp_count")

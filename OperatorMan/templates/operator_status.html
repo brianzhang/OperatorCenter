@@ -63,27 +63,18 @@
                     </select>
                 </td>
                 <th>类型:</th>
-                <td>
+                <td colspan="4">
                     <select name="types" id="types{{random_key}}" style="width: 70px">
                         <option selected="selected" value=''>--请选择--</option>
                         <option selected="selected" value="Mobile">号码</option>
                         <option value="SX">指令</option>
                         <option value="SPNumber">端口</option>
-                        <option value="Sf">省份</option>
                         <option value="City">城市</option>
                         <option value="LinkID">LinkID</option>
                     </select>
+                    <input class="easyui-textbox" name="query_value" style="width: 160px"/>
                 </td>
-                <th>筛选方式:</th>
                 <td>
-                    <select name="order" style="width: 70px">
-                        <option selected="selected" value=''>--请选择--</option>
-                        <option value="0">当前</option>
-                        <option value="1">历史</option>
-                        <option value="2">全部</option>
-                    </select>
-                </td>
-                <td align="right">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" id="btn_query{{random_key}}" plain="true">查询</a>
                 </td>
             </tr>
@@ -167,7 +158,7 @@
                'status': $("#status{{random_key}}").val(),
                'users': $("#users{{random_key}}").val(),
                'types': $("#types{{random_key}}").val(),
-               'order': $("input[name='order'][checked]").val()
+               'values': $("input[name='query_value']").val()
             };
             this.datagrid.datagrid('load', req_data)
         },
