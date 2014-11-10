@@ -437,6 +437,29 @@ class UsrSPTongLog(OperatorBase):
     sp_info = relationship(UsrSPInfo)
     channe_info = relationship(ChaInfo)
 
+class UsrSPParameter(OperatorBase):
+    """docstring for UsrSPParameter"""
+    __tablename__ = 'usr_sp_parameter'
+    __table_args__ = ({'mysql_engine': 'InnoDB'}, )
+    id = Column(Integer, primary_key=True)
+    spid = Column(Integer, ForeignKey('usr_spinfo.id'))
+    spnumber = Column(String(50), nullable=False)
+    mobile = Column(String(50), nullable=False)
+    extmsg = Column(String(50), nullable=False)
+    linkid = Column(String(50), nullable=False)
+    mo_send_date = Column(String(50), nullable=False)
+    mr_state = Column(String(50), nullable=False)
+    mr_send_date = Column(String(50), nullable=False)
+    feeprice = Column(String(50), nullable=False)
+    srvid = Column(String(50), nullable=False)
+    start_time = Column(String(50), nullable=False)
+    end_time = Column(String(50), nullable=False)
+    matching_rule = Column(String(50), nullable=False)
+    duration = Column(String(50), nullable=False)
+    time_type = Column(Integer, nullable=False)
+
+    sp_info = relationship(UsrSPInfo)
+    
 class DataMo(OperatorBase):
 
     """docstring for DataMo"""

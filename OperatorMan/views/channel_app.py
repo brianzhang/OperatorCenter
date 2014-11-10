@@ -7,6 +7,7 @@ import simplejson as json
 import os
 import sys
 import md5
+import math
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -21,11 +22,11 @@ import flask.ext.wtf as wtf
 
 from werkzeug import secure_filename
 from OperatorMan.configs import settings
-from OperatorMan.views import ok_json, fail_json, hash_password, write_sys_log
+from OperatorMan.views import ok_json, fail_json, hash_password, write_sys_log, random_key
 from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
                 create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UsrSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
                 UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP, UsrChannelSync, \
-                UsrSPSync
+                UsrSPSync, UsrSPParameter
 
 from OperatorMan.utils import User
 
@@ -178,9 +179,6 @@ def channel_add_info(channel_id=None):
 
             return jsonify({'ok': True})
         except Exception, e:
-            print '================ERROR============'
-            print e
-            print '================ERROR============'
             return jsonify({'ok': False, 'errorMsg': u'设置通道失败.'})
 
     else:
@@ -629,7 +627,7 @@ def channel_sync():
     if request.method == "GET":
         spinfo_list = g.session.query(UsrSPInfo).all()
         channels = g.session.query(ChaInfo).all()
-        return render_template('channel_sync.html', spinfo_list=spinfo_list, channels=channels)
+        return render_template('channel_sync.html', spinfo_list=spinfo_list, channels=channels, random_key=random_key())
     else:
         query = g.session.query(UsrSPSync).order_by(desc(UsrSPSync.id))
 
@@ -769,3 +767,200 @@ def channel_cover():
         render_data.append(_item)
 
     return render_template('channel_cover.html', render_data=json.dumps(render_data))
+
+@channel_view.route('/parameter/list/', methods=['GET', 'POST'])
+@login_required
+def channel_parameter_list():
+    req_args = request.args if request.method == 'GET' else request.form
+    if request.method == 'GET':
+        spinfo_list = g.session.query(UsrSPInfo).all()
+        return render_template('channel_parameter_list.html', spinfo_list=spinfo_list, random_key=random_key())
+    else:
+        sp_id = req_args.get('sp_id', None)
+        currentpage = int(req_args.get('page', 1))
+        numperpage = int(req_args.get('rows', 20))
+        start = numperpage * (currentpage - 1)
+        start = math.fabs(start)
+        total = 0
+        
+        query = g.session.query(UsrSPParameter)
+        query_count = g.session.query(func.count(UsrSPParameter.id).label('id_count'))
+        if sp_id:
+            query = query.filter(UsrSPParameter.spid==sp_id)
+            query_count =query_count.filter(UsrSPParameter.spid==sp_id)
+
+        query = query.offset(start).limit(numperpage).all()
+        query_count = query_count.one()
+        total = query_count.id_count
+        query_data = []
+        if query:
+            for item in query:
+                _parameter = """{spnumber: %s,
+                                mobile: %s,
+                                extmsg: %s,
+                                linkid: %s,
+                                mo_send_date: %s,
+                                mr_state: %s,
+                                mr_send_date: %s,
+                                feeprice: %s,
+                                srvid: %s,
+                                start_time: %s,
+                                end_time: %s,
+                                matching_rule: %s,
+                                duration: %s,
+                                time_type: %s
+                            }""" % (item.spnumber,
+                                    item.mobile,
+                                    item.extmsg,
+                                    item.linkid,
+                                    item.mo_send_date,
+                                    item.mr_state,
+                                    item.mr_send_date,
+                                    item.feeprice,
+                                    item.srvid,
+                                    item.start_time,
+                                    item.end_time,
+                                    item.matching_rule,
+                                    item.duration,
+                                    item.time_type)
+                query_data.append({
+                    'id': item.id,
+                    'sp_info': '[%s]%s' % (item.sp_info.id, item.sp_info.name),
+                    'parameter': _parameter
+                })
+        return jsonify({'rows': query_data, 'total': total})
+
+@channel_view.route('/parameter/add/', methods=['POST'])
+@channel_view.route('/parameter/edit/<parame_id>/', methods=['POST'])
+@login_required
+def channel_parameter_setting(parame_id=None):
+    req = request.args if request.method == 'GET' else request.form
+    if parame_id:
+        parameter = g.session.query(UsrSPParameter).filter(UsrSPParameter.id==parame_id).first()
+    else:
+        parameter = UsrSPParameter()
+        parameter.spid = req.get('sp', None)
+
+    parameter.spnumber = None
+    parameter.mobile = None
+    parameter.extmsg = None
+    parameter.linkid = None
+    parameter.mo_send_date = None
+    parameter.mr_state = None
+    parameter.mr_send_date = None
+    parameter.feeprice = None
+    parameter.srvid = None
+    parameter.start_time = None
+    parameter.end_time = None
+    parameter.matching_rule = None
+    parameter.duration = None
+    parameter.time_type = None
+
+
+    parameter_list = req.getlist('parme_name', None)
+    for par in parameter_list:
+        setattr(parameter, par, req.get(par, None))
+    try:
+        g.session.add(parameter)
+        g.session.commit()
+        return jsonify({'ok': True})
+    except Exception, e:
+        return jsonify({'ok': False, 'errorMsg': u'设置失败'})        
+
+    return jsonify({'ok': False})
+
+@channel_view.route('/parameter/delete/', methods=['POST'])
+@login_required
+def channel_parameter_delete():
+    req = request.args if request.method == 'GET' else request.form
+    parameter_id = req.get('id', None)
+    try:
+        g.session.query(UsrSPParameter).filter(UsrSPParameter.id==parameter_id).delete()
+        g.session.commit()
+        return jsonify({'ok': True})
+    except Exception, e:
+        return jsonify({'ok': False, 'errorMsg': u'删除失败'})
+
+#/parameter/info/
+
+@channel_view.route('/parameter/info/', methods=['GET'])
+@login_required
+def channel_parameter_info():
+    _template = """
+        <tr id="item_row%s" width="140">
+           <td><input row="%s" class="easyui-combobox" name="parme_name" data-options="valueField:'id',textField:'text'" style="width:130px;" value="%s"/>:</td>
+           <td><input class="parameter" style="width: 120px;" name="%s" value="%s"/><a href="#" class="easyui-linkbutton jsRemoveRow" data-options="iconCls:'icon-remove'" row="%s">删</a></td>
+        </td>
+    """
+    req = request.args if request.method == 'GET' else request.form
+    parameter_id = req.get('id', None)
+    try:
+        info = g.session.query(UsrSPParameter).filter(UsrSPParameter.id==parameter_id).first()
+        if info:
+            _data = {'sp': info.spid}
+            _html = ''
+            _index = 100
+            item = info
+            if item.spnumber:
+                _html += _template % (_index, _index, "spnumber", "spnumber", item.spnumber, _index)
+                _index += 1
+
+            if item.mobile:
+                _html += _template % (_index, _index, "mobile", "mobile", item.mobile, _index)
+                _index += 1
+
+            if item.extmsg:
+               _html += _template % (_index, _index, "extmsg", "extmsg", item.extmsg, _index)
+               _index += 1
+
+            if item.linkid:
+                _html += _template % (_index, _index, "linkid", "linkid", item.linkid, _index)
+                _index += 1
+
+            if item.mo_send_date:
+                _html += _template % (_index, _index, "mo_send_date", "mo_send_date", item.mo_send_date, _index)
+                _index += 1
+
+            if item.mr_state:
+                _html += _template % (_index, _index, "mr_state", "mr_state", item.mr_state, _index)
+                _index += 1
+
+            if item.mr_send_date:
+                _html += _template % (_index, _index, "mr_send_date", "mr_send_date", item.mr_send_date, _index)
+                _index += 1
+
+            if item.feeprice:
+                _html += _template % (_index, _index, "feeprice", "feeprice", item.feeprice, _index)
+                _index += 1
+
+            if item.srvid:
+                _html += _template % (_index, _index, "srvid", "srvid", item.srvid, _index)
+                _index += 1
+
+            if item.start_time:
+                _html += _template % (_index, _index, "start_time", "start_time", item.start_time, _index)
+                _index += 1
+
+            if item.end_time:
+                _html += _template % (_index, _index, "end_time", "end_time", item.end_time, _index)
+                _index += 1
+
+            if item.matching_rule:
+                _html += _template % (_index, _index, "matching_rule", "matching_rule", item.matching_rule, _index)
+                _index += 1
+
+            if item.duration:
+                _html += _template % (_index, _index, "duration", "duration", item.duration, _index)
+                _index += 1
+
+            if item.time_type:
+                _html += _template % (_index, _index, "time_type", "time_type", item.time_type, _index)
+                _index += 1
+
+            return jsonify({'ok': True, 'data': _data, '_html': _html})
+        else:
+            return jsonify({'ok': False, 'data':[], '_html': ''})
+    except Exception, e:
+        print '========================'
+        print e
+        return jsonify({'ok': False, 'errorMsg': u'加载失败'})

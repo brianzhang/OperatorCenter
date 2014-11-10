@@ -1,0 +1,243 @@
+<div title="参数列表" class="easyui-panel">
+    <div fit="true">
+        <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
+        <!--高级查询部分-->
+        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+            <tr>
+                <td width="50">合作方:</td>
+                <td>
+                    <select id="sp_id{{random_key}}" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        {% for sp_info in spinfo_list %}
+                        <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td align="right">
+                    <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="channel_parameter_manage.queryData()" plain="true">查询</a>
+                </td>
+            </tr>
+        </table>
+        </div>
+        <div data-options="region:'center',split:false"  border="false">
+            <table id="parameter_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
+                    url="/channel/parameter/list/"
+                    toolbar="#parameter_list_toolbar"
+                    pagination="true"
+                    rownumbers="true"
+                    fitColumns="true"
+                    singleSelect="true"
+                    loadMsg='数据加载中,请稍候...'
+                    pageNumber="1"
+                    pageSize="20">
+                <thead>
+                    <tr>
+                        <th field="id" width="15">ID</th>
+                        <th field="sp_info" width="50">合作商</th>
+                        <th field="parameter" width="80%">参数列表</th>
+                    </tr>
+                </thead>
+            </table>
+            <div id="parameter_list_toolbar">
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_parameter_manage.addItem()">添加</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_parameter_manage.editItem()">修改</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_parameter_manage.removeItem()">删除</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="easyui-dialog" data-options="iconCls:'icon-save'" style="width:500px;height:400px;padding:10px;" closed="true" modal="true" id="parameter_dialog" buttons='#parameter_save_bar'>
+     <div style="padding:10px 30px 20px 30px">
+        <form id="parameter_form" class="easyui-form" method="post" data-options="novalidate:true">
+            <table cellpadding="3">
+                <tr>
+                    <td width="140">合作商（SP）:</td>
+                    <td>
+                        <select class="easyui-combobox easyui-validatebox" name="sp" id="from_sp{{random_key}}" >
+                            <option selected="selected" value=''>--请选择--</option>
+                            {% for sp_info in spinfo_list %}
+                            <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tbody id="parameter_list{{random_key}}">
+                </tbody>
+            </table>
+            <a href="#" id="add_parameter_item" class="easyui-linkbutton" data-options="iconCls:'icon-add'" style="width: 100%">添加参数</a>
+        </form>
+    </div>
+    <div style="text-align:center;padding:5px" id="parameter_save_bar" class="dialog-toolbar">
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_parameter_manage.submitForm()">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="channel_parameter_manage.clearForm()">取消</a>
+    </div>
+</div>
+<script>
+var channel_parameter_manage = {
+    url: '',
+    datagrid: $('#parameter_list_dg'),
+    dialog: $("#parameter_dialog"),
+    parameter_list: $("#parameter_list{{random_key}}"),
+    formView: $('#parameter_form'),
+    addlink: $('#add_parameter_item'),
+    clearForm: function() {
+        this.formView.form("clear");
+        this.dialog.dialog('close');
+        this.reloadData();
+    },
+    addItem: function() {
+        this.parameter_list.html("");
+        $("#from_sp{{random_key}}").combobox({'disabled':false});
+        this.url = '/channel/parameter/add/';
+        this.dialog.dialog('open').dialog('setTitle','添加参数配置');;
+    },
+    editItem: function() {
+        $("#from_sp{{random_key}}").combobox({'disabled':true});
+        this.parameter_list.html("");
+        var _this = this;
+        var row = this.datagrid.datagrid('getSelected');
+        if (row){
+            this.url = '/channel/parameter/edit/'+row.id+'/';
+            this.dialog.dialog('open').dialog('setTitle','修改参数配置');
+            $.getJSON('/channel/parameter/info/', {'id': row.id}, function(resp) {
+                _this.formView.form('load',resp.data);
+                _this.parameter_list.append(resp._html);
+
+                var _select = _this.parameter_list.find('input[name="parme_name"]');
+                var _text = _this.parameter_list.find('input.parameter');
+                var _remove_link = _this.parameter_list.find('a.jsRemoveRow');
+                _select.combobox({'data': _this.parameter_data, 'onSelect': function(item) {
+                    var _row_index = $(this).attr('row');
+                    var _text = $("#item_row"+_row_index).find('input.parameter');
+                    console.log(_text);
+                    _text.attr('name', item.id);
+                    _text.textbox();
+                }});
+                _text.textbox();
+                _remove_link.linkbutton();
+                _remove_link.on('click', function() {
+                    var _row_index = $(this).attr('row');
+                    $("#item_row"+_row_index).remove();
+                });
+
+            });
+        }
+
+    },
+    submitForm: function() {
+        this.formView.form('submit',{
+            url: this.url,
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                if (result.errorMsg){
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    channel_parameter_manage.clearForm();
+                }
+            }
+        });
+    },
+    reloadData: function() {
+        this.datagrid.datagrid('load')
+    },
+    removeItem: function(status) {
+        var row = this.datagrid.datagrid('getSelected');
+        var _tip_msg = '是否删除改配置信息?';
+        var _this = this;
+        if (row){
+            $.messager.confirm('Confirm', _tip_msg, function(r){
+                if (r){
+                    $.post('/channel/parameter/delete/',{'id':row.id},function(result){
+                        if (result.ok){
+                            _this.datagrid.datagrid('reload');    // reload the user data
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+    },
+    formatStatus: function(val, row) {
+        if (val) {
+            return '<span class="icon icon-ok">&nbsp;</span>已开通'
+        }else {
+            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
+        }
+    },
+    formatterDate: function(val, row) {
+        var date = new Date(val);
+        return date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + date.getDate()+'日 '+date.getUTCHours()+':'+date.getUTCMinutes()+':'+date.getSeconds();
+    },
+    formatCommand: function(val, row) {
+        val = parseInt(val);
+        switch(val){
+            case 1:
+                return '模糊';
+            case 2:
+                return '双精确';
+        }
+    },
+    queryData: function() {
+        var req_data = { 'sp_id': $("#sp_id{{random_key}}").combobox('getValue')};
+        this.datagrid.datagrid('load', req_data)
+    },
+    initialize: function() {
+        this.eventBind();
+    },
+    eventBind: function() {
+        var _this = this;
+        var _rows = 0;
+        this.parameter_data = [{'id': 'spnumber', 'text': '长号码'},
+                              {'id': 'mobile', 'text': '电话号码'},
+                              {'id': 'extmsg', 'text': '命令字'},
+                              {'id': 'linkid', 'text': 'LINKID'}, 
+                              {'id': 'mo_send_date', 'text': 'MO发送时间'},
+                              {'id': 'mr_state', 'text': 'MR+MO状态报告'},
+                              {'id': 'mr_send_date', 'text': 'MR发送时间'},
+                              {'id': 'feeprice', 'text': '资费'},
+                              {'id': 'srvid', 'text': 'srvid'},
+                              {'id': 'start_time', 'text': 'IVR开始时间'},
+                              {'id': 'end_time', 'text': 'IVR结束时间'},
+                              {'id': 'matching_rule', 'text': '匹配规则'},
+                              {'id': 'duration', 'text': '通话时长'},
+                              {'id': 'time_type', 'text': '时长类型'}
+                            ];
+        this.addlink.on('click', function() {
+            var _html=[
+                '<tr id="item_row'+_rows+'" width="140">',
+                '<td><input row="'+_rows+'" class="easyui-combobox"  name="parme_name" data-options="valueField:\'id\',textField:\'text\'" style="width:130px;"/>:</td>',
+                '<td><input class="parameter" style="width: 120px;"/><a href="#" class="easyui-linkbutton jsRemoveRow" data-options="iconCls:\'icon-remove\'" row="'+_rows+'">删</a></td>',
+                '</td>'
+            ].join('');
+            _this.parameter_list.append(_html);
+            var _select = $("#item_row"+_rows).find('input[name="parme_name"]');
+            var _text = $("#item_row"+_rows).find('input.parameter');
+            var _remove_link = $("#item_row"+_rows).find('a.jsRemoveRow');
+            _select.combobox({'data': _this.parameter_data, 'onSelect': function(item) {
+                var _row_index = $(this).attr('row');
+                var _text = $("#item_row"+_row_index).find('input.parameter');
+                console.log(_text);
+                _text.attr('name', item.id);
+                _text.textbox();
+            }});
+            _text.textbox();
+            _remove_link.linkbutton();
+            _remove_link.on('click', function() {
+                var _row_index = $(this).attr('row');
+                $("#item_row"+_row_index).remove();
+            });
+            _rows++;
+        });
+    }
+};
+channel_parameter_manage.initialize();
+</script>
