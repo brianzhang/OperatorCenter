@@ -262,7 +262,8 @@ class UsrProvince(OperatorBase):
     __table_args__ = ({'mysql_engine': 'InnoDB'}, )
 
     id = Column(Integer, primary_key=True)
-    channelid = Column(Integer, ForeignKey('usr_channel.id'))
+    channelid = Column(Integer, ForeignKey('cha_info.id'))
+    usr_channelid = Column(Integer, ForeignKey('usr_channel.id'))
     cpid = Column(Integer, ForeignKey('usr_cpinfo.id'))
     adminid = Column(Integer, ForeignKey('sys_admin.id'))
     province = Column(Integer, ForeignKey('pub_province.id'))

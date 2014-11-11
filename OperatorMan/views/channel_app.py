@@ -518,16 +518,17 @@ def set_channel_allocated(allocated_id=None):
             g.session.add(channel_allocated)
             g.session.commit()
             if provinces:
-                g.session.query(UsrProvince).filter(UsrProvince.channelid==channel_allocated.id).delete()
+                g.session.query(UsrProvince).filter(UsrProvince.usr_channelid==channel_allocated.id).delete()
                 g.session.commit()
 
             for prov in provinces:
 
-                g.session.query(UsrProvince).filter(UsrProvince.channelid==channel_allocated.id).\
+                g.session.query(UsrProvince).filter(UsrProvince.usr_channelid==channel_allocated.id).\
                                 filter(UsrProvince.province==int(prov)).delete()
 
                 usr_province = UsrProvince()
-                usr_province.channelid = channel_allocated.id
+                usr_province.channelid = channel_allocated.channelid
+                usr_province.usr_channelid = channel_allocated.id
                 usr_province.cpid = channel_allocated.cpid
                 usr_province.adminid = g.user.id
                 usr_province.create_time = datetime.datetime.now()
