@@ -63,3 +63,6 @@ a:hover{ color:Red; text-decoration:underline;}
 fieldset{border:1px solid #95B8E7; }
 textarea{margin:1px}
 .hide{display:none; visibility: hidden;}
+.parameter_itme{width:310px;margin-bottom: 5px; display: block}
+.parameter_itme dl,.parameter_itme dd{float:left; width:110px;margin:0px; padding: 0px;}
+.parameter_itme dl{width: 185px;}

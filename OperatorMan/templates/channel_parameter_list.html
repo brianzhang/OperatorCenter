@@ -109,7 +109,6 @@ var channel_parameter_manage = {
                 _select.combobox({'data': _this.parameter_data, 'onSelect': function(item) {
                     var _row_index = $(this).attr('row');
                     var _text = $("#item_row"+_row_index).find('input.parameter');
-                    console.log(_text);
                     _text.attr('name', item.id);
                     _text.textbox();
                 }});

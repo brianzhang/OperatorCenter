@@ -11,6 +11,7 @@ from OperatorMan.views.channel_app import channel_view
 from OperatorMan.views.operator_app import operator_view
 from OperatorMan.views.financial_app import financial_view
 from OperatorMan.utils.User import User
+from OperatorMan.utils.filters import JINJA2_FILTERS, JINJA2_GLOBALS
 from OperatorMan.configs import settings
 from OperatorCore.models.operator_app import create_operator_session
 
@@ -21,6 +22,8 @@ def create_app(debug=settings.DEBUG):
     app.register_blueprint(operator_view)
     app.register_blueprint(channel_view)
     app.register_blueprint(financial_view)
+    app.jinja_env.filters.update(JINJA2_FILTERS)
+    app.jinja_env.globals.update(JINJA2_GLOBALS)
     app.secret_key = 'PS#yio`%_!((f_or(%)))s'
     app.debug = debug
 

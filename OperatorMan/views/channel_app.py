@@ -8,6 +8,7 @@ import os
 import sys
 import md5
 import math
+import re
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -98,12 +99,89 @@ def channel_list():
             return jsonify({'rows': channels, 'total': total})
         return jsonify({'rows': [], 'total': 0})
     else:
-        channels = g.session.query(ChaInfo).all()
-        sp_info_list = g.session.query(UsrSPInfo).all()
-        products = g.session.query(PubProducts).all()
-        busi_list = g.session.query(PubBusiType).all()
+        sp_id = req_args.get('spid', None)
+        if sp_id:
+            """
+                [{'id': 'spnumber', 'text': '长号码'},
+                  {'id': 'mobile', 'text': '电话号码'},
+                  {'id': 'extmsg', 'text': '命令字'},
+                  {'id': 'linkid', 'text': 'LINKID'}, 
+                  {'id': 'mo_send_date', 'text': 'MO发送时间'},
+                  {'id': 'mr_state', 'text': 'MR+MO状态报告'},
+                  {'id': 'mr_send_date', 'text': 'MR发送时间'},
+                  {'id': 'feeprice', 'text': '资费'},
+                  {'id': 'srvid', 'text': 'srvid'},
+                  {'id': 'start_time', 'text': 'IVR开始时间'},
+                  {'id': 'end_time', 'text': 'IVR结束时间'},
+                  {'id': 'matching_rule', 'text': '匹配规则'},
+                  {'id': 'duration', 'text': '通话时长'},
+                  {'id': 'time_type', 'text': '时长类型'}
+                ]
+            """
+            channel_list = g.session.query(ChaInfo).filter(ChaInfo.spid==sp_id).all()
+            info = g.session.query(UsrSPParameter).filter(UsrSPParameter.spid==sp_id).first()
+            parameter_data = []
+            channel_data = []
+            if channel_list:
+                for item in channel_list:
+                    channel_data.append({
+                        'id': item.id,
+                        'text': "[%s]%s" % (item.id, item.cha_name),
+                        'spnumber': item.spnumber,
+                        'feeprice': item.price,
+                        'extmsg': item.sx
+                    })
+            if info:
+                item = info
+                if item.spnumber:
+                    parameter_data.append({'id': 'spnumber', 'text': u'长号码'})
 
-        return render_template('channel_list.html', channels=channels,
+                if item.mobile:
+                    parameter_data.append({'id': 'mobile', 'text': u'电话号码'})
+
+                if item.extmsg:
+                    parameter_data.append({'id': 'extmsg', 'text': u'上行内容'})
+
+                if item.linkid:
+                    parameter_data.append({'id': 'linkid', 'text': u'LINKID'})
+
+                if item.mo_send_date:
+                    parameter_data.append({'id': 'mo_send_date', 'text': u'MO发送时间'})
+
+                if item.mr_state:
+                    parameter_data.append({'id': 'mr_state', 'text': u'MR+MO状态报告'})
+
+                if item.mr_send_date:
+                    parameter_data.append({'id': 'mr_send_date', 'text': u'MR发送时间'})
+
+                if item.feeprice:
+                    parameter_data.append({'id': 'mr_send_date', 'text': u'资费'})
+
+                if item.srvid:
+                    parameter_data.append({'id': 'srvid', 'text': u'srvid'})
+
+                if item.start_time:
+                    parameter_data.append({'id': 'start_time', 'text': u'IVR开始时间'})
+
+                if item.end_time:
+                    parameter_data.append({'id': 'end_time', 'text': u'IVR结束时间'})
+
+                if item.matching_rule:
+                    parameter_data.append({'id': 'matching_rule', 'text': u'匹配规则'})
+
+                if item.duration:
+                    parameter_data.append({'id': 'duration', 'text': u'通话时长'})
+
+                if item.time_type:
+                    parameter_data.append({'id': 'time_type', 'text': u'时长类型'})
+
+            return jsonify({'data': channel_data, 'parameter_data': parameter_data})
+        else:
+            channels = g.session.query(ChaInfo).all()
+            sp_info_list = g.session.query(UsrSPInfo).all()
+            products = g.session.query(PubProducts).all()
+            busi_list = g.session.query(PubBusiType).all()
+            return render_template('channel_list.html', channels=channels,
                                             sp_info_list=sp_info_list,
                                             busi_list=busi_list,
                                             products=products)
@@ -661,9 +739,8 @@ def channel_sync():
                         "channel_name": "[%s] %s" % (usr_sync.cha_info.id, usr_sync.cha_info.cha_name),
                         "sp_name": "[%s] %s" % (usr_sync.usr_spinfo.id, usr_sync.usr_spinfo.name),
                         "sync_type": usr_sync.sync_type,
-                        "url": usr_sync.url,
-                        "status_key": usr_sync.status_key,
-                        "is_rsync": usr_sync.is_rsync,
+                        "url": usr_sync.sync_url,
+                        "status_key": usr_sync.sync_result,
                         "is_show": usr_sync.is_show
                     })
             return jsonify({'rows': usr_channels, 'total': total})
@@ -680,25 +757,28 @@ def sync_add(sync_id=None):
     else:
         channel_sync_info = UsrSPSync()
         channel_sync_info.create_time = datetime.datetime.now()
+        channel_sync_info.spid = req_args.get('spid', None)
 
+    parme_name = req_args.getlist('parme_name', None)
+    parameter = req_args.getlist('parameter', None)
+    codes = ""
+    if parme_name:
+        for parme in parme_name:
+            setattr(channel_sync_info, parme, req_args.get(parme, None))
+    if parameter:
+        for parme in parameter:
+            codes += "%s," % (parme)
+        codes = codes[0:-1]
+    codes += ""
 
-    channel_sync_info.spid = req_args.get('spid', None)
+    
     channel_sync_info.channelid = req_args.get('channelid', None)
     channel_sync_info.sync_type = req_args.get("sync_type", None)
-    channel_sync_info.status_key = req_args.get("status_key", None)
-    url = '/MO/%s/%s/' % (channel_sync_info.spid, channel_sync_info.channelid) if channel_sync_info.sync_type == '1' else '/MR/%s/%s/' % (channel_sync_info.spid, channel_sync_info.channelid)
-    channel_sync_info.url = url
-    channel_sync_info.is_rsync = True
+    channel_sync_info.sync_result = req_args.get("sync_result", None)
+    channel_sync_info.sync_url = req_args.get('url', None)
     channel_sync_info.is_show = req_args.get("is_show", False)
-    channel_sync_info.spnumber = req_args.get("spnumber", 0)
-    channel_sync_info.mobile = req_args.get("mobile", 0)
-    channel_sync_info.linkid = req_args.get("linkid", 0)
-    channel_sync_info.msg = req_args.get("msg", 0)
-    channel_sync_info.interface_type = req_args.get('interface_type', 0)
-    channel_sync_info.status_name = req_args.get('status_name', '')
-    channel_sync_info.status_val = req_args.get('status_val', '')
-    channel_sync_info.type_name = req_args.get('type_name', '')
-    channel_sync_info.type_key = req_args.get('type_key', '')
+    channel_sync_info.codes = codes
+    channel_sync_info.create_time = datetime.datetime.now()
 
     try:
         write_sys_log(2,
@@ -709,32 +789,45 @@ def sync_add(sync_id=None):
         g.session.add(channel_sync_info)
         g.session.commit()
         return jsonify({'ok': True})
-
     except Exception, e:
-        return jsonify({'errorMsg': u'添加失败'})
+        return jsonify({'ok': False, 'errorMsg': u'设置失败'})
 
 @channel_view.route("/sync/info/<sync_id>/", methods=["POST", "GET"])
 def sync_info(sync_id=None):
-  if sync_id:
-      channel_sync_info = g.session.query(UsrSPSync).filter(UsrSPSync.id==sync_id).one()
-      return jsonify({
-        'spid': channel_sync_info.spid,
-        'channelid': channel_sync_info.channelid,
-        'sync_type': channel_sync_info.sync_type,
-        'status_key': channel_sync_info.status_key,
-        'sync_url': channel_sync_info.url,
-        'spnumber': channel_sync_info.spnumber,
-        'mobile': channel_sync_info.mobile,
-        'linkid': channel_sync_info.linkid,
-        'msg': channel_sync_info.msg,
-        'status_name': channel_sync_info.status_name,
-        'status_val': channel_sync_info.status_val,
-        'interface_type': channel_sync_info.interface_type,
-        'type_name': channel_sync_info.type_name,
-        'type_key': channel_sync_info.type_key,
-        'is_show': 1 if channel_sync_info.is_show else 0
-      })
-  return jsonify({'ok': True})
+    if sync_id:
+        channel_sync_info = g.session.query(UsrSPSync).filter(UsrSPSync.id==sync_id).one()
+        _template = """
+            <div id="item_row%s"class="parameter_itme">
+            <dd><input row="%s" class="easyui-combobox"  name="parme_name" data-options="valueField:'id',textField:'text'" style="width:80px;" value="%s"/> 值=</dd>
+            <dl><input class="parameter" name="%s" value="%s" style="width: 120px;"/><a href="#" class="easyui-linkbutton jsRemoveRow" data-options="iconCls:\'icon-remove\'" row="%s">删</a></dl>
+            </div>
+        """
+        _html = ''
+        _index = 10000
+        item = channel_sync_info
+        if item.spnumber:
+            _html += _template % (_index, _index, "spnumber", "spnumber", item.spnumber, _index)
+            _index += 1
+
+        if item.extmsg:
+            _html += _template % (_index, _index, "extmsg", "extmsg", item.extmsg, _index)
+            _index += 1
+
+        if item.feeprice:
+           _html += _template % (_index, _index, "feeprice", "feeprice", item.feeprice, _index)
+           _index += 1
+
+        return jsonify({
+            'spid': channel_sync_info.spid,
+            'channelid': channel_sync_info.channelid,
+            'sync_type': channel_sync_info.sync_type,
+            'sync_result': channel_sync_info.sync_result,
+            'url': channel_sync_info.sync_url,
+            'is_show': 1 if channel_sync_info.is_show else 0,
+            '_html': _html,
+            'parameter':channel_sync_info.codes
+        })
+    return jsonify({'ok': True})
 @channel_view.route("/cover/", methods=['GET'])
 @login_required
 def channel_cover():
@@ -865,7 +958,7 @@ def channel_parameter_setting(parame_id=None):
         g.session.commit()
         return jsonify({'ok': True})
     except Exception, e:
-        return jsonify({'ok': False, 'errorMsg': u'设置失败'})        
+        return jsonify({'ok': False, 'errorMsg': u'设置失败'})
 
     return jsonify({'ok': False})
 

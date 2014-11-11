@@ -23,7 +23,7 @@ from Operator.configs import settings
 from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
                 create_operator_session, PubProducts, PubBusiType, UsrSPInfo, UsrSPTongLog, UsrCPInfo, UsrCPBank, UsrCPLog, \
                 UsrChannel, UsrProvince, UsrCPTongLog, ChaInfo, ChaProvince, DataMo, DataMr, DataEverday, AccountSP, AccountCP, UsrChannelSync, \
-                UsrSPSync
+                UsrSPSync, UsrSPParameter
 
 
 from Operator.views import querySPInfo, get_mobile_attribution, \
@@ -383,6 +383,49 @@ def channel_mr(channel_id=None,SP_ID=None):
             # INSERT OR UPDATE DATA_MO
             # if not  is_kill
             # sync CP data.
+
+        return "ERROR"
+
+    return jsonify({'ok': False, 'SP_ID': SP_ID, 'MSG': 'The SP IS UNDEFINED'})
+
+
+
+@operator_view.route('/sp/mo/<int:spid>/', methods=["GET"])
+def sp_mo(spid=None):
+    req = request.args if request.method == 'GET' else request.form
+    sp_info = True#querySPInfo(SP_ID)
+    if spid:
+        parameters = g.session.query(UsrSPParameter).filter(UsrSPParameter.spid==spid).first()
+        channel_info = None
+        if parameters:
+            spnumber = req.get(parameters.spnumber, None)
+            mobile = req.get(parameters.mobile, None)
+            feeprice = req.get(parameters.feeprice, None)
+            linkid = req.get(parameters.linkid, None)
+            msg = req.get(parameters.extmsg, None)
+            mo_send_date = req.get(parameters.mo_send_date, None)
+            mr_send_date = req.get(parameters.mr_send_date, None)
+            srvid = req.get(parameters.srvid, None)
+            start_time = req.get(parameters.start_time, None)
+            end_time = req.get(parameters.end_time, None)
+            duration = req.get(parameters.duration, None)
+            mr_state = parameters.mr_state
+            time_type = parameters.time_type
+
+            channel_info = g.session.query(UsrSPSync) #.filter(UsrSPSync.channelid==channel_id).filter(UsrSPSync.spid==spid).first()
+            if spnumber:
+                channel_info = channel_info.filter(UsrSPSync.spnumber==spnumber)
+            if msg:
+                channel_info = channel_info.filter(UsrSPSync.extmsg==msg)
+            if feeprice:
+                channel_info = channel_info.filter(UsrSPSync.feeprice==feeprice)
+            channel_info = channel_info.first()
+
+        if channel_info:
+            print '----------------------'
+            print channel_info.id
+            print '----------------------'
+            return "OK"
 
         return "ERROR"
 

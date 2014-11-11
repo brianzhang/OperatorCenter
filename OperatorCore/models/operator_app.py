@@ -7,7 +7,7 @@ import sys
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (Column, BigInteger, Integer, Boolean, Float, Numeric,
-                        String, DateTime, ForeignKey, create_engine, Float,
+                        String, DateTime, ForeignKey, create_engine, Float, Text, 
                         UniqueConstraint, event, and_)
 from sqlalchemy.orm import sessionmaker, relationship
 from OperatorCore.configs import settings
@@ -375,21 +375,14 @@ class UsrSPSync(OperatorBase):
     id = Column(Integer, primary_key=True)
     spid = Column(Integer, ForeignKey('usr_spinfo.id'))
     channelid = Column(Integer, ForeignKey('cha_info.id'))
-    sync_type = Column(Integer)
-    status_key =  Column(String(100), nullable=False)
-    url = Column(String(100), nullable=False)
-    is_rsync = Column(Boolean, nullable=False)
-    is_show  = Column(Boolean, nullable=False)
     spnumber = Column(String(100), nullable=False)
-    mobile = Column(String(100), nullable=False)
-    linkid = Column(String(100), nullable=False)
-    msg = Column(String(100), nullable=False)
-
-    status_name = Column(String(100), nullable=False)
-    status_val = Column(String(100), nullable=False)
-    type_name = Column(String(100), nullable=False)
-    type_key = Column(String(100), nullable=False)
-    interface_type = Column(Integer, nullable=False)
+    extmsg = Column(String(100), nullable=False)
+    feeprice = Column(String(100), nullable=False)
+    codes = Column(Text, nullable=False)
+    sync_url = Column(String(100), nullable=False)
+    sync_type = Column(Integer)
+    sync_result = Column(String(100), nullable=False)
+    is_show  = Column(Boolean, nullable=False)
     create_time = Column(DateTime, nullable=False)
 
     usr_spinfo = relationship(UsrSPInfo)

@@ -75,8 +75,8 @@
                 <tr>
                     <td>运营商：</td>
                     <td>
-                        <select name="spid" class="easyui-combobox easyui-validatebox" id="sp_list{{random_key}}" style="width:100px">
-                            <option selected="selected" value=''>--请选择--</option>
+                        <select name="spid" class="easyui-combobox easyui-validatebox" editable="false" id="sp_list{{random_key}}" style="width:100px" >
+                            <option selected="selected">--请选择--</option>
                             {% for sp in spinfo_list %}
                             <option value="{{sp.id}}">[{{sp.id}}]{{sp.name}}</option>
                             {%endfor%}
@@ -84,13 +84,14 @@
                     </td>
                     <td>通道名称：</td>
                     <td>
-                        <input name="channelid" class="easyui-combobox easyui-validatebox" id="channel{{random_key}}" style="width:100px"/>
+                        <input name="channelid" class="easyui-combobox easyui-validatebox" editable="false" id="channel{{random_key}}" style="width:100px" data-options="
+                        method:'get',valueField:'id',textField:'text'"/>
                     </td>
                 </tr>
                 <tr>
                     <td> 同步类型：</td>
                     <td>
-                        <select name="sync_type" class="easyui-combobox" id="sync_type{{random_key}}" style="width:100px">
+                        <select name="sync_type" class="easyui-combobox" editable="false" id="sync_type{{random_key}}" style="width:100px">
                             <option selected="selected" value=''>--请选择--</option>
                             <option value="1">上行同步</option>
                             <option value="2">状态报告</option>
@@ -98,11 +99,11 @@
                         </select>
                     </td>
                     <td>成功标识：</td>
-                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="status_key" data-options="required:true" style="width:100px"></input></td>
+                    <td><input class="easyui-textbox easyui-validatebox" type="text" name="sync_result" data-options="required:true" style="width:100px"></input></td>
                 </tr>
                 <tr>
                     <td valign="top">同步关键码：</td>
-                    <td id="parameter_key{{random_key}}" height="60px" valign="top">
+                    <td id="parameter_key{{random_key}}" height="60px" valign="top" colspan="3">
                         <a href="#" id="add_parameter_item{{random_key}}" class="easyui-linkbutton" data-options="iconCls:'icon-add'" style="width: 100%">添加参数</a>
                     </td>
                 </tr>
@@ -160,7 +161,23 @@ var channel_sync_manager = {
         }
     },
     submitForm: function() {
-
+        this.formView.form('submit',{
+            url: this.url,
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                if (result.errorMsg){
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    channel_sync_manager.clearForm();
+                    channel_sync_manager.reloadData();
+                }
+            }
+        });
     },
     clearForm: function() {
         this.parameter_key.find(".parameter_itme").remove();
@@ -168,33 +185,182 @@ var channel_sync_manager = {
         this.dialog.dialog('close');
     },
     addSync: function() {
+        //this.sp_list.combobox({'disabled':false});
+        this.sp_list.combobox({'enable': true});
+        //this.sp_list.combobox({'disabled':false});
         this.parameter_key.find(".parameter_itme").remove();
         this.formView.form("clear");
-        this.url = '/channel/parameter/add/';
+        this.url = '/channel/sync/add/';
         this.dialog.dialog('open').dialog('setTitle','添加同步设置');
     },
     editSync: function() {
         var row = this.datagrid.datagrid('getSelected');
         this.formView.form("clear");
+        var _this = this;
         if (row){
+            this.sp_list.combobox({'disabled':true});
+            //enable
+            //parameter_itme
+            _this.parameter_key.find(".parameter_itme").remove();
             this.dialog.dialog('open').dialog('setTitle','修改接口');
-            this.url = '/channel/sync/'+row.id+'/';
+            this.url =  '/channel/sync/'+row.id+'/';
             $.getJSON('/channel/sync/info/'+row.id+'/', {}, function(resp) {
                 $('#set_sync_sesttings_form').form('load',resp);
-                if (resp.interface_type == 2) {
-                    $("#interface_type").show()
-                }else{
-                    $("#interface_type").hide()
-                }
+                
+                _this.parameter_key.prepend(resp._html);
+                _this.sp_list.combobox('setValue', resp.spid)
+                $("#sync_url").html(resp.url);
                 $("#sync_url").html(resp.sync_url);
+                var _select = _this.parameter_key.find('input[name="parme_name"]');
+                var _text = _this.parameter_key.find('input.parameter');
+                var _remove_link = _this.parameter_key.find('a.jsRemoveRow');
+
+                
+
+                _select.combobox({'data': _this.parameter_data, 'onSelect': function(item) {
+                    var _row_index = $(this).attr('row');
+                    var _text = $("#item_row"+_row_index).find('input.parameter');
+                    console.log(_text);
+                    _text.attr('name', item.id);
+                    _text.textbox();
+                }});
+                _text.textbox();
+                _remove_link.linkbutton();
+                _remove_link.on('click', function() {
+                    var _row_index = $(this).attr('row');
+                    $("#item_row"+_row_index).remove();
+                });
+
+                $.getJSON('/channel/list/', {'spid': resp.spid}, function(resps) {
+                    if(resps.data.length <=0) {
+                        $.messager.show({    // show error message
+                            title: '错误提醒',
+                            msg: '该合作商尚未设置通道信息'
+                        });
+                        _this._channel_list = [];
+                        _this.channel.combobox({
+                            'data': []
+                        });
+                        _this.parameter_list.combobox({'data': []});
+                    }else{
+                        _this._channel_list = resps.data;
+                        _this.channel.combobox({
+                            'data': resps.data,
+                            'value': resp.channelid
+                        });
+                        _this.parameter_list.combobox({'data': resps.parameter_data});
+                        _this.parameter_list.combobox('setValues', resp.parameter.split(','));
+                    }
+                });
+
             });
         }
     },
     setSync: function(key) {
-
+        var row = this.datagrid.datagrid('getSelected');
+        var _tip_msg = status == 1 ? '是否开通该接口?' : '是否关闭该接口?';
+        var _this = this;
+        if (row){
+            $.messager.confirm('Confirm', _tip_msg, function(r){
+                if (r){
+                    $.post('/channel/confige/status/set/',{'channel_id':row.id, 'change_type': 'sync', 'status': status},function(result){
+                        if (result.ok){
+                            _this.datagrid.datagrid('reload');    // reload the user data
+                        } else {
+                            $.messager.show({    // show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
     },
     eventBind: function() {
-
+        var _this = this;
+        var _rows = 1000;
+        var _channel_list = []
+        this.parameter_data = [{'id': 'spnumber', 'text': '长号码'}, {'id': 'extmsg', 'text': '上行内容'}, {'id': 'feeprice', 'text': '通道资费'}];
+        this.sp_list.combobox({
+            'onSelect': function(item) {
+                var sp_id = item.value;
+                $.getJSON('/channel/list/', {'spid': sp_id}, function(resp) {
+                    if(resp.data.length <=0) {
+                        $.messager.show({    // show error message
+                            title: '错误提醒',
+                            msg: '该合作商尚未设置通道信息'
+                        });
+                        _this._channel_list = [];
+                        _this.channel.combobox({
+                            'data': []
+                        });
+                        _this.parameter_list.combobox({'data': []});
+                    }else{
+                        _this._channel_list = resp.data;
+                        _this.channel.combobox({
+                            'data': resp.data
+                        });
+                        _this.parameter_list.combobox({'data': resp.parameter_data});
+                    }
+                });
+                
+            }
+        });
+        this.add_parameter_item.on('click', function() {
+            var _html=[
+                '<div id="item_row'+_rows+'"class="parameter_itme">',
+                '<dd><input row="'+_rows+'" class="easyui-combobox"  name="parme_name" data-options="valueField:\'id\',textField:\'text\'" style="width:80px;"/> 值=</dd>',
+                '<dl><input class="parameter" style="width: 120px;"/><a href="#" class="easyui-linkbutton jsRemoveRow" data-options="iconCls:\'icon-remove\'" row="'+_rows+'">删</a></dl>',
+                '</div>'
+            ].join('');
+            _this.parameter_key.prepend(_html);
+            var _select = $("#item_row"+_rows).find('input[name="parme_name"]');
+            var _text = $("#item_row"+_rows).find('input.parameter');
+            var _remove_link = $("#item_row"+_rows).find('a.jsRemoveRow');
+            _select.combobox({'data': _this.parameter_data, 'onSelect': function(item) {
+                var _row_index = $(this).attr('row');
+                var _text = $("#item_row"+_row_index).find('input.parameter');
+                _text.attr('name', item.id);
+                _text.textbox();
+                if (_this._channel_list.length > 0) {
+                    for(var i in _this._channel_list) {
+                        if(_this._channel_list[i].id == _this.channel.combobox('getValue')) {
+                            _text.textbox("setValue", _this._channel_list[i][item.id]);
+                        }
+                    }
+                }
+                
+            }});
+            _text.textbox();
+            _remove_link.linkbutton();
+            _remove_link.on('click', function() {
+                var _row_index = $(this).attr('row');
+                $("#item_row"+_row_index).remove();
+            });
+            _rows++;
+        });
+        this.sync_type.combobox({
+            'onSelect': function(item) {
+                var _sp_id = _this.sp_list.combobox('getValue');
+                var _url_input = $('input[name="url"]');
+                var _url_lab = $("#sync_url");
+                var _sync_url = '';
+                switch(item.value) {
+                    case '1':
+                        _sync_url = '{{SERVER_NAME}}/sp/mo/'+_sp_id+'/';
+                        break;
+                    case '2':
+                        _sync_url = '{{SERVER_NAME}}/sp/mr/'+_sp_id+'/';
+                        break;
+                    case '3':
+                        _sync_url = '{{SERVER_NAME}}/sp/ivr/'+_sp_id+'/';
+                        break;
+                }
+                _url_input.val(_sync_url);
+                _url_lab.html(_sync_url);
+            }
+        });
     },
     reloadData: function() {
         this.datagrid.datagrid('load');
@@ -206,7 +372,9 @@ var channel_sync_manager = {
         };
         this.datagrid.datagrid('load', req_data);
     },
-    intialize: function() {}
-
-}
+    intialize: function() {
+        this.eventBind();
+    }
+};
+channel_sync_manager.intialize();
 </script>
