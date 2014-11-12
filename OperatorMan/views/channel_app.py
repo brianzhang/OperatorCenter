@@ -175,6 +175,12 @@ def channel_list():
                 if item.time_type:
                     parameter_data.append({'id': 'time_type', 'text': u'时长类型'})
 
+                if item.status_name:
+                    parameter_data.append({'id': 'status_name', 'text': u'状态码'})
+
+                if item.status_value:
+                    parameter_data.append({'id': 'status_value', 'text': u'状态值'})
+
             return jsonify({'data': channel_data, 'parameter_data': parameter_data})
         else:
             channels = g.session.query(ChaInfo).all()
@@ -517,6 +523,7 @@ def set_channel_allocated(allocated_id=None):
                     g.user.id)
             g.session.add(channel_allocated)
             g.session.commit()
+
             if provinces:
                 g.session.query(UsrProvince).filter(UsrProvince.usr_channelid==channel_allocated.id).delete()
                 g.session.commit()
@@ -525,15 +532,16 @@ def set_channel_allocated(allocated_id=None):
 
                 g.session.query(UsrProvince).filter(UsrProvince.usr_channelid==channel_allocated.id).\
                                 filter(UsrProvince.province==int(prov)).delete()
-
+                g.session.commit()
+                
                 usr_province = UsrProvince()
-                usr_province.channelid = channel_allocated.channelid
-                usr_province.usr_channelid = channel_allocated.id
-                usr_province.cpid = channel_allocated.cpid
-                usr_province.adminid = g.user.id
+                usr_province.channelid = int(channel_allocated.channelid)
+                usr_province.usr_channelid = int(channel_allocated.id)
+                usr_province.cpid = int(channel_allocated.cpid)
+                usr_province.adminid = int(g.user.id)
                 usr_province.create_time = datetime.datetime.now()
                 usr_province.province = int(prov)
-                usr_province.daymax = req_args.get("daymax_"+prov, 0)
+                usr_province.daymax = int(req_args.get("daymax_"+prov, 0))
                 usr_province.is_show = channel_allocated.is_show
                 usr_province.content = req_args.get("content_"+prov, '')
                 usr_province.city = ''
@@ -542,6 +550,7 @@ def set_channel_allocated(allocated_id=None):
 
             return jsonify({'ok': True})
         except Exception, e:
+            print e
             return jsonify({'errorMsg': 'error'})
 
 
@@ -902,7 +911,9 @@ def channel_parameter_list():
                                 end_time: %s,
                                 matching_rule: %s,
                                 duration: %s,
-                                time_type: %s
+                                time_type: %s,
+                                status_name: %s,
+                                status_value: %s
                             }""" % (item.spnumber,
                                     item.mobile,
                                     item.extmsg,
@@ -916,7 +927,9 @@ def channel_parameter_list():
                                     item.end_time,
                                     item.matching_rule,
                                     item.duration,
-                                    item.time_type)
+                                    item.time_type,
+                                    item.status_name,
+                                    item.status_value)
                 query_data.append({
                     'id': item.id,
                     'sp_info': '[%s]%s' % (item.sp_info.id, item.sp_info.name),
@@ -949,7 +962,8 @@ def channel_parameter_setting(parame_id=None):
     parameter.matching_rule = None
     parameter.duration = None
     parameter.time_type = None
-
+    parameter.status_name = None
+    parameter.status_value = None
 
     parameter_list = req.getlist('parme_name', None)
     for par in parameter_list:
@@ -995,6 +1009,14 @@ def channel_parameter_info():
             _html = ''
             _index = 100
             item = info
+            if item.status_name:
+                _html += _template % (_index, _index, "status_name", "status_name", item.status_name, _index)
+                _index += 1
+
+            if item.status_value:
+                _html += _template % (_index, _index, "status_value", "status_value", item.status_value, _index)
+                _index += 1
+
             if item.spnumber:
                 _html += _template % (_index, _index, "spnumber", "spnumber", item.spnumber, _index)
                 _index += 1

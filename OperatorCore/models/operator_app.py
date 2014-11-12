@@ -449,6 +449,8 @@ class UsrSPParameter(OperatorBase):
     start_time = Column(String(50), nullable=False)
     end_time = Column(String(50), nullable=False)
     matching_rule = Column(String(50), nullable=False)
+    status_name = Column(String(50), nullable=False)
+    status_value = Column(String(50), nullable=False)
     duration = Column(String(50), nullable=False)
     time_type = Column(Integer, nullable=False)
 
