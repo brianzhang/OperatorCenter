@@ -499,6 +499,7 @@ class DataMr(OperatorBase):
     city = Column(Integer, ForeignKey('pub_city.id'))
     state = Column(Boolean, nullable=False)
     is_kill = Column(Integer, nullable=False)
+    is_ivr = Column(Boolean, nullable=False, default=False)
     regdate = Column(Integer)
     reghour = Column(Integer)
     create_time = Column(DateTime, nullable=False)

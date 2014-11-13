@@ -166,3 +166,11 @@ def get_channel_count(channelid=None, cp_id=None, province=None, kill_data=-1):
             #print '======================='
             return counts[0].count
     return 0
+
+
+def get_time_minute(times=None):
+    if times:
+        times = int(times)
+        t = int(times  / 60) + ( 1 if times % 60 > 0 else 0)
+        return t
+    return 0

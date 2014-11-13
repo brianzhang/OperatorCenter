@@ -28,7 +28,9 @@ from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, Pub
 
 from Operator.views import querySPInfo, get_mobile_attribution, \
                 get_mobile_is_block, get_mobile_mr_count, \
-                get_channel_province_count, get_channel_count, get_mobile_city_block
+                get_channel_province_count, get_channel_count, get_mobile_city_block, get_time_minute
+
+from Operator.utils import str_to_datetime, datetime_to_stamp
 
 operator_view = Blueprint('operator_view', __name__)
 
@@ -821,7 +823,8 @@ def sp_ivr(spid=None):
             srvid = req.get(parameters.srvid, None)
             start_time = req.get(parameters.start_time, None)
             end_time = req.get(parameters.end_time, None)
-            duration = req.get(parameters.duration, None)
+            duration = req.get(parameters.duration, 0)
+            matching_rule = parameters.matching_rule
             mr_state = parameters.mr_state
             time_type = parameters.time_type
             status_name = req.get(parameters.status_name, None)
@@ -830,9 +833,9 @@ def sp_ivr(spid=None):
             if mobile:
                 mobile_info = get_mobile_attribution(mobile)
         else:
-            return 'ERROR'
+            return 'ERROR NONE PARAMETER'
 
-        channel_info = g.session.query(UsrSPSync).filter(UsrSPSync.sync_type==2)
+        channel_info = g.session.query(UsrSPSync).filter(UsrSPSync.sync_type==3)
 
         if spnumber:
             channel_info = channel_info.filter(UsrSPSync.spnumber==spnumber)
@@ -841,8 +844,27 @@ def sp_ivr(spid=None):
         if feeprice:
             channel_info = channel_info.filter(UsrSPSync.feeprice==feeprice)
 
-        channel_info = channel_info.first()
+        _time = 0
+        if time_type:
+            
+            if time_type == 1:
+                _time = duration
+            if time_type == 2:
+                _time = get_time_minute(duration)
+            if time_type == 3:
+                s_time = str_to_datetime(start_time, matching_rule)
+                e_time = str_to_datetime(end_time, matching_rule)
+                s_time = datetime_to_stamp(s_time)
+                e_time = datetime_to_stamp(e_time)
+                _time_value = e_time-s_time
+                _times = (_time_value / 60) + (1 if _time_value % 60 > 0 else 0)
+                _time = _times
+            
+            if not linkid:
+                linkid = mobile +''+_time
 
+        channel_info = channel_info.first()
+        print channel_info
         if channel_info:
             channel_id = channel_info.channelid
 
@@ -851,9 +873,6 @@ def sp_ivr(spid=None):
                 if mobile_mo:
                     mobile = mobile_mo.mobile
 
-            if not msg and mobile_mo:
-                msg = mobile_mo.momsg
-
             if not spnumber and mobile_mo:
                 spnumber = mobile_mo.spnumber
 
@@ -861,7 +880,8 @@ def sp_ivr(spid=None):
             data_mr = g.session.query(DataMr).filter(DataMr.channelid == channel_id).filter(DataMr.linkid==linkid).first()
 
             if  data_mr:
-                return "OK"
+                 if data_mr.stats:
+                    return "OK"
             else:
                 data_mr = DataMr()
 
@@ -883,9 +903,11 @@ def sp_ivr(spid=None):
                 cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).filter(UsrChannel.cpid==cp_channel.cpid).first()
             else:
                 cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).\
-                            filter(UsrChannel.spnumber==spnumber).\
-                            filter(UsrChannel.momsg==msg).\
-                            filter(UsrChannel.is_show == True).first()
+                            filter(UsrChannel.spnumber==spnumber).filter(UsrChannel.is_show == True)
+
+                if msg:
+                    cp_list = cp_list.filter(UsrChannel.momsg==msg)
+                cp_list = cp_list.first()
 
             _kill_bl = 0 #扣量比列
             kill_val = 0 #扣量代码： 0不扣量，1计算比列扣量， 2省份屏蔽扣量， 3 黑名单扣量
@@ -942,7 +964,8 @@ def sp_ivr(spid=None):
                     if (int(_kill_bl)+kill_count) > 100:
                         kill_val = 1
                         is_kill = True
-
+            data_mr.momsg = _time
+            data_mr.is_ivr = True
             data_mr.channelid = channel_id
             data_mr.spnumber = spnumber
             data_mr.price = channel_info.cha_info.price
@@ -978,7 +1001,7 @@ def sp_ivr(spid=None):
                 cp_log.urltype = 2
                 cp_log.mobile = mobile
                 cp_log.spnumber = spnumber
-                cp_log.momsg = msg
+                cp_log.momsg = data_mr.momsg
                 cp_log.linkid = linkid              
 
                 cp_log.tongdate = data_mr.regdate
@@ -988,7 +1011,8 @@ def sp_ivr(spid=None):
                     'mobile': mobile,
                     'linkid': linkid,
                     'channelid': channel_id,
-                    'status': data_mr.state
+                    'status': data_mr.state,
+                    'duration': msg
                 }
                 if req_url:
                     data = urllib.urlencode(values)
@@ -1020,7 +1044,7 @@ def sp_ivr(spid=None):
             sp_log.urltype = 2
             sp_log.mobile = mobile
             sp_log.spnumber = spnumber
-            sp_log.momsg = msg
+            sp_log.momsg = data_mr.momsg
             sp_log.linkid = linkid
             sp_log.tongurl = request.url
             sp_log.is_show = data_mr.state
@@ -1038,7 +1062,7 @@ def sp_ivr(spid=None):
                 if srvid == mr_state:
                     data_mo = DataMo()
                     data_mo.mobile = mobile
-                    data_mo.momsg = msg
+                    data_mo.momsg = data_mr.momsg
                     data_mo.cpid = data_mr.cpid
                     data_mo.channelid = channel_id
                     data_mo.spnumber = spnumber
@@ -1086,8 +1110,9 @@ def sp_ivr(spid=None):
                 g.session.close()
                 return "OK"
             except Exception, e:
+                print e
                 g.session.rollback()
-                return "ERROR"
+                return "SYS ERROR"
             # query mobile attribution
             # query channel sync count
             #  计算是否扣量
@@ -1095,6 +1120,6 @@ def sp_ivr(spid=None):
             # if not  is_kill
             # sync CP data.
 
-        return "ERROR"
+        return "NULL ERROR"
 
     return jsonify({'ok': False, 'SP_ID': SP_ID, 'MSG': 'The SP IS UNDEFINED'})

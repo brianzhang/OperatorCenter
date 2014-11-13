@@ -175,7 +175,7 @@ def operator_status():
                 operator_data.append({'sp': "[%s]%s" % (item.channe_info.sp_info.id, item.channe_info.sp_info.name),
                                     'channel': "[%s]%s" % (item.channe_info.id, item.channe_info.cha_name),
                                     'mobile': item.mobile,
-                                    'momsg': item.momsg,
+                                    'momsg':  "%s %s" % (item.momsg, u'分钟' if item.is_ivr else ''),
                                     'linkid': item.linkid,
                                     'spnumber': item.spnumber,
                                     'city': "%s-%s" % (item.provinces.province, item.citys.city),

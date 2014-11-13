@@ -19,6 +19,7 @@
                         <option selected="selected" value=''>--请选择--</option>
                         <option value="1">上行同步</option>
                         <option value="2">状态报告</option>
+                        <option value="3">语音报告</option>
                     </select>
                 </td>
                 <th>状态:</th>
@@ -148,9 +149,11 @@ var channel_sync_manager = {
     syncType: function(val, row) {
         switch(val){
             case 1:
-                return '上行同步'
+                return '上行同步';
             case 2:
-                return '状态报告'
+                return '状态报告';
+            case 3:
+                return '语音报告';
         }
     },
     formatStatus: function(val, row) {
