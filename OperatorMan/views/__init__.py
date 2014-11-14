@@ -362,6 +362,7 @@ def query_province_stats(req=None):
 def query_channel_status(req):
     data_list = []
     footers = []
+    totlal = 0
     if req:
 
         today = datetime.datetime.today()
@@ -437,4 +438,4 @@ def query_channel_status(req):
             })
         return {'rows': data_list, 'ok': True,  'footer': footers, 'total': totlal}
     else:
-        return {'rows': data_list, 'ok': False, 'footer': footers}
+        return {'rows': data_list, 'ok': False, 'footer': footers, 'total': totlal}
