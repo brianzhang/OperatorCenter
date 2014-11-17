@@ -215,6 +215,7 @@ def operator_sync():
                                                         curr_date = curr_date)
     else:
         operator_list = g.session.query(DataMr).order_by(desc(DataMr.id))
+        operator_list = operator_list.filter(or_(DataMr.is_kill == 0, DataMr.is_kill == 5, DataMr.is_kill == -1))
         start_time = req.get('start_time', None)
         end_time = req.get('end_time', None)
         channel = req.get('channel', None)
@@ -344,6 +345,83 @@ def operator_sync():
             return jsonify({'rows': operator_data, 'total': total, 'stats_data': stats_data})
         else:
             return jsonify({'rows': [], 'total': 0})
+
+@operator_view.route("/sync/data/", methods=['POST'])
+@login_required
+def operator_sync_stat():
+    '''
+    状态报告-> CP的数据
+    '''
+    req = request.args if request.method == 'GET' else request.form
+    if request.method == 'POST':
+        id_data=  req.getlist('ids[]', None)
+        sync_count = 0
+        sync_status = 0
+        for mr_id in id_data:
+            sync_count += 1
+            data_mr = g.session.query(DataMr).filter(DataMr.id==mr_id).first()
+            cp_info = g.session.query(UsrChannel).filter(UsrChannel.channelid== data_mr.channelid).\
+                            filter(UsrChannel.is_show == True).filter(UsrChannel.cpid == data_mr.cpid).first()
+
+            if not data_mr and not cp_info:
+                continue
+
+            req_url = cp_info.backurl
+            cp_log = UsrCPTongLog()
+            cp_log.channelid = data_mr.channelid
+            cp_log.cpid = data_mr.cpid
+            cp_log.urltype = 2
+            cp_log.mobile = data_mr.mobile
+            cp_log.spnumber = data_mr.spnumber
+            cp_log.momsg = data_mr.momsg
+            cp_log.linkid = data_mr.linkid
+
+            cp_log.tongdate = datetime.datetime.now()
+            cp_log.create_time = datetime.datetime.now()
+            values = {'msg' : data_mr.momsg,
+                'spcode': data_mr.spnumber,
+                'mobile': data_mr.mobile,
+                'linkid': data_mr.linkid,
+                'channelid': data_mr.channelid
+            }
+            if data_mr.is_ivr:
+                values['duration']=data_mr.momsg
+
+            if req_url:
+                data = urllib.urlencode(values)
+                req = "%s?%s" % (req_url, data)
+
+                cp_log.tongurl = req
+
+                try:
+                    if req_url:
+                        response = urllib.urlopen(req)
+                        data = response.read()
+                        cp_log.backmsg = data
+                        data_mr.is_kill = 0
+                        sync_status += 1
+                    else:
+                        data_mr.is_kill = -1
+                        cp_log.backmsg = 'OK'
+                except Exception, e:
+                    data_mr.is_kill = -1
+                    cp_log.backmsg = 'ERROR'
+            else:
+                data_mr.is_kill = 5
+                data = urllib.urlencode(values)
+                req = "%s?%s" % (req_url, data)
+                cp_log.tongurl = req
+                cp_log.backmsg = 'ERROR'
+
+            g.session.add(cp_log)
+            g.session.add(data_mr)
+        try:
+            g.session.commit()
+        except Exception, e: 
+            return jsonify({'ok': False})
+        return jsonify({'ok': True, 'data': u"同步完成,总共同步: %s条, 成功: %s条, 失败: %s条" % (sync_count, sync_status, (sync_count - sync_status))})
+    else:
+        return jsonify({'ok': False})
 
 @operator_view.route("/demand/", methods=['GET', 'POST'])
 @login_required

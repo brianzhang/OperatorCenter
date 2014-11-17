@@ -114,6 +114,7 @@
     var operator_sync_manange = {
         url: '',
         datagrid: $('#operator_sync_list_dg'),
+        btnSync: $("#btn_sync{{random_key}}"),
         formatStatus: function(val, row) {
             console.log(val);
             if (val) {
@@ -211,6 +212,43 @@
             });
             queryBtn.on('click', function() {
                 _this.queryData();
+            });
+
+            this.btnSync.on('click', function() {
+                var checkItem = _this.datagrid.datagrid('getChecked'), _ids=[];
+                $.each(checkItem, function(index, item){
+                    _ids.push(item.id);
+                }); 
+                if(_ids.length <=0) {
+                    $.messager.show({    // show error message
+                            title: '信息提醒',
+                            msg: '请选择同步数据'
+                        });
+                    return;
+                };
+                console.log(_ids);
+                $.ajax({
+                    type: 'POST', 
+                    url: '/operator/sync/data/',
+                    data: {'ids': _ids},
+                    success: function(resp, status, xhr) {
+                        if (resp.ok) {
+                            $.messager.show({    // show error message
+                                title: '信息提醒',
+                                msg: resp.data
+                            });
+                            _this.datagrid.datagrid('reload');
+                        }else{
+                            $.messager.show({    // show error message
+                                title: '信息提醒',
+                                msg: '同步失败'
+                            });
+                        }
+                    }, 
+                    error: function(error, status) {
+
+                    }
+                });
             });
         }
     };
