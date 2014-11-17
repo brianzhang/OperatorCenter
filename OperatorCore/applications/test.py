@@ -47,9 +47,9 @@ def add_SysRole():
 def add_user():
     print '========add test user...====='
     sysAdmin = SysAdmin()
-    sysAdmin.username = 'brian'
+    sysAdmin.username = 'admin'
     sysAdmin.userpwd = hash_password('123')
-    sysAdmin.realname = 'brian'
+    sysAdmin.realname = 'admin'
     sysAdmin.role_id = 1
     sysAdmin.phone = '15815515601'
     sysAdmin.qq = '372114189'
@@ -461,10 +461,11 @@ def add_citys():
     try:
       session.commit()
     except Exception, e:
-      print e
+      print 'ERROR:', e
 
 
 if __name__ == '__main__':
+    #add_province()
     add_citys()
     #add_SysRole()
     #add_sysRights()

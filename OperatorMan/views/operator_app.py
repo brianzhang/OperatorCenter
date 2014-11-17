@@ -189,6 +189,162 @@ def operator_status():
         else:
             return jsonify({'rows': [], 'total': 0})
 
+
+@operator_view.route("/sync/", methods=['GET', 'POST'])
+@login_required
+def operator_sync():
+    '''
+    状态报告-> CP的数据
+    '''
+    req = request.args if request.method == 'GET' else request.form
+
+    if request.method == 'GET':
+        channels = g.session.query(ChaInfo).all()
+        cp_info_list = g.session.query(UsrCPInfo).all()
+        provinces = g.session.query(PubProvince).all()
+        users = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
+        today = datetime.datetime.today()
+        _month = today.month if today.month >= 10 else "0%s" % today.month
+        _day = today.day if today.day >= 10 else "0%s" %  today.day
+        curr_date = "%s-%s-%s" % (today.year, _month, _day)
+        return  render_template('operator_sync.html', channels=channels,
+                                                        cp_info_list=cp_info_list,
+                                                        provinces=provinces,
+                                                        users=users,
+                                                        random_key = random_key(),
+                                                        curr_date = curr_date)
+    else:
+        operator_list = g.session.query(DataMr).order_by(desc(DataMr.id))
+        start_time = req.get('start_time', None)
+        end_time = req.get('end_time', None)
+        channel = req.get('channel', None)
+        cpinfo = req.get('cpinfo', None)
+        provinces = req.get('provinces', None)
+        is_kill = req.get('is_kill', None)
+        status = req.get('status', None)
+        users = req.get('users', None)
+        types = req.get('types', None)
+        query_value = req.get('values', None)
+        stmt = g.session.query(func.count(DataMr.id).label("cp_count")).filter(DataMr.is_kill==0).filter(DataMr.state==True)
+        
+        stats_query = g.session.query(func.count(distinct(DataMr.channelid)).label('channel_count'), \
+                                    func.count(distinct(DataMr.mobile)).label('mobile_count'),\
+                                    func.count(DataMr.id).label('id_count'),\
+                                    func.count(DataMr.state).label('status')
+                                    )
+
+        if start_time:
+            start_time += ' 00:00:00'
+            operator_list = operator_list.filter(DataMr.create_time >= start_time)
+            stats_query = stats_query.filter(DataMr.create_time >= start_time)
+            stmt = stmt.filter(DataMr.create_time >= start_time)
+        if end_time:
+            end_time += ' 23:59:59'
+            operator_list = operator_list.filter(DataMr.create_time <= end_time)
+            stats_query = stats_query.filter(DataMr.create_time <= end_time)
+            stmt = stmt.filter(DataMr.create_time <= end_time)
+        else:
+            today = datetime.datetime.today()
+            _month = today.month if today.month >= 10 else "0%s" % today.month
+            _day = today.day if today.day >= 10 else "0%s" %  today.day
+            regdate = "%s%s%s" % (today.year, _month, _day)
+
+            operator_list = operator_list.filter(DataMr.regdate == regdate)
+            stats_query = stats_query.filter(DataMr.regdate == regdate)
+            stmt = stmt.filter(DataMr.regdate == regdate)
+
+        if channel:
+            operator_list = operator_list.filter(DataMr.channelid == channel)
+            stats_query = stats_query.filter(DataMr.channelid == channel)
+            stmt = stmt.filter(DataMr.channelid == channel)
+        if cpinfo:
+            operator_list = operator_list.filter(DataMr.cpid == cpinfo)
+            stats_query = stats_query.filter(DataMr.cpid == cpinfo)
+            stmt = stmt.filter(DataMr.cpid == cpinfo)
+        if provinces:
+            operator_list = operator_list.filter(DataMr.province == provinces)
+            stats_query = stats_query.filter(DataMr.province == provinces)
+            stmt = stmt.filter(DataMr.province == province)
+        if is_kill:
+            operator_list = operator_list.filter(DataMr.is_kill == is_kill)
+            stats_query = stats_query.filter(DataMr.is_kill == is_kill)
+            stmt = stmt.filter(DataMr.is_kill == is_kill)
+        if status:
+            operator_list = operator_list.filter(DataMr.state == status)
+            stats_query = stats_query.filter(DataMr.state == status)
+            stmt = stmt.filter(DataMr.state == status)
+        if users:
+            operator_list = operator_list.filter(UsrCPInfo.adminid == users)
+            stats_query = stats_query.filter(UsrCPInfo.adminid == users)
+            stmt = stmt.filter(UserCPInfo.adminid == users)
+        if types and query_value:
+           if types == 'Mobile':
+               operator_list = operator_list.filter(DataMr.mobile == query_value)
+               stats_query = stats_query.filter(DataMr.mobile == query_value)
+               stmt = stmt.filter(DataMr.mobile == query_value)
+           if types == "SX":
+               operator_list = operator_list.filter(DataMr.momsg == query_value)
+               stats_query = stats_query.filter(DataMr.momsg == query_value)
+               stmt = stmt.filter(DataMr.momsg == query_value)
+           if types == 'SPNumber':
+               operator_list = operator_list.filter(DataMr.spnumber == query_value)
+               stats_query = stats_query.filter(DataMr.spnumber == query_value)
+               stmt = stmt.filter(DataMr.spunmber == query_value)
+           if types == 'City':
+               _city = g.session.query(PubCity).filter(PubCity.city==query_value).first()
+               if _city:
+                   operator_list = operator_list.filter(DataMr.city == _city.id)
+                   stats_query = stats_query.filter(DataMr.city == _city.id)
+                   stmt = stmt.filter(DataMr.city == _city.id)
+           if types == 'LinkID':
+               operator_list = operator_list.filter(DataMr.linkid == query_value)
+               stats_query = stats_query.filter(DataMr.linkid == query_value)
+               stmt = stmt.filter(DataMr.linkid == query_value)
+        #if
+        #query_data.add_column(DataEverday.tj_hour.label('has_index'))
+        #stmt.c.cp_count.label("cp_count")
+        #.subquery()
+        stmt = stmt.subquery()
+        stats_query = stats_query.add_column(stmt.c.cp_count.label("cp_count"))
+        stats_query = stats_query.first()
+
+        currentpage = int(req.get('page', 1))
+        numperpage = int(req.get('rows', 20))
+        start = numperpage * (currentpage - 1)
+        start = math.fabs(start)
+        total = 0
+        stats_data = {}
+        if stats_query:
+            stats_data['id_count'] = stats_query.id_count
+            stats_data['channel_count'] = stats_query.channel_count
+            stats_data['mobile_count'] = stats_query.mobile_count
+            stats_data['status'] = stats_query.status
+            stats_data['cp_count'] = stats_query.cp_count
+            stats_data['error_count'] = stats_query.id_count - stats_query.status
+            total = stats_query.id_count
+
+        operator_list = operator_list.offset(start).limit(numperpage).all()
+        #operator_list = operator_list[start:(numperpage+start)]
+        if operator_list:
+            operator_data = []
+            for item in operator_list:
+                operator_data.append({'sp': "[%s]%s" % (item.channe_info.sp_info.id, item.channe_info.sp_info.name),
+                                    'channel': "[%s]%s" % (item.channe_info.id, item.channe_info.cha_name),
+                                    'mobile': item.mobile,
+                                    'momsg':  "%s %s" % (item.momsg, u'分钟' if item.is_ivr else ''),
+                                    'linkid': item.linkid,
+                                    'spnumber': item.spnumber,
+                                    'city': "%s-%s" % (item.provinces.province, item.citys.city),
+                                    'cp': "[%s]%s" % (item.cp_info.id, item.cp_info.name),
+                                    'create_time': item.create_time,
+                                    'status': item.state,
+                                    'is_kill': get_send_html(item.state, item.is_kill),
+                                    'id': item.id})
+
+            return jsonify({'rows': operator_data, 'total': total, 'stats_data': stats_data})
+        else:
+            return jsonify({'rows': [], 'total': 0})
+
 @operator_view.route("/demand/", methods=['GET', 'POST'])
 @login_required
 def operator_demand():
