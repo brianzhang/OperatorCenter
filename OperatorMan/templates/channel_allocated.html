@@ -126,9 +126,9 @@
                     </tr>
                     <tr>
                         <td>CP结算单价：</td>
-                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_fcprice" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_fcprice" id="txtChannelFcprice"/></td>
                         <td>扣量比例：</td>
-                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_bl" /></td>
+                        <td><input class="easyui-textbox easyui-validatebox" type="text" name="txt_bl" id="txtChannelBl"/></td>
                     </tr>
                     <tr>
                         <td>同步地址：</td>
@@ -201,6 +201,8 @@
     var channel_allocated_manager = {
         url: '',
         datagrid: $("#channel_allocated_dg"),
+        txtChannelFcprice: $("#txtChannelFcprice"),
+        txtChannelBl: $("#txtChannelBl"),
         city_list: {{provinces_json|safe}},
         labMsg: $("#lab_command_info"),
         addChannelAllocated: function() {
@@ -334,6 +336,7 @@
         },
         onChannelSelect: function(record) {
             var channel_id = record.value;
+            var _this = this;
             $.getJSON('/channel/info/get/', {'channel_id': channel_id}, function(resp) {
                 if(resp.ok) {
                     var moduel = resp.data.command_moduel;
@@ -353,6 +356,8 @@
                       width: 30
                     });
                     $("input[name='sx_type']").val(resp.data.sx_type);
+                    channel_allocated_manager.txtChannelFcprice.textbox('setValue', resp.data.fcprice);
+                    channel_allocated_manager.txtChannelBl.textbox('setValue', resp.data.bl);
                 }
             });
 
