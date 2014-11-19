@@ -66,12 +66,15 @@ def sp_mo(spid=None):
             return 'ERROR'
 
         usr_sync_info = g.session.query(UsrSPSync).filter(UsrSPSync.sync_type==1)
+        _or = or_()
         if spnumber:
-            usr_sync_info = usr_sync_info.filter(UsrSPSync.spnumber==spnumber)
+            _or.append(UsrSPSync.spnumber==spnumber)
         if msg:
-            usr_sync_info = usr_sync_info.filter(UsrSPSync.extmsg==msg)
+            _or.append(UsrSPSync.extmsg==msg)
         if feeprice:
-            usr_sync_info = usr_sync_info.filter(UsrSPSync.feeprice==feeprice)
+            _or.append(UsrSPSync.feeprice==feeprice)
+
+        channel_info = channel_info.filter(_or)
         usr_sync_info = usr_sync_info.first()
         if usr_sync_info:
             channel_id = usr_sync_info.channelid
@@ -489,13 +492,15 @@ def sp_ivr(spid=None):
 
         channel_info = g.session.query(UsrSPSync).filter(UsrSPSync.sync_type==3)
 
+        _or = or_()
         if spnumber:
-            channel_info = channel_info.filter(UsrSPSync.spnumber==spnumber)
+            _or.append(UsrSPSync.spnumber==spnumber)
         if msg:
-            channel_info = channel_info.filter(UsrSPSync.extmsg==msg)
+            _or.append(UsrSPSync.extmsg==msg)
         if feeprice:
-            channel_info = channel_info.filter(UsrSPSync.feeprice==feeprice)
+            _or.append(UsrSPSync.feeprice==feeprice)
 
+        channel_info = channel_info.filter(_or)
         _time = 0
         if time_type:
             
