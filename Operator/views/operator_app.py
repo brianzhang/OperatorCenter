@@ -78,18 +78,11 @@ def sp_mo(spid=None):
         usr_sync_info = usr_sync_info.first()
         if usr_sync_info:
             channel_id = usr_sync_info.channelid
-            #if channel_info.status_name:
-            #    status_name = req.get(channel_info.status_name, '')
-            #    status_val = channel_info.status_val
-
-            #if channel_info.type_name:
-            #    type_name = req.get(channel_info.type_name, '')
-            #    type_key = channel_info.spnumber
-
+            return_data = usr_sync_info.sync_result
             data_mo = g.session.query(DataMo).filter(DataMo.channelid == channel_id).filter(DataMo.linkid==linkid).first()
 
             if data_mo:
-                return "OK"
+                return return_data
             else:
                 data_mo = DataMo()
 
@@ -149,7 +142,7 @@ def sp_mo(spid=None):
                 g.session.add(ever_day)
                 g.session.commit()
                 g.session.close()
-                return "OK"
+                return return_data
             except Exception, e:
                 return "ERROR"
 
@@ -198,7 +191,7 @@ def sp_mr(spid=None):
 
         if channel_info:
             channel_id = channel_info.channelid
-
+            return_data = channel_info.sync_result
             mobile_mo = g.session.query(DataMo).filter(DataMo.linkid==linkid).filter(DataMo.channelid==channel_id).first()
             if not mobile and mobile_mo:
                 if mobile_mo:
@@ -214,7 +207,7 @@ def sp_mr(spid=None):
             data_mr = g.session.query(DataMr).filter(DataMr.channelid == channel_id).filter(DataMr.linkid==linkid).first()
 
             if  data_mr:
-                return "OK"
+                return return_data
             else:
                 data_mr = DataMr()
 
@@ -359,7 +352,7 @@ def sp_mr(spid=None):
                         else:
                             data_mr.state = False
                             kill_val = -1
-                            cp_log.backmsg = 'OK'
+                            cp_log.backmsg = 'ERROR'
                     except Exception, e:
                         cp_log.backmsg = 'ERROR'
                 else:
@@ -442,7 +435,7 @@ def sp_mr(spid=None):
                 g.session.add(ever_day)
                 g.session.commit()
                 g.session.close()
-                return "OK"
+                return return_data
             except Exception, e:
                 g.session.rollback()
                 return "ERROR"
@@ -521,10 +514,10 @@ def sp_ivr(spid=None):
                 linkid = mobile +''+_time
 
         channel_info = channel_info.first()
-        print channel_info
+        
         if channel_info:
             channel_id = channel_info.channelid
-
+            return_data = channel_info.sync_result
             mobile_mo = g.session.query(DataMo).filter(DataMo.linkid==linkid).filter(DataMo.channelid==channel_id).first()
             if not mobile and mobile_mo:
                 if mobile_mo:
@@ -538,7 +531,7 @@ def sp_ivr(spid=None):
 
             if  data_mr:
                  if data_mr.stats:
-                    return "OK"
+                    return return_data
             else:
                 data_mr = DataMr()
 
@@ -765,7 +758,7 @@ def sp_ivr(spid=None):
                 g.session.add(ever_day)
                 g.session.commit()
                 g.session.close()
-                return "OK"
+                return return_data
             except Exception, e:
                 print e
                 g.session.rollback()

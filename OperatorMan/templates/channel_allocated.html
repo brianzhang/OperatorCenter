@@ -86,7 +86,7 @@
                     <tr>
                         <td>通道：</td>
                         <td>
-                            <select name="channel" id="set_allocated_channel_id" class="easyui-combobox" data-options="required:true, onSelect: channel_allocated_manager.onChannelSelect">
+                            <select name="channel" editable="false" id="set_allocated_channel_id" class="easyui-combobox" data-options="required:true, onSelect: channel_allocated_manager.onChannelSelect">
                                 <option selected="selected">--请选择--</option>
                                 {%for channel in channel_list%}
                                 <option value="{{channel.id}}" {% if channel_id == channel.id%}selected="selected"{%endif%}>[{{channel.id}}]{{channel.cha_name}}</option>
@@ -96,7 +96,7 @@
                         </td>
                         <td>商务跟进：</td>
                         <td>
-                            <select class="easyui-combobox" name="sys_admin" data-options="required:true">
+                            <select class="easyui-combobox" editable="false" name="sys_admin" data-options="required:true">
                             <option selected="selected" value=''>--请选择--</option>
                             {%for admin in admins%}
                                 <option value="{{admin.id}}">{{admin.realname}}</option>
@@ -107,7 +107,7 @@
                     <tr>
                         <td>CP：</td>
                         <td>
-                            <select name="cp" id="select_allocated_cp_id" class="easyui-combobox" data-options="required:true">
+                            <select name="cp" editable="false" id="select_allocated_cp_id" class="easyui-combobox" data-options="required:true">
                                 <option selected="selected" value=''>--请选择--</option>
                                 {% for cp_info in cp_info_list %}
                                 <option value="{{cp_info.id}}">[{{cp_info.id}}]{{cp_info.name}}</option>
@@ -149,7 +149,7 @@
                         <td width="80px">开通省份：</td>
                         <td colspan="3">
                         {%for province in provinces%}
-                            <label><input name="allocated_province" remark="{{province.remark}}" content="{{province.content}}" type="checkbox" text="{{province.province_info.province}}" value="{{province.province_info.id}}"/>{{province.province_info.province}}</label>
+                            <label><input name="allocated_province" remark="{{province.remark}}" content="{{province.content}}" type="checkbox" text="{{province.province_info.province}}" value="{{province.province_info.id}}" checked = "checked"/>{{province.province_info.province}}</label>
                             {%if loop.index % 6 ==0 %}
                             <br />
                             {%endif%}
@@ -177,17 +177,6 @@
                     </tbody>
                 </table>
               </div>
-              <!--<div title="屏蔽地区">
-                <table>
-                  <tr>
-                      <td>屏蔽地市：</td>
-                      <td colspan="3">
-                          <div id="allocated_channel_city">
-                          </div>
-                      </td>
-                  </tr>
-                </table>
-              </div>-->
             </div>
         </fieldset>
         </form>
@@ -364,6 +353,7 @@
         },
         eventBind: function() {
             $("input[name='allocated_province']").unbind("click");
+            $("input[name='allocated_province']").trigger("click");
             $("input[name='allocated_province']").on('click', function() {
                 var val = this.value;
 
