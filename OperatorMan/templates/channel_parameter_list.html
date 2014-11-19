@@ -53,7 +53,7 @@
                 <tr>
                     <td width="140">合作商（SP）:</td>
                     <td>
-                        <select class="easyui-combobox easyui-validatebox" name="sp" id="from_sp{{random_key}}" >
+                        <select class="easyui-combobox easyui-validatebox" name="sp" editable="false" id="from_sp{{random_key}}" >
                             <option selected="selected" value=''>--请选择--</option>
                             {% for sp_info in spinfo_list %}
                             <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
@@ -87,12 +87,12 @@ var channel_parameter_manage = {
     },
     addItem: function() {
         this.parameter_list.html("");
-        $("#from_sp{{random_key}}").combobox({'disabled':false});
+        //console.log($("#from_sp{{random_key}}").combobox('disabled'));
         this.url = '/channel/parameter/add/';
         this.dialog.dialog('open').dialog('setTitle','添加参数配置');;
     },
     editItem: function() {
-        $("#from_sp{{random_key}}").combobox({'disabled':true});
+        //$("#from_sp{{random_key}}").combobox({'disabled':true});
         this.parameter_list.html("");
         var _this = this;
         var row = this.datagrid.datagrid('getSelected');

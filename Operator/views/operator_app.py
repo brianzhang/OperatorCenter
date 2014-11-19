@@ -530,7 +530,8 @@ def sp_ivr(spid=None):
             data_mr = g.session.query(DataMr).filter(DataMr.channelid == channel_id).filter(DataMr.linkid==linkid).first()
 
             if  data_mr:
-                 if data_mr.stats:
+                print data_mr
+                if data_mr.state:
                     return return_data
             else:
                 data_mr = DataMr()
@@ -638,7 +639,7 @@ def sp_ivr(spid=None):
                     data_mr.state = False
             else:
                     data_mr.state = True
-            data_mr.is_kill = kill_val
+            
             data_mr.create_time = datetime.datetime.now()
             if not data_mr.state:
                 kill_val = 4
@@ -676,18 +677,24 @@ def sp_ivr(spid=None):
                             data = response.read()
                             cp_log.backmsg = data
                             data_mr.state = True
+                            kill_val = 0
                         else:
                             data_mr.state = False
+                            kill_val = -1                            
                             cp_log.backmsg = 'OK'
                     except Exception, e:
+                        kill_val = 5    
+                        data_mr.state = False
                         cp_log.backmsg = 'ERROR'
                 else:
+                    kill_val = 5
                     data = urllib.urlencode(values)
                     req = "%s?%s" % (req_url, data)
                     cp_log.tongurl = req
                     cp_log.backmsg = 'ERROR'
-                g.session.add(cp_log)
 
+                g.session.add(cp_log)
+            data_mr.is_kill = kill_val
             sp_log = UsrSPTongLog()
             sp_log.channelid = channel_id
             sp_log.spid = spid
