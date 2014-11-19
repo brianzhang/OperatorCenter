@@ -237,6 +237,7 @@ def sp_mr(spid=None):
             kill_val = 0 #扣量代码： 0不扣量，1计算比列扣量， 2省份屏蔽扣量， 3 黑名单扣量
             if cp_list:
                 cp = cp_list
+                channel_all_count = get_channel_count(cp.id, cp.cpid) #Query Channel day All Count.
                 channel_province_day_max = get_channel_province_count(cp.id, cp.cpid, mobile_info.province) # 查询渠道分配的省份日限数量
                 channel_province_all_count = get_channel_count(channel_id, cp.cpid, mobile_info.province) # 查询该省份今日产生的流量总和
                 channel_province_kill_count = get_channel_count(channel_id, cp.cpid, mobile_info.province,  1) # 查询该省份今日扣量的总和
@@ -256,7 +257,7 @@ def sp_mr(spid=None):
             if month_count >= channel_month_max and channel_month_max > 0:
                 is_kill = True
                 kill_val = 1
-            if channel_province_all_count >= channel_province_day_max and channel_province_day_max > 0:
+            if channel_province_all_count >= channel_province_day_max and channel_province_day_max > 0 and channel_all_count > _kill_bl:
                 is_kill = True
                 kill_val = 1
             if is_block:
@@ -334,7 +335,7 @@ def sp_mr(spid=None):
                     'mobile': mobile,
                     'linkid': linkid,
                     'channelid': channel_id,
-                    'status': data_mr.state
+                    'status': 'DELIVRD'
                 }
                 if req_url:
                     data = urllib.urlencode(values)
@@ -564,6 +565,7 @@ def sp_ivr(spid=None):
             kill_val = 0 #扣量代码： 0不扣量，1计算比列扣量， 2省份屏蔽扣量， 3 黑名单扣量
             if cp_list:
                 cp = cp_list
+                channel_all_count = get_channel_count(cp.id, cp.cpid) #Query Channel day All Count.
                 channel_province_day_max = get_channel_province_count(cp.id, cp.cpid, mobile_info.province) # 查询渠道分配的省份日限数量
                 channel_province_all_count = get_channel_count(channel_id, cp.cpid, mobile_info.province) # 查询该省份今日产生的流量总和
                 channel_province_kill_count = get_channel_count(channel_id, cp.cpid, mobile_info.province,  1) # 查询该省份今日扣量的总和
@@ -583,7 +585,7 @@ def sp_ivr(spid=None):
             if month_count >= channel_month_max and channel_month_max > 0:
                 is_kill = True
                 kill_val = 1
-            if channel_province_all_count >= channel_province_day_max and channel_province_day_max > 0:
+            if channel_province_all_count >= channel_province_day_max and channel_province_day_max > 0 and channel_all_count > _kill_bl:
                 is_kill = True
                 kill_val = 1
             if is_block:
@@ -662,7 +664,7 @@ def sp_ivr(spid=None):
                     'mobile': mobile,
                     'linkid': linkid,
                     'channelid': channel_id,
-                    'status': data_mr.state,
+                    'status': 'DELIVRD',
                     'duration': msg
                 }
                 if req_url:
