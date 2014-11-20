@@ -76,7 +76,7 @@
                 <tr>
                     <td>运营商：</td>
                     <td>
-                        <select name="spid" class="easyui-combobox easyui-validatebox" editable="false" id="sp_list{{random_key}}" style="width:100px" >
+                        <select name="spid" class="easyui-validatebox" editable="false" id="sp_list{{random_key}}" style="width:100px" >
                             <option selected="selected">--请选择--</option>
                             {% for sp in spinfo_list %}
                             <option value="{{sp.id}}">[{{sp.id}}]{{sp.name}}</option>
@@ -188,7 +188,7 @@ var channel_sync_manager = {
         this.dialog.dialog('close');
     },
     addSync: function() {
-        //this.sp_list.combobox({'disabled':false});
+        this.sp_list.removeAttr('disabled');
         //this.sp_list.combobox({'enable': true});
         //this.sp_list.combobox({'disabled':false});
         this.parameter_key.find(".parameter_itme").remove();
@@ -201,7 +201,7 @@ var channel_sync_manager = {
         this.formView.form("clear");
         var _this = this;
         if (row){
-            //this.sp_list.combobox({'disabled':true});
+            this.sp_list.attr('disabled', 'disabled');
             //enable
             //parameter_itme
             _this.parameter_key.find(".parameter_itme").remove();
@@ -211,7 +211,7 @@ var channel_sync_manager = {
                 $('#set_sync_sesttings_form').form('load',resp);
                 
                 _this.parameter_key.prepend(resp._html);
-                _this.sp_list.combobox('setValue', resp.spid)
+                //_this.sp_list.combobox('setValue', resp.spid)
                 $("#sync_url").html(resp.url);
                 $("#sync_url").html(resp.sync_url);
                 var _select = _this.parameter_key.find('input[name="parme_name"]');
@@ -285,30 +285,27 @@ var channel_sync_manager = {
         var _rows = 1000;
         var _channel_list = []
         this.parameter_data = [{'id': 'spnumber', 'text': '长号码'}, {'id': 'extmsg', 'text': '上行内容'}, {'id': 'feeprice', 'text': '通道资费'}];
-        this.sp_list.combobox({
-            'onSelect': function(item) {
-                var sp_id = item.value;
-                $.getJSON('/channel/list/', {'spid': sp_id}, function(resp) {
-                    if(resp.data.length <=0) {
-                        $.messager.show({    // show error message
-                            title: '错误提醒',
-                            msg: '该合作商尚未设置通道信息'
-                        });
-                        _this._channel_list = [];
-                        _this.channel.combobox({
-                            'data': []
-                        });
-                        _this.parameter_list.combobox({'data': []});
-                    }else{
-                        _this._channel_list = resp.data;
-                        _this.channel.combobox({
-                            'data': resp.data
-                        });
-                        _this.parameter_list.combobox({'data': resp.parameter_data});
-                    }
-                });
-                
-            }
+        this.sp_list.on('change', function() {
+            var sp_id = this.value;
+            $.getJSON('/channel/list/', {'spid': sp_id}, function(resp) {
+                if(resp.data.length <=0) {
+                    $.messager.show({    // show error message
+                        title: '错误提醒',
+                        msg: '该合作商尚未设置通道信息'
+                    });
+                    _this._channel_list = [];
+                    _this.channel.combobox({
+                        'data': []
+                    });
+                    _this.parameter_list.combobox({'data': []});
+                }else{
+                    _this._channel_list = resp.data;
+                    _this.channel.combobox({
+                        'data': resp.data
+                    });
+                    _this.parameter_list.combobox({'data': resp.parameter_data});
+                }
+            });
         });
         this.add_parameter_item.on('click', function() {
             var _html=[
@@ -345,7 +342,7 @@ var channel_sync_manager = {
         });
         this.sync_type.combobox({
             'onSelect': function(item) {
-                var _sp_id = _this.sp_list.combobox('getValue');
+                var _sp_id = _this.sp_list.val();
                 var _url_input = $('input[name="url"]');
                 var _url_lab = $("#sync_url");
                 var _sync_url = '';
