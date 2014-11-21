@@ -59,7 +59,7 @@
                 <tr>
                     <td>当前状态：</td>
                     <td>
-                        <label><input type="radio" name="status_type" value="1" {% if channel_info %}{%if channel_info.is_show%}checked="checked"{%endif%}{%endif%}/>正常</label>
+                        <label><input type="radio" checked="checked" name="status_type" value="1" {% if channel_info %}{%if channel_info.is_show%}checked="checked"{%endif%}{%endif%}/>正常</label>
                         <label><input type="radio" name="status_type" value="0" {% if channel_info %}{%if not channel_info.is_show%}checked="checked"{%endif%}{%endif%}/>停止</label>
                     </td>
                     <td>运营商：</td>

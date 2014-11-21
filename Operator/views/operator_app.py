@@ -62,6 +62,8 @@ def sp_mo(spid=None):
 
             if mobile:
                 mobile_info = get_mobile_attribution(mobile)
+            else:
+                return 'OK'
         else:
             return 'ERROR'
 
@@ -174,6 +176,8 @@ def sp_mr(spid=None):
 
             if mobile:
                 mobile_info = get_mobile_attribution(mobile)
+            else:
+                return 'OK'
         else:
             return 'ERROR'
 
@@ -481,6 +485,8 @@ def sp_ivr(spid=None):
 
             if mobile:
                 mobile_info = get_mobile_attribution(mobile)
+            else:
+                return 'OK'
         else:
             return 'ERROR NONE PARAMETER'
 

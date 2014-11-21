@@ -215,7 +215,7 @@ def operator_sync():
                                                         curr_date = curr_date)
     else:
         operator_list = g.session.query(DataMr).order_by(desc(DataMr.id))
-        operator_list = operator_list.filter(or_(DataMr.is_kill == 0, DataMr.is_kill == 5, DataMr.is_kill == -1))
+        #operator_list = operator_list.filter(or_(DataMr.is_kill == 0, DataMr.is_kill == 5, DataMr.is_kill == -1))
         start_time = req.get('start_time', None)
         end_time = req.get('end_time', None)
         channel = req.get('channel', None)
@@ -376,7 +376,7 @@ def operator_sync_stat():
             cp_log.momsg = data_mr.momsg
             cp_log.linkid = data_mr.linkid
 
-            cp_log.tongdate = datetime.datetime.now()
+            cp_log.tongdate = data_mr.regdate
             cp_log.create_time = datetime.datetime.now()
             values = {'msg' : data_mr.momsg,
                 'spcode': data_mr.spnumber,

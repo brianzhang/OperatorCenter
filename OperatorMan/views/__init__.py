@@ -62,19 +62,19 @@ def get_send_html(status=None, kill_key=None):
     _status_lab = u'<span style="color:chartreuse">成功</span>' if status else u'<span style="color:red">失败</span>'
     _kill_lab = ''
     if int(kill_key) == 0:
-        _kill_lab = u'<span style="color:chartreuse">已下发</span>'
+        _kill_lab = u'<span style="color:chartreuse">下发</span>'
     elif kill_key == 1:
-        _kill_lab = u'<span style="color:red">已扣量</span>'
+        _kill_lab = u'<span style="color:red">扣量</span>'
     elif kill_key == 2:
-        _kill_lab = u'<span style="color:chocolate">省份屏蔽</span>'
+        _kill_lab = u'<span style="color:chocolate">屏蔽</span>'
     elif kill_key == 3:
         _kill_lab = u'<span style="color:blueviolet">黑名单</span>'
     elif kill_key == 4:
-        _kill_lab = u'<span style="color:darkgreen">定制失败</span>'
+        _kill_lab = u'<span style="color:darkgreen">失败</span>'
     elif kill_key == 5:
-        _kill_lab = u'<span style="color:darkgreen">未下发</span>'
+        _kill_lab = u'<span style="color:darkgreen">未发</span>'
     else:
-        _kill_lab = u'<span style="color:darkgreen">下发失败</span>'
+        _kill_lab = u'<span style="color:darkgreen">失败</span>'
     return '%s|%s' % (_kill_lab, _status_lab)
 
 def query_stats_data(req=None):

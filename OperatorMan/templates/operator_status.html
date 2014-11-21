@@ -122,19 +122,19 @@
         formatKillVal: function(val, row) {
             switch(val) {
               case 0:
-                return '<span style="color:chartreuse">已下发</span>|<span style="color:chartreuse">成功</span>';
+                return '<span style="color:chartreuse">下发</span>|<span style="color:chartreuse">成功</span>';
               case 1:
-                return '<span style="color:red">已扣量|失败</span>'
+                return '<span style="color:red">扣量|失败</span>'
               case 2:
-                return '<span style="color:chocolate">省份屏蔽</span>'
+                return '<span style="color:chocolate">屏蔽</span>'
               case 3:
                 return '<span style="color:blueviolet">黑名单</span>'
               case 4:
-                return '<span style="color:darkgreen">定制失败</span>'
+                return '<span style="color:darkgreen">失败</span>'
               case 5:
-                return '<span style="color:darkgreen">未下发</span>|<span style="color:chartreuse">成功</span>'
+                return '<span style="color:darkgreen">未发</span>|<span style="color:chartreuse">成功</span>'
               case -1:
-                return '<span style="color:darkgreen">下发失败</span>|<span style="color:chartreuse">成功</span>'
+                return '<span style="color:darkgreen">失败</span>|<span style="color:chartreuse">成功</span>'
             }
         },
         formatterDate: function(val, row) {
@@ -207,14 +207,14 @@
                 loadMsg: '数据加载中,请稍候...',
                 columns:[[
                     {field:'id', checkbox: true},
-                    {field:'sp',title:'合作方',width:45},
-                    {field:'cp',title:'渠道商',width: 40},
-                    {field:'channel',title:'通道号',width:50},
+                    {field:'sp',title:'合作方',width:35},
+                    {field:'cp',title:'渠道商',width: 35},
+                    {field:'channel',title:'通道号',width:45},
                     {field:'mobile',title:'手机号码',width:40},
                     {field:'momsg',title:'指令/时长',width:40},
                     {field:'spnumber',title:'端口号',width:30},
-                    {field:'linkid',title:'LinkID',width: 50},
-                    {field:'city',title:'归属地',width: 50},
+                    {field:'linkid',title:'LinkID',width: 70},
+                    {field:'city',title:'归属地',width: 35},
                     {field:'create_time',title:'定制时间',width: 50, formatter: this.formatterDate},
                     {field:'is_kill',title:'扣量状态',width: 30}
                 ]],

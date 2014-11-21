@@ -72,6 +72,9 @@ def query_mobile_area(mobile=None):
     return False
  
 def get_mobile_attribution(mobile=None):
+    other_mobile = PubMobileArea()
+    other_mobile.province = 32
+    other_mobile.city = 370
     if mobile:
         _mobile = mobile[0:7]
         mobile_info = g.session.query(PubMobileArea).filter(PubMobileArea.mobile == _mobile).all()
@@ -81,7 +84,9 @@ def get_mobile_attribution(mobile=None):
             if query_mobile_area(mobile):
                 mobile_info = g.session.query(PubMobileArea).filter(PubMobileArea.mobile == _mobile).all()
                 return mobile_info[0]
-    return None
+            else:
+                return other_mobile
+    return other_mobile
 
 
 def get_mobile_is_block(mobile=None):
