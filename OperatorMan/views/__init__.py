@@ -328,7 +328,7 @@ def query_province_stats(req=None):
                 t_conversion_rate = float("%.2f" % t_conversion_rate)
                 conversion_rate = float(item.mr_cp) / float(item.mr_all)
                 conversion_rate = float("%.2f" % conversion_rate)
-                into_rate= float(item.mr_cp) / float(item.mr_all)
+                into_rate= float(item.mr_cp) / float(item.mo_all)
                 into_rate= float("%.2f" % into_rate)
 
                 data_master['mo_all'] = item.mo_all
@@ -351,10 +351,10 @@ def query_province_stats(req=None):
         footers.append({
                 'province': u'汇总',
                 'mo_all': _mo_all,
-                't_customize': _t_customize,
-                't_conversion_rate': _t_conversion_rate,
-                'conversion_rate': _conversion_rate,
-                'into_rate': _into_rate,
+                't_customize': float("%.2f" % _t_customize),
+                't_conversion_rate': float("%.2f" % _t_conversion_rate),
+                'conversion_rate': float("%.2f" % _conversion_rate),
+                'into_rate': float("%.2f" % _into_rate),
                 'arpu': '--'
         })
         return {'rows': data_list, 'ok': True, 'order_type': order_type, 'footer': footers}
@@ -406,7 +406,7 @@ def query_channel_status(req):
                 t_conversion_rate = float("%.2f" % t_conversion_rate)
                 conversion_rate = float(item.mr_cp) / float(item.mr_all)
                 conversion_rate = float("%.2f" % conversion_rate)
-                into_rate= float(item.mr_cp) / float(item.mr_all)
+                into_rate= float(item.mr_cp) / float(item.mo_all)
                 into_rate= float("%.2f" % into_rate)
                 data_master['sp_info'] =  "[%s]%s" % (item[0].channe_info.sp_info.id, item[0].channe_info.sp_info.name)
                 data_master['channel'] = "[%s]%s" % (item[0].channe_info.id, item[0].channe_info.cha_name)
@@ -432,10 +432,10 @@ def query_channel_status(req):
             footers.append({
                 'sp_info': u'汇总',
                 'mo_all': _mo_all,
-                't_customize': _t_customize,
-                't_conversion_rate': _t_conversion_rate,
-                'conversion_rate': _conversion_rate,
-                'into_rate': _into_rate,
+                't_customize': float("%.2f" % _t_customize),
+                't_conversion_rate': float("%.2f" % _t_conversion_rate),
+                'conversion_rate': float("%.2f" % _conversion_rate),
+                'into_rate': float("%.2f" % _into_rate),
                 'arpu': '--'
             })
         return {'rows': data_list, 'ok': True,  'footer': footers, 'total': totlal}
