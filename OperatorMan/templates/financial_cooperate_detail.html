@@ -98,7 +98,7 @@
     </div>
 </div>
 
-<div id="financial_cooperate_manager_add_dialog" class="easyui-dialog" data-options="iconCls:'icon-save'" style="width:350px;height:230px;padding:10px" closed="true" modal="true">
+<div id="financial_cooperate_manager_add_dialog" class="easyui-dialog" data-options="iconCls:'icon-save'" style="width:350px;height:260px;padding:10px" closed="true" modal="true">
     <div style="padding:10px 30px 10px 30px">
         <form id="financial_cooperate_manager_add_form" method="post">
             <table cellpadding="5">
@@ -120,6 +120,17 @@
                             <option selected="selected" value=''>--请选择--</option>
                             {%for channel in channels%}
                             <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
+                            {%endfor%}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>渠道：</td>
+                    <td>
+                        <select name="cp_info" id="cp_info{{random_key}}" class="easyui-combobox" data-options="required:true" style="width: 150px">
+                            <option selected="selected" value=''>--请选择--</option>
+                            {%for cp_info in cp_info_list%}
+                            <option value="{{cp_info.id}}">[{{cp_info.id}}]{{cp_info.name}}</option>
                             {%endfor%}
                         </select>
                     </td>
@@ -159,6 +170,7 @@ var financial_cooperate_manager = {
     },
     addFinancial: function() {
         this.addDialog.dialog('open').dialog('setTitle','添加对账数据');
+        $('#financial_cooperate_manager_add_form').form("clear");
     },
     closeAddDialog: function() {
         this.addDialog.dialog('close');

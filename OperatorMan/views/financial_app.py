@@ -40,12 +40,13 @@ def financial_cooperate_detail():
     if request.method == 'GET':
         channels = g.session.query(ChaInfo).all()
         sp_info_list = g.session.query(UsrSPInfo).all()
+        cp_info_list = g.session.query(UsrCPInfo).all()
         today = datetime.datetime.today()
         _month = today.month if today.month > 10 else '0%s' % today.month
         _day = today.day if today.day > 10 else '0%s' % today.day
         regdate = "%s-%s-%s" % (today.year, _month, _day)
 
-        return render_template('financial_cooperate_detail.html', channels=channels, sp_info_list=sp_info_list, random_key=random_key(), regdate=regdate)
+        return render_template('financial_cooperate_detail.html', channels=channels, sp_info_list=sp_info_list, random_key=random_key(), regdate=regdate, cp_info_list=cp_info_list)
     else:
         today = datetime.datetime.today()
         _month = today.month if today.month > 10 else '0%s' % today.month
@@ -365,6 +366,7 @@ def financial_cooperate_add():
         sp_id = req.get('sp_info', None)
         channel_id = req.get('channel_info', None)
         values = req.get('count', None)
+        cp_id = req.get('cp_info', None)
         try:
             today = datetime.datetime.today()
             _month = today.month if today.month > 10 else '0%s' % today.month
@@ -372,6 +374,7 @@ def financial_cooperate_add():
             regdate = "%s%s%s" % (today.year, _month, _day)
             account = AccountSP()
             channel = g.session.query(ChaInfo).filter(ChaInfo.id==channel_id).first()
+            cp_channel = g.session.query(UsrChannel).filter(UsrChannel.channelid==channel_id).filter(UsrChannel.cpid==cp_id).first()
             account.spid = sp_id
             account.channelid = channel_id
             account.count = values
@@ -381,7 +384,20 @@ def financial_cooperate_add():
             account.js_state = True
             account.js_date = regdate
             account.create_time = datetime.datetime.now()
+
+            account_cp = AccountCP()
+            account_cp.cpid = cp_id
+            account_cp.channelid = channel_id
+            account_cp.price = channel.price
+            account_cp.fcprice = cp_channel.fcprice
+            account_cp. count= int(values) - int(int(values)-int(cp_channel.bl)) * float(cp_channel.bl/100.0)
+            account_cp.totalprice = int(account_cp.count) * float(account_cp.fcprice)
+            account_cp.js_state = True
+            account_cp.js_date = regdate
+            account_cp.create_time = datetime.datetime.now()
+
             g.session.add(account)
+            g.session.add(account_cp)
             g.session.commit()
             return jsonify({'errorMsg': False})
         except Exception, e:
