@@ -46,12 +46,10 @@ def querySPInfo(sp_id=None):
 def query_mobile_area(mobile=None):
     if mobile:
         url = settings.CHECK_URI % mobile
-        print url
         #PubMobileArea
         response = urllib.urlopen(url)
         try:
             data = response.read()
-            print data
             data = json.loads(data)
             att = data['result']['att']
             att = att.split(',')
