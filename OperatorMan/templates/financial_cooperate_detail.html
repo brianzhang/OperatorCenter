@@ -98,25 +98,44 @@
     </div>
 </div>
 
-<div id="financial_cooperate_manager_add_dialog" class="easyui-dialog" data-options="iconCls:'icon-save'" style="width:350px;height:170px;padding:10px" closed="true" modal="true">
-    <div style="padding:10px 60px 10px 60px">
+<div id="financial_cooperate_manager_add_dialog" class="easyui-dialog" data-options="iconCls:'icon-save'" style="width:350px;height:230px;padding:10px" closed="true" modal="true">
+    <div style="padding:10px 30px 10px 30px">
         <form id="financial_cooperate_manager_add_form" method="post">
             <table cellpadding="5">
                 <tr>
-                    <td id="txt_lab{{random_key}}">调整后的价格：</td>
+                    <td>合作方：</td>
                     <td>
-                        <input type="hidden" name="id" value="" id="tj_id{{random_key}}" />
-                        <input type="hidden" name="types" value="" id="types{{random_key}}" />
-                        <input class="easyui-textbox easyui-validatebox" type="text" 
-                            name="values" data-options="required:true" style="width: 80px;"></input>
+                        <select name="sp_info" id="sp_info{{random_key}}" class="easyui-combobox" data-options="required:true" style="width: 150px">
+                            <option selected="selected" value=''>--请选择--</option>
+                            {% for sp_info in sp_info_list %}
+                            <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>通道：</td>
+                    <td>
+                        <select name="channel_info" id="channel_info{{random_key}}" class="easyui-combobox" data-options="required:true" style="width: 150px">
+                            <option selected="selected" value=''>--请选择--</option>
+                            {%for channel in channels%}
+                            <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
+                            {%endfor%}
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>条数 ：</td>
+                    <td>
+                        <input name="count" class="easyui-textbox"  data-options="required:true"/>
                     </td>
                 </tr>
             </table>
         </form>
     </div>
     <div style="text-align:center;padding:5px">
-        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_cooperate_manager.submitForm()">保存</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_cooperate_manager.closeDialog()">取消</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_cooperate_manager.submitAddForm()">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_cooperate_manager.closeAddDialog()">取消</a>
     </div>
 </div>
 
@@ -139,7 +158,29 @@ var financial_cooperate_manager = {
         }
     },
     addFinancial: function() {
-
+        this.addDialog.dialog('open').dialog('setTitle','添加对账数据');
+    },
+    closeAddDialog: function() {
+        this.addDialog.dialog('close');
+    },
+    submitAddForm: function() {
+        $('#financial_cooperate_manager_add_form').form('submit',{
+            url: '/financial/cooperate/add/',
+            onSubmit: function(){
+                return $(this).form('validate');
+            },
+            success: function(result){
+                if (result.errorMsg){
+                    $.messager.show({
+                        title: 'Error',
+                        msg: result.errorMsg
+                    });
+                } else {
+                    financial_cooperate_manager.closeAddDialog();
+                    financial_cooperate_manager.reloadData();    // reload the user data
+                }
+            }
+        });
     },
     queryData: function() {
       var req_data = {
