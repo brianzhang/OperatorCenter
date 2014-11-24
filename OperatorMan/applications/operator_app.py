@@ -17,7 +17,7 @@ from OperatorCore.models.operator_app import create_operator_session
 
 
 def create_app(debug=settings.DEBUG):
-    app = Flask(__name__, template_folder='../templates/', static_folder="../static")
+    app = Flask(__name__, template_folder=settings.TEMPLATE_FOLDER, static_folder="../static")
     app.register_blueprint(base_view)
     app.register_blueprint(operator_view)
     app.register_blueprint(channel_view)

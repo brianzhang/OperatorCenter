@@ -37,7 +37,7 @@ base_view = Blueprint('base_view', __name__)
 @base_view.route('/', methods=["GET"])
 @login_required
 def index():
-    return render_template("base.html", user = g.user)
+    return render_template("main.html", user = g.user)
 
 @base_view.route('/manager/', methods=['GET'])
 @login_required
@@ -62,7 +62,7 @@ def login():
                         u'用户【%s】在【%s】登录了该系统，登录IP为：【%s】'%(user.realname, datetime.datetime.now(), request.remote_addr),
                         user.id)
             return jsonify({'ok': True, 'data': '/'})
-        return jsonify({'ok': False, 'username': username, 'reason': u'用户密码错误'})
+        return jsonify({'ok': False, 'username': username, 'reason': u'用户名密码错误'})
 
 
 @base_view.route('/logout/', methods=["GET"])
