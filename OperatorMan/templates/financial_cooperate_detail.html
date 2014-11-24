@@ -69,6 +69,7 @@
                 </thead>
             </table>
             <div id="financial_cooperate_list_toolbar">
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_cooperate_manager.addFinancial()">添加</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_cooperate_manager.update(1)">单价调整</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_cooperate_manager.update(2)">对账</a>
             </div>
@@ -96,12 +97,36 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_cooperate_manager.closeDialog()">取消</a>
     </div>
 </div>
+
+<div id="financial_cooperate_manager_add_dialog" class="easyui-dialog" data-options="iconCls:'icon-save'" style="width:350px;height:170px;padding:10px" closed="true" modal="true">
+    <div style="padding:10px 60px 10px 60px">
+        <form id="financial_cooperate_manager_add_form" method="post">
+            <table cellpadding="5">
+                <tr>
+                    <td id="txt_lab{{random_key}}">调整后的价格：</td>
+                    <td>
+                        <input type="hidden" name="id" value="" id="tj_id{{random_key}}" />
+                        <input type="hidden" name="types" value="" id="types{{random_key}}" />
+                        <input class="easyui-textbox easyui-validatebox" type="text" 
+                            name="values" data-options="required:true" style="width: 80px;"></input>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div style="text-align:center;padding:5px">
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_cooperate_manager.submitForm()">保存</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_cooperate_manager.closeDialog()">取消</a>
+    </div>
+</div>
+
 <script>
 var financial_cooperate_manager = {
     url: '/financial/cooperate/billing/',
     types: $("#types{{random_key}}"),
     tjID: $('#tj_id{{random_key}}'),
     dialog: $("#financial_cooperate_manager_dialog"),
+    addDialog: $("#financial_cooperate_manager_add_dialog"),
     datagrid: $('#financial_cooperate_list_dg'),
     reloadData: function() {
         this.datagrid.datagrid('load')
@@ -112,6 +137,9 @@ var financial_cooperate_manager = {
         }else {
             return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>未对账</label>'
         }
+    },
+    addFinancial: function() {
+
     },
     queryData: function() {
       var req_data = {

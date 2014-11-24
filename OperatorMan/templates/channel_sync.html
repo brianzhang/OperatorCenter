@@ -52,7 +52,7 @@
                         <th field="channel_name" width="50">通道名称</th>
                         <th field="sp_name" width="50">运营商</th>
                         <th field="sync_type" width="30" data-options="formatter: channel_sync_manager.syncType">同步类型</th>
-                        <th field="url" width="40">同步地址</th>
+                        <th field="url" width="40" data-options="formatter: channel_sync_manager.formatSyncURL">同步地址</th>
                         <th field="status_key" width="30">成功标识</th>
                         <th field="is_show" width="20" data-options="formatter: channel_sync_manager.formatStatus">状态</th>
                     </tr>
@@ -155,6 +155,9 @@ var channel_sync_manager = {
             case 3:
                 return '语音报告';
         }
+    },
+    formatSyncURL: function(val, row) {
+        return '<a href="'+val+'" target="_blank" title="'+val+'">'+val+'</a>';
     },
     formatStatus: function(val, row) {
         if (val) {
