@@ -18,7 +18,7 @@
                     </select>
                 </td>
                 <th>渠道:</th>
-                <td>
+                <td width="90">
                     <select name="cpinfo" id="cpinfo{{random_key}}" style="width: 70px">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for cp_info in cp_info_list %}
@@ -63,25 +63,16 @@
                     </select>
                 </td>
                 <th>类型:</th>
-                <td>
+                <td colspan="4">
                     <select name="types" id="types{{random_key}}" style="width: 70px">
                         <option selected="selected" value=''>--请选择--</option>
                         <option selected="selected" value="Mobile">号码</option>
                         <option value="SX">指令</option>
                         <option value="SPNumber">端口</option>
-                        <option value="Sf">省份</option>
                         <option value="City">城市</option>
                         <option value="LinkID">LinkID</option>
                     </select>
-                </td>
-                <th>筛选方式:</th>
-                <td>
-                    <select name="order" id="order_by{{random_key}}" style="width: 70px">
-                        <option selected="selected" value=''>--请选择--</option>
-                        <option value="0">当前</option>
-                        <option value="1">历史</option>
-                        <option value="2">全部</option>
-                    </select>
+                    <input class="easyui-textbox" name="query_value" style="width: 160px"/>
                 </td>
                 <td align="right" colspan="5">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="operator_demand_manange.queryData()" plain="true">查询</a>
@@ -101,14 +92,14 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="sp" width="45">合作方</th>
-                        <th field="channel" width="50">通道号</th>
-                        <th field="mobile" width="40">手机号码</th>
-                        <th field="momsg" width="40">指令/时长</th>
-                        <th field="spnumber" width="30">端口号</th>
-                        <th field="linkid" width="50">LinkID</th>
-                        <th field="city" width="50">归属地</th>
+                        <th field="sp" width="35">合作方</th>
                         <th field="cp" width="40">渠道商</th>
+                        <th field="channel" width="35">通道号</th>
+                        <th field="mobile" width="35">手机号码</th>
+                        <th field="momsg" width="40">指令/时长</th>
+                        <th field="spnumber" width="50">端口号</th>
+                        <th field="linkid" width="70">LinkID</th>
+                        <th field="city" width="35">归属地</th>
                         <th field="create_time" width="30" data-options="formatter: operator_demand_manange.formatterDate">定制时间</th>
                     </tr>
                 </thead>

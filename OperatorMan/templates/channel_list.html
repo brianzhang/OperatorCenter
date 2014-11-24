@@ -89,7 +89,7 @@
                         <th field="bl" width="30">扣量比例</th>
                         <th field="daymax" width="30">日限</th>
                         <th field="monmax" width="30">月限</th>
-                        <th field="is_show" width="40" data-options="formatter: channel_manager.formatStatus">状态</th>
+                        <th field="is_show" width="20" data-options="formatter: channel_manager.formatStatus">状态</th>
                         <th field="create_time" width="80" data-options="formatter: channel_manager.formatterDate">操作时间</th>
                     </tr>
                 </thead>
@@ -156,9 +156,9 @@ var channel_manager = {
     },
     formatStatus: function(val, row) {
         if (val) {
-            return '<span class="icon icon-ok">&nbsp;</span>已开通'
+            return '<span class="icon icon-ok">&nbsp;</span>'
         }else {
-            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
+            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span></label>'
         }
     },
     formatterDate: function(val, row) {

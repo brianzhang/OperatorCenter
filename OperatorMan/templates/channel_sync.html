@@ -54,7 +54,7 @@
                         <th field="sync_type" width="30" data-options="formatter: channel_sync_manager.syncType">同步类型</th>
                         <th field="url" width="40">同步地址</th>
                         <th field="status_key" width="30">成功标识</th>
-                        <th field="is_show" width="40" data-options="formatter: channel_sync_manager.formatStatus">状态</th>
+                        <th field="is_show" width="20" data-options="formatter: channel_sync_manager.formatStatus">状态</th>
                     </tr>
                 </thead>
             </table>
@@ -158,9 +158,9 @@ var channel_sync_manager = {
     },
     formatStatus: function(val, row) {
         if (val) {
-            return '<span class="icon icon-ok">&nbsp;</span>已开通'
+            return '<span class="icon icon-ok">&nbsp;</span>'
         }else {
-            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
+            return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span></label>'
         }
     },
     submitForm: function() {

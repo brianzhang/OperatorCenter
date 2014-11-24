@@ -168,8 +168,8 @@
                         <tr>
                             <th data-options="field:'province'" width="80">开通省份</th>
                             <th data-options="field:'daymax'" width="20%">日限流量配额</th>
-                            <th data-options="field:'remark'" width="40%">二次下发语</th>
                             <th data-options="field:'content'" width="30%">二次说明</th>
+                            <th data-options="field:'remark'" width="40%">二次下发语</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -314,9 +314,9 @@
         },
         formatStatus: function(val, row) {
             if (val) {
-                return '<span class="icon icon-ok">&nbsp;</span>已开通'
+                return '<span class="icon icon-ok">&nbsp;</span>'
             }else {
-                return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span>已暂停</label>'
+                return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span></label>'
             }
         },
         formatterDate: function(val, row) {
@@ -371,8 +371,8 @@
                     $("#allocated_channel_province_dg tbody").append(['<tr id="cp_assign_province_row'+val+'">',
                         '<td>'+$(this).attr('text')+'</td>',
                         '<td><input type="text" name="daymax_'+val+'" value="0" /></td>',
-                        '<td>'+$(this).attr('remark')+'</td>',
                         '<td>'+$(this).attr('content')+'</td>',
+                        '<td>'+$(this).attr('remark')+'</td>',
                         '</tr>'].join(''));
                     $("#cp_assign_province_row"+val).find("input").textbox({
                         width: 70

@@ -215,7 +215,7 @@ def operator_sync():
                                                         curr_date = curr_date)
     else:
         operator_list = g.session.query(DataMr).order_by(desc(DataMr.id))
-        operator_list = operator_list.filter(or_(DataMr.is_kill == 0, DataMr.is_kill == 5, DataMr.is_kill == -1))
+        #operator_list = operator_list.filter(or_(DataMr.is_kill == 0, DataMr.is_kill == 5, DataMr.is_kill == -1))
         start_time = req.get('start_time', None)
         end_time = req.get('end_time', None)
         channel = req.get('channel', None)
@@ -376,7 +376,7 @@ def operator_sync_stat():
             cp_log.momsg = data_mr.momsg
             cp_log.linkid = data_mr.linkid
 
-            cp_log.tongdate = datetime.datetime.now()
+            cp_log.tongdate = data_mr.regdate
             cp_log.create_time = datetime.datetime.now()
             values = {'msg' : data_mr.momsg,
                 'spcode': data_mr.spnumber,
@@ -448,7 +448,6 @@ def operator_demand():
                                                         curr_date=curr_date)
     else:
         operator_list = g.session.query(DataMo).order_by(desc(DataMo.id))
-        #operator_list = operator_list.filter(ChaInfo.busi_type == 3)
         start_time = req.get('start_time', None)
         end_time = req.get('end_time', None)
         channel = req.get('channel', None)
@@ -458,7 +457,8 @@ def operator_demand():
         status = req.get('status', None)
         users = req.get('users', None)
         types = req.get('types', None)
-        order = req.get('order', None)
+        query_value = req.get('values', None)
+
         if start_time:
             start_time += ' 00:00:00'
             operator_list = operator_list.filter(DataMo.create_time >= start_time)
@@ -479,6 +479,35 @@ def operator_demand():
             operator_list = operator_list.filter(DataMo.cpid == cpinfo)
         if provinces:
             operator_list = operator_list.filter(DataMo.province == provinces)
+
+        if users:
+            operator_list = operator_list.filter(UsrCPInfo.adminid == users)
+            #stats_query = stats_query.filter(UsrCPInfo.adminid == users)
+            #stmt = stmt.filter(UserCPInfo.adminid == users)
+        if types and query_value:
+           if types == 'Mobile':
+               operator_list = operator_list.filter(DataMo.mobile == query_value)
+               #stats_query = stats_query.filter(DataMr.mobile == query_value)
+               #stmt = stmt.filter(DataMr.mobile == query_value)
+           if types == "SX":
+               operator_list = operator_list.filter(DataMo.momsg == query_value)
+               #stats_query = stats_query.filter(DataMr.momsg == query_value)
+               #stmt = stmt.filter(DataMr.momsg == query_value)
+           if types == 'SPNumber':
+               operator_list = operator_list.filter(DataMo.spnumber == query_value)
+               #stats_query = stats_query.filter(DataMr.spnumber == query_value)
+               #stmt = stmt.filter(DataMr.spunmber == query_value)
+           if types == 'City':
+               _city = g.session.query(PubCity).filter(PubCity.city==query_value).first()
+               if _city:
+                   operator_list = operator_list.filter(DataMo.city == _city.id)
+                   #stats_query = stats_query.filter(DataMr.city == _city.id)
+                   #stmt = stmt.filter(DataMr.city == _city.id)
+           if types == 'LinkID':
+               operator_list = operator_list.filter(DataMo.linkid == query_value)
+               #stats_query = stats_query.filter(DataMr.linkid == query_value)
+               #stmt = stmt.filter(DataMr.linkid == query_value)
+
         #if
         operator_list = operator_list.all()
         currentpage = int(req.get('page', 1))

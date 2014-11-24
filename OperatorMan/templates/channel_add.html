@@ -59,7 +59,7 @@
                 <tr>
                     <td>当前状态：</td>
                     <td>
-                        <label><input type="radio" name="status_type" value="1" {% if channel_info %}{%if channel_info.is_show%}checked="checked"{%endif%}{%endif%}/>正常</label>
+                        <label><input type="radio" checked="checked" name="status_type" value="1" {% if channel_info %}{%if channel_info.is_show%}checked="checked"{%endif%}{%endif%}/>正常</label>
                         <label><input type="radio" name="status_type" value="0" {% if channel_info %}{%if not channel_info.is_show%}checked="checked"{%endif%}{%endif%}/>停止</label>
                     </td>
                     <td>运营商：</td>
@@ -196,8 +196,8 @@
                         <tr>
                             <th data-options="field:'province'" width="80">开通省份</th>
                             <th data-options="field:'daymax'" width="20%">日限流量配额</th>
-                            <th data-options="field:'remark'" width="40%">二次下发语</th>
                             <th data-options="field:'content'" width="30%">二次说明</th>
+                            <th data-options="field:'remark'" width="40%">二次下发语</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -205,8 +205,8 @@
                           <tr id="province_row{{prov.province_info.id}}">
                               <td>{{prov.province_info.province}}</td>
                               <td><input type="text" name="daymax_{{prov.province_info.id}}"  style="width: 70px" value="{{prov.daymax}}" class="easyui-textbox" /></td>
-                              <td><input type="text" name="remark_{{prov.province_info.id}}"  style="width: 250px" value="{{prov.remark}}" class="easyui-textbox" /></td>
                               <td><input type="text" name="content_{{prov.province_info.id}}"  style="width: 200px" value="{{prov.content}}" class="easyui-textbox" /></td>
+                              <td><input type="text" name="remark_{{prov.province_info.id}}"  style="width: 250px" value="{{prov.remark}}" class="easyui-textbox" /></td>
                           </tr>
                         {%endfor%}
                     </tbody>
@@ -293,8 +293,8 @@
                     $("#channel_province_dg tbody").append(['<tr id="province_row'+val+'">',
                         '<td>'+$(this).attr('text')+'</td>',
                         '<td><input type="text" name="daymax_'+val+'" value="0" /></td>',
+			            '<td><input type="text" name="remark_'+val+'"  style="width: 200px" value="" class="easyui-textbox" /></td>',
                         '<td><input type="text" name="content_'+val+'"  style="width: 250px" value="" class="easyui-textbox" /></td>',
-			'<td><input type="text" name="remark_'+val+'"  style="width: 200px" value="" class="easyui-textbox" /></td>',
                         '</tr>',].join(''));
                     $("#province_row"+val).find("input").textbox({
                       width: 70
