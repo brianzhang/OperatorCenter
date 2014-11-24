@@ -320,7 +320,11 @@ def query_province_stats(req=None):
         if query_data:
             for item in query_data:
                 _index = item.province - 1
-                data_master = data_list[_index]
+                try:
+                    data_master = data_list[_index]
+                except Exception, e:
+                    pass
+                    
                 t_customize = item.mr_all
                 item.mo_all = item.mo_all if item.mo_all > 0 else 1
                 item.mr_all = item.mr_all if item.mr_all > 0 else 1
