@@ -176,7 +176,6 @@ def sp_mr(spid=None):
                 mobile_info = get_mobile_attribution(mobile)
         else:
             return 'ERROR'
-
         channel_info = g.session.query(UsrSPSync).filter(UsrSPSync.sync_type==2)
         _or = or_()
         if spnumber:
