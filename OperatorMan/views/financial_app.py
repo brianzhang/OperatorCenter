@@ -315,8 +315,6 @@ def financial_channel_billing():
         c_id = req.get('id', None)
         c_types = req.get('types', None)
         values = req.get('values', None)
-        print c_id, c_types, values
-        print '--------------------------'
         try:
             account = g.session.query(AccountCP).filter(AccountCP.id==c_id).first()
             if account:
@@ -342,8 +340,6 @@ def financial_cooperate_billing():
         c_id = req.get('id', None)
         c_types = req.get('types', None)
         values = req.get('values', None)
-        print c_id, c_types, values
-        print '--------------------------'
         try:
             account = g.session.query(AccountSP).filter(AccountSP.id==c_id).first()
             if account:
@@ -357,6 +353,37 @@ def financial_cooperate_billing():
                 return jsonify({'errorMsg': False})
             else:
                 return jsonify({'errorMsg': u'结算不存在！'})    
+        except Exception, e:
+            return jsonify({'errorMsg': u'设置失败！'})    
+        return jsonify({'errorMsg': False})
+
+@financial_view.route("/cooperate/add/", methods=['POST'])
+@login_required
+def financial_cooperate_add():
+    req = request.args if request.method == 'GET' else request.form
+    if request.method == 'POST':
+        sp_id = req.get('sp_info', None)
+        channel_id = req.get('channel_info', None)
+        values = req.get('count', None)
+        try:
+            today = datetime.datetime.today()
+            _month = today.month if today.month > 10 else '0%s' % today.month
+            _day = today.day if today.day > 10 else '0%s' % today.day
+            regdate = "%s%s%s" % (today.year, _month, _day)
+            account = AccountSP()
+            channel = g.session.query(ChaInfo).filter(ChaInfo.id==channel_id).first()
+            account.spid = sp_id
+            account.channelid = channel_id
+            account.count = values
+            account.price =channel.price
+            account.costprice = channel.costprice
+            account.totalprice = int(account.count) * float(account.costprice)
+            account.js_state = True
+            account.js_date = regdate
+            account.create_time = datetime.datetime.now()
+            g.session.add(account)
+            g.session.commit()
+            return jsonify({'errorMsg': False})
         except Exception, e:
             return jsonify({'errorMsg': u'设置失败！'})    
         return jsonify({'errorMsg': False})
