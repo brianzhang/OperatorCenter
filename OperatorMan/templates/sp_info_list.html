@@ -85,7 +85,7 @@
     var operator_list = {
         url: '',
         clearForm: function() {
-            $('#window_SpInfo_Form').form('clear'); // clear form data.
+            //$('#window_SpInfo_Form').form('clear'); // clear form data.
             $('#window_SpInfo').dialog('close');        // close the dialog
             $('#operator_dg').datagrid('reload');    // reload the user data
         },
@@ -101,7 +101,6 @@
                 $('#window_SpInfo_Form').form('load',row);
                 if(row.is_show) {
                     _check = $('#window_SpInfo_Form').find("input[name='is_show']")[0];
-                    console.log(_check);
                     $(_check).attr('checked', 'checked');
                 }
                 this.url = '/cooperate/operator/edit/'+row.id+'/';

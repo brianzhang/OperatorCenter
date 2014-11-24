@@ -18,7 +18,7 @@
                     </select>
                 </td>
                 <th>渠道:</th>
-                <td>
+                <td width="90">
                     <select name="cpinfo" id="cpinfo{{random_key}}" style="width: 70px">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for cp_info in cp_info_list %}
@@ -63,25 +63,16 @@
                     </select>
                 </td>
                 <th>类型:</th>
-                <td>
+                <td colspan="4">
                     <select name="types" id="types{{random_key}}" style="width: 70px">
                         <option selected="selected" value=''>--请选择--</option>
                         <option selected="selected" value="Mobile">号码</option>
                         <option value="SX">指令</option>
                         <option value="SPNumber">端口</option>
-                        <option value="Sf">省份</option>
                         <option value="City">城市</option>
                         <option value="LinkID">LinkID</option>
                     </select>
-                </td>
-                <th>筛选方式:</th>
-                <td>
-                    <select name="order" id="order_by{{random_key}}" style="width: 70px">
-                        <option selected="selected" value=''>--请选择--</option>
-                        <option value="0">当前</option>
-                        <option value="1">历史</option>
-                        <option value="2">全部</option>
-                    </select>
+                    <input class="easyui-textbox" name="query_value" style="width: 160px"/>
                 </td>
                 <td align="right" colspan="5">
                     <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" src="javascript:;" onclick="operator_demand_manange.queryData()" plain="true">查询</a>
