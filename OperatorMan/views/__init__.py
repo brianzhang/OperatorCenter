@@ -218,10 +218,10 @@ def query_stats_data(req=None):
             footers.append({
                 'timer': u'汇总',
                 'mo_all': _mo_all,
-                't_customize': _t_customize,
-                't_conversion_rate': _t_conversion_rate,
-                'conversion_rate': _conversion_rate,
-                'into_rate': _into_rate,
+                't_customize': float("%.2f" %  _t_customize),
+                't_conversion_rate': float("%.2f" %  _t_conversion_rate),
+                'conversion_rate': float("%.2f" %  _conversion_rate),
+                'into_rate': float("%.2f" %  _into_rate),
                 'arpu': '--'
             })
             return {'rows': data_list, 'ok': True, 'order_type': order_type, 'footer': footers}
@@ -320,7 +320,11 @@ def query_province_stats(req=None):
         if query_data:
             for item in query_data:
                 _index = item.province - 1
-                data_master = data_list[_index]
+                try:
+                    data_master = data_list[_index]
+                except Exception, e:
+                    pass
+
                 t_customize = item.mr_all
                 item.mo_all = item.mo_all if item.mo_all > 0 else 1
                 item.mr_all = item.mr_all if item.mr_all > 0 else 1
