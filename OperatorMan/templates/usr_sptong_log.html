@@ -15,7 +15,7 @@
             <th field="spnumber" width="50">同步标识</th>
             <th field="momsg" width="50">消息内容</th>
             <th field="linkid" width="50">LinkID</th>
-            <th field="tongurl" width="50" data-options="formatter: usr_sptonglog_manange.formatSynUrl">同步地址</th>
+            <th field="tongurl" width="50" data-options="formatter: usr_sptonglog_manange.formatSynUrl">日志</th>
             <th field="tongdate" width="50">同步时间</th>
             <th field="is_show" width="50" data-options="formatter: usr_sptonglog_manange.formatCommand">是否下发</th>
             <th field="create_time" width="50" data-options="formatter: usr_sptonglog_manange.formatterDate">操作时间</th>
@@ -35,7 +35,7 @@
             return '扣量';
         },
         formatSynUrl: function(val, row) {
-            return '<a href="'+val+'" target="_blank" title="'+val+'">'+val+'</a>';
+            return '<a href="'+val+'" target="_blank" title="'+val+'">查看</a>';
         }
     }
 </script>
