@@ -10,15 +10,14 @@
             <th field="id" width="20">id</th>
             <th field="channelid" width="40">通道名</th>
             <th field="cpid" width="40">渠道名</th>
-            <th field="urltype" width="30">业务类型</th>
             <th field="mobile" width="50">电话号码</th>
-            <th field="spnumber" width="50">同步标识</th>
-            <th field="momsg" width="50">同步消息</th>
-            <th field="linkid" width="50">回执地址</th>
-            <th field="tongurl" width="50"  data-options="formatter: usr_cptonglog_manange.formatSynUrl">日志</th>
+            <th field="spnumber" width="50">长号码</th>
+            <th field="momsg" width="50">下行内容</th>
+            <th field="linkid" width="70">LINKID</th>
+            <th field="tongurl" width="30"  data-options="formatter: usr_cptonglog_manange.formatSynUrl">日志</th>
             <th field="backmsg" width="50">回执消息</th>
             <th field="tongdate" width="50">同步时间</th>
-            <th field="statsmsg" width="50" data-options="formatter: usr_cptonglog_manange.formatCommand">同步状态</th>
+            <th field="statsmsg" width="30" data-options="formatter: usr_cptonglog_manange.formatCommand">同步状态</th>
             <th field="create_time" width="50" data-options="formatter: usr_cptonglog_manange.formatterDate">操作时间</th>
         </tr>
     </thead>
@@ -31,10 +30,11 @@
         },
         formatCommand: function(val, row) {
             
-            if(val=='OK') {
-                return '成功';
+            if (val == 'OK') {
+                return '<span class="icon icon-ok">&nbsp;</span>'
+            }else {
+                return '<lable style="color:red"><span class="icon icon-error">&nbsp;</span></label>'
             }
-            return '失败';
         },
         formatSynUrl: function(val, row) {
             return '<a href="'+val+'" target="_blank" title="'+val+'">查看</a>';
