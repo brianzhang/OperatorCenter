@@ -169,7 +169,19 @@ def query_stats_data(req=None):
                 'into_rate': 0,
                 'arpu': 0
             })
-
+        if order_type=='time':
+            _timer = '%s:00 - %s:00' % (23, 0)
+            data_list.append({
+                'timer': _timer,
+                'mo_all': 0,
+                'mr_all': 0,
+                't_customize': 0,
+                't_conversion_rate': 0,
+                'conversion_rate': 0,
+                'into_rate': 0,
+                'arpu': 0
+            })
+            
         if query_data:
             _mo_all = 0
             _t_customize = 0
