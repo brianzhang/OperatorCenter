@@ -7,11 +7,12 @@ import simplejson as json
 import os
 import sys
 import md5
+import tablib
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-from sqlalchemy import or_, desc, func
+from sqlalchemy import or_, desc, func, distinct, CHAR, sql
 from sqlalchemy.orm import subqueryload
 
 from datetime import timedelta
@@ -31,6 +32,46 @@ from OperatorMan.utils import User
 
 financial_view = Blueprint('financial_view', __name__, url_prefix='/financial')
 
+@financial_view.route("/channel/explort/", methods=['GET', 'POST'])
+@login_required
+def financial_channel_explort():
+    req = request.args if request.method == 'GET' else request.form
+    today = datetime.datetime.today()
+        _month = today.month if today.month > 10 else '0%s' % today.month
+        _day = today.day if today.day > 10 else '0%s' % today.day
+        regdate = "%s-%s-%s" % (today.year, _month, _day)
+
+        start_time = req.get('start_time', None)
+        end_time = req.get('end_time', None)
+        channel = req.get('channel', None)
+        sp = req.get('sp', None)
+
+        
+
+        query = g.session.query(AccountSP).order_by(desc(AccountSP.js_date))
+        total_query  = g.session.query(func.sum(AccountSP.count).label('all_count'), func.sum(AccountSP.totalprice).label('totalprice_count'))
+        footers = []
+        #query = query.filter
+        if start_time:
+          start_time += ' 00:00:00'
+          query = query.filter(AccountSP.create_time >= start_time)
+          total_query = total_query.filter(AccountSP.create_time >= start_time)
+        if end_time:
+          end_time += ' 23:59:59'
+          query = query.filter(AccountSP.create_time <= end_time)
+          total_query = total_query.filter(AccountSP.create_time <= end_time)
+        if channel:
+          query = query.filter(AccountSP.channelid == channel)
+          total_query = total_query.filter(AccountSP.channelid == channel)
+        if sp:
+          query = query.filter(AccountSP.spid == sp)
+          total_query = total_query.filter(AccountSP.spid == sp)
+        sp_operate_list = query.all()
+        total_query = total_query.all()
+
+        data_file = tablib.Dataset()
+        data_file.append_separator(u"对账表")
+        return ''
 
 @financial_view.route("/cooperate/detail/", methods=['GET', 'POST'])
 @login_required
@@ -53,30 +94,33 @@ def financial_cooperate_detail():
         _day = today.day if today.day > 10 else '0%s' % today.day
         regdate = "%s-%s-%s" % (today.year, _month, _day)
 
-        start_time = req.get('start_time', regdate)
-        end_time = req.get('end_time', regdate)
+        start_time = req.get('start_time', None)
+        end_time = req.get('end_time', None)
         channel = req.get('channel', None)
         sp = req.get('sp', None)
 
         
 
         query = g.session.query(AccountSP).order_by(desc(AccountSP.js_date))
+        total_query  = g.session.query(func.sum(AccountSP.count).label('all_count'), func.sum(AccountSP.totalprice).label('totalprice_count'))
+        footers = []
         #query = query.filter
         if start_time:
           start_time += ' 00:00:00'
           query = query.filter(AccountSP.create_time >= start_time)
-
+          total_query = total_query.filter(AccountSP.create_time >= start_time)
         if end_time:
           end_time += ' 23:59:59'
           query = query.filter(AccountSP.create_time <= end_time)
-
+          total_query = total_query.filter(AccountSP.create_time <= end_time)
         if channel:
           query = query.filter(AccountSP.channelid == channel)
-
+          total_query = total_query.filter(AccountSP.channelid == channel)
         if sp:
           query = query.filter(AccountSP.spid == sp)
-
+          total_query = total_query.filter(AccountSP.spid == sp)
         sp_operate_list = query.all()
+        total_query = total_query.all()
         total = len(sp_operate_list)
         
         currentpage = int(req.get('page', 1))
@@ -84,7 +128,13 @@ def financial_cooperate_detail():
         start = numperpage * (currentpage - 1)        
 
         sp_operate_list = sp_operate_list[start:(numperpage+start)]
-
+        if total_query:
+            footers.append({
+                'id': u'汇总',
+                'count':  total_query[0].all_count,
+                'total': total_query[0].totalprice_count,
+                'status': 'footer'
+            })
         if sp_operate_list:
             sp_operate_data = []
             for item in sp_operate_list:
@@ -102,7 +152,7 @@ def financial_cooperate_detail():
                                         'charges_total': (item.price * item.count)
                                         })
 
-            return jsonify({'rows': sp_operate_data, 'total': total})
+            return jsonify({'rows': sp_operate_data, 'total': total, 'footer': footers})
 
         return jsonify({'rows': [], 'total': 0})
 
@@ -129,31 +179,46 @@ def financial_channel_detail():
         _day = today.day if today.day > 10 else '0%s' % today.day
         regdate = "%s-%s-%s" % (today.year, _month, _day)
 
-        start_time = req.get('start_time', regdate)
-        end_time = req.get('end_time', regdate)
+        start_time = req.get('start_time', None)
+        end_time = req.get('end_time', None)
         channel = req.get('channel', None)
         cp = req.get('cp', None)
 
         query = g.session.query(AccountCP).order_by(desc(AccountCP.js_date))
+        total_query  = g.session.query(func.sum(AccountCP.count).label('all_count'), func.sum(AccountCP.totalprice).label('totalprice_count'))
+        footers = []
+
         #query = query.filter
         if start_time:
           start_time += ' 00:00:00'
           query = query.filter(AccountCP.create_time >= start_time)
+          total_query = total_query.filter(AccountCP.create_time >= start_time)
         if end_time:
           end_time += ' 23:59:59'
           query = query.filter(AccountCP.create_time <= end_time)
+          total_query = total_query.filter(AccountCP.create_time <= end_time)
         if channel:
           query = query.filter(AccountCP.channelid == channel)
-
+          total_query = total_query.filter(AccountCP.channelid == channel)
         if cp:
           query = query.filter(AccountCP.cpid == cp)
+          total_query = total_query.filter(AccountCP.cpid == cp)
 
         sp_operate_list = query.all()
+        total_query = total_query.all()
+
         currentpage = int(req.get('page', 1))
         numperpage = int(req.get('rows', 20))
         start = numperpage * (currentpage - 1)
         total = len(sp_operate_list)
         sp_operate_list = sp_operate_list[start:(numperpage+start)]
+        if total_query:
+            footers.append({
+                'id': u'汇总',
+                'count':  total_query[0].all_count,
+                'total': total_query[0].totalprice_count,
+                'status': 'footer'
+            })
 
         if sp_operate_list:
             sp_operate_data = []
@@ -172,7 +237,7 @@ def financial_channel_detail():
                                         'charges_total': float('%.2f' % (item.count*item.price))
                                         })
 
-            return jsonify({'rows': sp_operate_data, 'total': total})
+            return jsonify({'rows': sp_operate_data, 'total': total, 'footer': footers})
 
         return jsonify({'rows': [], 'total': 0})
 
@@ -199,8 +264,8 @@ def financial_cooperate_summary():
         _day = today.day if today.day > 10 else '0%s' % today.day
         regdate = "%s-%s-%s" % (today.year, _month, _day)
 
-        start_time = req.get('start_time', regdate)
-        end_time = req.get('end_time', regdate)
+        start_time = req.get('start_time', None)
+        end_time = req.get('end_time', None)
         channel = req.get('channel', None)
         sp = req.get('sp', None)
 
@@ -264,8 +329,8 @@ def financial_channel_summary():
         _day = today.day if today.day > 10 else '0%s' % today.day
         regdate = "%s-%s-%s" % (today.year, _month, _day)
 
-        start_time = req.get('start_time', regdate)
-        end_time = req.get('end_time', regdate)
+        start_time = req.get('start_time', None)
+        end_time = req.get('end_time', None)
         channel = req.get('channel', None)
         cp = req.get('cp', None)
 

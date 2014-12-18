@@ -50,6 +50,7 @@
                     pagination="true"
                     rownumbers="true"
                     fitColumns="true"
+                    showFooter="true"
                     singleSelect="true"
                     loadMsg='数据加载中,请稍候...'
                     pageSize="20">
@@ -72,6 +73,7 @@
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_cooperate_manager.addFinancial()">添加</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_cooperate_manager.update(1)">单价调整</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_cooperate_manager.update(2)">对账</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_channel_manager.exporteExcel()">导出EXCEL</a>
             </div>
         </div>
     </div>
@@ -162,6 +164,9 @@ var financial_cooperate_manager = {
         this.datagrid.datagrid('load')
     },
     formatStatus: function(val, row) {
+        if (row.status == 'footer'){
+            return ''
+        };
         if (val) {
             return '<span class="icon icon-ok">&nbsp;</span>已对账'
         }else {
