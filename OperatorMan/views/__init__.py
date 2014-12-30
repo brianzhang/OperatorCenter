@@ -15,6 +15,7 @@ import string
 import random
 from flask import jsonify, request, session, redirect, g
 from functools import wraps
+from pyExcelerator import *
 from sqlalchemy import or_, desc, func, distinct, CHAR, sql
 
 from OperatorCore.models.operator_app import SysAdmin, SysAdminLog, SysRole, PubProvince, PubCity, PubBlackPhone, PubMobileArea, \
@@ -457,3 +458,99 @@ def query_channel_status(req):
         return {'rows': data_list, 'ok': True,  'footer': footers, 'total': totlal}
     else:
         return {'rows': data_list, 'ok': False, 'footer': footers, 'total': totlal}
+
+
+def execl_import(data=None, title=None, tab_name=None,account_name=None, bank_name=None, account=None, sp_name=None, summerize_data=None):    
+    tab_name = tab_name
+    bank_name = bank_name
+    account_name = account_name
+    account = account
+    sp_name = sp_name
+    summerize_data = summerize_data
+    
+    borders = Borders()  
+    borders.left = 1  
+    borders.right = 1  
+    borders.top = 1  
+    borders.bottom = 1
+    
+    al = Alignment()  
+    al.horz = Alignment.HORZ_CENTER  
+    al.vert = Alignment.VERT_CENTER
+    
+    fnt = Font()
+    fnt.height = 320
+    fnt.name = u'楷体'
+    fnt.bold = True
+    
+    title_style = XFStyle()  
+    title_style.borders = borders  
+    title_style.alignment = al
+    title_style.font = fnt
+    
+    fnt1 = Font()
+    fnt1.height = 280
+    fnt1.name = u'楷体'
+    fnt1.bold = False
+    
+    fnt2 = Font()
+    fnt2.height = 280
+    fnt2.name = u'楷体'
+    fnt2.bold = True
+    
+    text_style = XFStyle()
+    text_style.borders = borders
+    text_style.font = fnt1
+    text_style.num_format_str = '0.00'
+    
+    tab_head_style = XFStyle()
+    tab_head_style.borders = borders
+    tab_head_style.font = fnt2
+    tab_head_style.alignment = al
+    
+    w = Workbook()
+    ws = w.add_sheet(u"%s" % (tab_name))
+    ws.write_merge(0, 0, 0, 6, title, title_style)
+    ws.write_merge(1, 1, 0, 4, '%s ' % (sp_name), text_style)
+    ws.write_merge(1, 1, 5, 6, u'账期：%s ' % (summerize_data), text_style)
+    ws.write(2, 0, u"通道", tab_head_style)
+    ws.write(2, 1, u"资费", tab_head_style)
+    ws.write(2, 2, u"条数/分钟数", tab_head_style)
+    ws.write(2, 3, u"单价", tab_head_style)
+    ws.write(2, 4, u"金额", tab_head_style)
+    ws.write(2, 5, u"退费", tab_head_style)
+    ws.write(2, 6, u"实际结算金额", tab_head_style)
+    ws.col(0).width = 3 * 0x0d00
+    ws.col(1).width = 40 + 0x0d00
+    ws.col(2).width = 0x0d00 * 2
+    ws.col(3).width = 40 + 0x0d00
+    ws.col(4).width = 40 + 0x0d00
+    ws.col(5).width = 40 + 0x0d00
+    ws.col(6).width = 0x0d00 * 3
+    
+    _index = 3
+    for item in data:
+        ws.write(_index, 0, ("%s" % (item['channel'])), text_style)
+        ws.write(_index, 1, item['price'], text_style)
+        ws.write(_index, 2, item['count'], text_style)
+        ws.write(_index, 3, item['costprice'], text_style)
+        ws.write(_index, 4, Formula("SUM(C%s*D%s)" % (_index+1, _index+1)), text_style)
+        ws.write(_index, 5, 0, text_style)
+        ws.write(_index, 6, Formula("SUM(E%s-F%s)" % (_index+1, _index+1)), text_style)
+        _index = _index + 1
+    
+    ws.write(_index, 0, u'合计', text_style)
+    ws.write(_index, 1, u'-', text_style)
+    ws.write(_index, 2, Formula("SUM(C4:C%s)" % (_index)), text_style)
+    ws.write(_index, 3, u'-', text_style)
+    ws.write(_index, 4, Formula("SUM(E4:E%s)" % (_index)), text_style)
+    ws.write(_index, 5, Formula("SUM(F4:F%s)" % (_index)), text_style)
+    ws.write(_index, 6, Formula("SUM(G4:G%s)" % (_index)), text_style)
+    ws.write_merge(_index+1, 0, 0, 6, u'开户行： %s' % (bank_name), text_style)
+    ws.write_merge(_index+2, 0, 0, 6, u'开户名： %s' % (account_name), text_style)
+    ws.write_merge(_index+3, 0, 0, 6, u'帐  号： %s' % (account), text_style)
+    print '--------------------save-------------------------'
+    file_name = "%s.xls" % tab_name
+    w.save(file_name)
+    print '--------------------save-------------------------'
+    return file_name

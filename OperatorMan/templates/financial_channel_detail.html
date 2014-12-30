@@ -52,6 +52,7 @@
                     toolbar="#financial_channel_list_toolbar"
                     pagination="true"
                     rownumbers="true"
+                    showFooter="true"
                     fitColumns="true"
                     singleSelect="true"
                     loadMsg='数据加载中,请稍候...'
@@ -74,6 +75,7 @@
             <div id="financial_channel_list_toolbar">
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_channel_manager.update(1)">单价调整</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_channel_manager.update(2)">对账</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_channel_manager.exporteExcel()">导出EXCEL</a>
             </div>
         </div>
     </div>
@@ -99,6 +101,7 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_channel_manager.closeDialog()">取消</a>
     </div>
 </div>
+<script type="text/javascript" src="/static/lib/jQuery.fileDownload.js"></script>
 <script>
 var financial_channel_manager = {
     url: '/financial/channel/billing/',
@@ -110,6 +113,9 @@ var financial_channel_manager = {
         this.datagrid.datagrid('load')
     },
     formatStatus: function(val, row) {
+        if (row.status == 'footer'){
+            return ''
+        };
         if (val) {
             return '<span class="icon icon-ok">&nbsp;</span>已对账'
         }else {
@@ -128,6 +134,20 @@ var financial_channel_manager = {
         cp: $("#cpinfo{{random_key}}").combobox("getValue")
       };
       this.datagrid.datagrid('load', req_data)
+    },
+    exporteExcel: function() {
+       var req_data = {
+        start_time: $("#start_time{{random_key}}").datetimebox("getValue"),
+        end_time: $("#end_time{{random_key}}").datetimebox("getValue"),
+        channel: $("#channels{{random_key}}").combobox("getValue"),
+        cp: $("#cpinfo{{random_key}}").combobox("getValue")
+      }
+      $.fileDownload('/financial/channel/explort/', {
+        'httpMethod': 'POST',
+        'data': req_data,
+        'contentType': "application/json"
+      }).fail(function () { alert("Error during export") });
+      
     },
     submitForm: function() {
         $('#financial_channel_manager_form').form('submit',{
