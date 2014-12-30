@@ -7,7 +7,6 @@ import simplejson as json
 import os
 import sys
 import md5
-import tablib
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
