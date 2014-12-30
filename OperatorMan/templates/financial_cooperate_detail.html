@@ -73,7 +73,7 @@
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_cooperate_manager.addFinancial()">添加</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="financial_cooperate_manager.update(1)">单价调整</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_cooperate_manager.update(2)">对账</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_channel_manager.exporteExcel()">导出EXCEL</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="financial_cooperate_manager.exporteExcel()">导出EXCEL</a>
             </div>
         </div>
     </div>
@@ -151,7 +151,7 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_cooperate_manager.closeAddDialog()">取消</a>
     </div>
 </div>
-
+<script type="text/javascript" src="/static/lib/jQuery.fileDownload.js"></script>
 <script>
 var financial_cooperate_manager = {
     url: '/financial/cooperate/billing/',
@@ -207,6 +207,20 @@ var financial_cooperate_manager = {
         sp: $("#spinfo{{random_key}}").combobox("getValue")
       };
       this.datagrid.datagrid('load', req_data)
+    },
+    exporteExcel: function() {
+       var req_data = {
+        start_time: $("#start_time{{random_key}}").datetimebox("getValue"),
+        end_time: $("#end_time{{random_key}}").datetimebox("getValue"),
+        channel: $("#channels{{random_key}}").combobox("getValue"),
+        sp: $("#spinfo{{random_key}}").combobox("getValue")
+      }
+      $.fileDownload('/financial/cooperate/explort/', {
+        'httpMethod': 'POST',
+        'data': req_data,
+        'contentType': "application/json"
+      }).fail(function () { alert("Error during export") });
+      
     },
     submitForm: function() {
         $('#financial_cooperate_manager_form').form('submit',{

@@ -101,6 +101,7 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" onclick="financial_channel_manager.closeDialog()">取消</a>
     </div>
 </div>
+<script type="text/javascript" src="/static/lib/jQuery.fileDownload.js"></script>
 <script>
 var financial_channel_manager = {
     url: '/financial/channel/billing/',
@@ -141,9 +142,12 @@ var financial_channel_manager = {
         channel: $("#channels{{random_key}}").combobox("getValue"),
         cp: $("#cpinfo{{random_key}}").combobox("getValue")
       }
-      $.post('/financial/channel/explort/', req_data, function(resp, status) {
-            console.log(resp);
-      }, 'JSON'); 
+      $.fileDownload('/financial/channel/explort/', {
+        'httpMethod': 'POST',
+        'data': req_data,
+        'contentType': "application/json"
+      }).fail(function () { alert("Error during export") });
+      
     },
     submitForm: function() {
         $('#financial_channel_manager_form').form('submit',{

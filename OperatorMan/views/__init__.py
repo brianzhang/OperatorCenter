@@ -550,7 +550,7 @@ def execl_import(data=None, title=None, tab_name=None,account_name=None, bank_na
     ws.write_merge(_index+2, 0, 0, 6, u'开户名： %s' % (account_name), text_style)
     ws.write_merge(_index+3, 0, 0, 6, u'帐  号： %s' % (account), text_style)
     print '--------------------save-------------------------'
-    print tab_name
-    w.save("%s.xls" % tab_name)
+    file_name = "%s.xls" % tab_name
+    w.save(file_name)
     print '--------------------save-------------------------'
-    return 'OK'
+    return file_name

@@ -16,7 +16,7 @@ from sqlalchemy import or_, desc, func, distinct, CHAR, sql
 from sqlalchemy.orm import subqueryload
 
 from datetime import timedelta
-from flask import request, render_template, jsonify, g, Blueprint, Response, redirect, session, url_for
+from flask import request, render_template, jsonify, g, Blueprint, Response, redirect, session, url_for, send_from_directory
 from flask.ext.login import LoginManager, login_required, login_user, logout_user, current_user
 import flask.ext.wtf as wtf
 
@@ -89,7 +89,7 @@ def financial_channel_explort():
                                     'charges_total': (item.price * item.count)
                                     })
 
-    return execl_import(data=sp_operate_data, 
+    file_name =  execl_import(data=sp_operate_data, 
                                       title=u"合作方结算对账单",
                                       sp_name=sp_name, 
                                       tab_name=tab_name, 
@@ -97,7 +97,75 @@ def financial_channel_explort():
                                       bank_name='', 
                                       account='',
                                       summerize_data=tab_name)
-        
+    return send_from_directory(settings.FILE_PATH, file_name)
+
+
+@financial_view.route("/cooperate/explort/", methods=['GET', 'POST'])
+@login_required
+def financial_cooperate_explort():
+    req = request.args if request.method == 'GET' else request.form
+    today = datetime.datetime.today()
+    _month = today.month if today.month > 10 else '0%s' % today.month
+    _day = today.day if today.day > 10 else '0%s' % today.day
+    regdate = "%s-%s-%s" % (today.year, _month, _day)
+    tab_name = "%s%s%s" % (today.year, _month, _day)
+    start_time = req.get('start_time', None)
+    end_time = req.get('end_time', None)
+    channel = req.get('channel', None)
+    sp = req.get('sp', None)
+
+    
+
+    query = g.session.query(AccountSP).order_by(desc(AccountSP.js_date))
+    total_query  = g.session.query(func.sum(AccountSP.count).label('all_count'), func.sum(AccountSP.totalprice).label('totalprice_count'))
+    footers = []
+    #query = query.filter
+    if start_time:
+      start_time += ' 00:00:00'
+      query = query.filter(AccountSP.create_time >= start_time)
+      total_query = total_query.filter(AccountSP.create_time >= start_time)
+    if end_time:
+      end_time += ' 23:59:59'
+      query = query.filter(AccountSP.create_time <= end_time)
+      total_query = total_query.filter(AccountSP.create_time <= end_time)
+    if channel:
+      query = query.filter(AccountSP.channelid == channel)
+      total_query = total_query.filter(AccountSP.channelid == channel)
+    if sp:
+      query = query.filter(AccountSP.spid == sp)
+      total_query = total_query.filter(AccountSP.spid == sp)
+    sp_operate_list = query.all()
+    total_query = total_query.all()
+
+    sp_name = u"合作方："
+    sp_operate_data = []
+    if sp_operate_list:        
+        sp_name = sp_name + " "+ sp_operate_list[0].sp_info.name
+        for item in sp_operate_list:
+            if item:
+                
+                sp_operate_data.append({
+                                    'id': item.id,
+                                    'regdate': item.js_date,
+                                    'spname': "[%s]%s" % (item.sp_info.id, item.sp_info.name),
+                                    'channel': "[%s]%s" % (item.channe_info.id, item.channe_info.cha_name),
+                                    'price': item.price,
+                                    'costprice': item.costprice,
+                                    'count': item.count,
+                                    'total': item.totalprice,
+                                    'status': item.js_state,
+                                    'charges_total': (item.price * item.count)
+                                    })
+
+    file_name =  execl_import(data=sp_operate_data, 
+                                      title=u"合作方结算对账单",
+                                      sp_name=sp_name, 
+                                      tab_name=tab_name, 
+                                      account_name= '', 
+                                      bank_name='', 
+                                      account='',
+                                      summerize_data=tab_name)
+    return send_from_directory(settings.FILE_PATH, file_name)
 
 @financial_view.route("/cooperate/detail/", methods=['GET', 'POST'])
 @login_required
