@@ -2,7 +2,7 @@
     <div fit="true">
         <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
         <!--高级查询部分-->
-        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <table border="0" cellspacing="0" cellpadding="0" width="40%">
             <tr>
                 <td width="50">合作方:</td>
                 <td>
@@ -32,9 +32,9 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="id" width="15">ID</th>
-                        <th field="sp_info" width="50">合作商</th>
-                        <th field="parameter" width="80%">参数列表</th>
+                        <!--<th field="id" width="15">ID</th>-->
+                        <th field="sp_info" width="40">合作商</th>
+                        <th field="parameter" width="90%">参数列表</th>
                     </tr>
                 </thead>
             </table>
@@ -51,7 +51,7 @@
         <form id="parameter_form" class="easyui-form" method="post" data-options="novalidate:true">
             <table cellpadding="3">
                 <tr>
-                    <td width="140">合作商（SP）:</td>
+                    <td width="140">合作方:</td>
                     <td>
                         <select class="easyui-validatebox" name="sp" editable="false" id="from_sp{{random_key}}" >
                             <option selected="selected" value=''>--请选择--</option>
@@ -182,7 +182,7 @@ var channel_parameter_manage = {
             case 1:
                 return '模糊';
             case 2:
-                return '双精确';
+                return '双精';
         }
     },
     queryData: function() {
@@ -197,7 +197,7 @@ var channel_parameter_manage = {
         var _rows = 0;
         this.parameter_data = [{'id': 'spnumber', 'text': '长号码'},
                               {'id': 'mobile', 'text': '电话号码'},
-                              {'id': 'extmsg', 'text': '命令字'},
+                              {'id': 'extmsg', 'text': '上行指令'},
                               {'id': 'linkid', 'text': 'LINKID'}, 
                               {'id': 'mo_send_date', 'text': 'MO发送时间'},
                               {'id': 'mr_state', 'text': 'MR+MO状态报告'},
@@ -209,7 +209,7 @@ var channel_parameter_manage = {
                               {'id': 'matching_rule', 'text': '匹配规则'},
                               {'id': 'duration', 'text': '通话时长'},
                               {'id': 'time_type', 'text': '时长类型'},
-                              {'id': 'status_name', 'text': '状态码'},
+                              {'id': 'status_name', 'text': '状态'},
                               {'id': 'status_value', 'text': '状态值'}
                             ];
         this.addlink.on('click', function() {

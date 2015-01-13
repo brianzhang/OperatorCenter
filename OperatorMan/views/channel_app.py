@@ -39,7 +39,7 @@ def channel_list():
     req_args = request.args if request.method == 'GET' else request.form
 
     if request.method == 'POST':
-        query = g.session.query(ChaInfo).order_by(desc(ChaInfo.id))
+        query = g.session.query(ChaInfo).filter(ChaInfo.is_show==True).order_by(desc(ChaInfo.id))
 
         channel_id = req_args.get('channel_id', None)
         sp_id = req_args.get('sp_id', None)

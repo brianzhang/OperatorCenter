@@ -2,7 +2,7 @@
     <div fit="true">
         <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
         <!--高级查询部分-->
-        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <table border="0" cellspacing="0" cellpadding="0" width="90%">
             <tr>
                 <th>开始时间:</th>
                 <td>
@@ -59,15 +59,15 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="id" width="10">序号</th>
+                        <!--<th field="id" width="10">序号</th>-->
                         <th field="regdate" width="25">日期</th>
-                        <th field="cpname" width="50">渠道商</th>
-                        <th field="channel" width="40">通道名称</th>
-                        <th field="price" width="40">资费（元）</th>
-                        <th field="fcprice" width="50">结算单价</th>
-                        <th field="count" width="50">条数</th>
-                        <th field="total" width="30">渠道汇总（￥）</th>
-                        <th field="charges_total" width="30">资费汇总（￥）</th>
+                        <th field="cpname" width="40">渠道商</th>
+                        <th field="channel">通道名称</th>
+                        <th field="count" width="25">条数</th>
+                        <th field="price" width="25">资费（元）</th>
+                        <th field="fcprice" width="25">单价（元）</th>
+                        <th field="total" width="30">总金额（元）</th>
+                        <th field="charges_total" width="30">信息费（元）</th>
                         <th field="status" width="40" data-options="formatter: financial_channel_manager.formatStatus">状态</th>
                     </tr>
                 </thead>

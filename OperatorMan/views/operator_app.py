@@ -172,6 +172,11 @@ def operator_status():
         if operator_list:
             operator_data = []
             for item in operator_list:
+                cp = ''
+                if item.cp_info:
+                    cp = "[%s]%s" % (item.cp_info.id, item.cp_info.name)
+                else:
+                    cp = 'None'
                 operator_data.append({'sp': "[%s]%s" % (item.channe_info.sp_info.id, item.channe_info.sp_info.name),
                                     'channel': "[%s]%s" % (item.channe_info.id, item.channe_info.cha_name),
                                     'mobile': item.mobile,
@@ -179,7 +184,7 @@ def operator_status():
                                     'linkid': item.linkid,
                                     'spnumber': item.spnumber,
                                     'city': "%s-%s" % (item.provinces.province, item.citys.city),
-                                    'cp': "[%s]%s" % (item.cp_info.id, item.cp_info.name),
+                                    'cp': cp,
                                     'create_time': item.create_time,
                                     'status': item.state,
                                     'is_kill': get_send_html(item.state, item.is_kill),

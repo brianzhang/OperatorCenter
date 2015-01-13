@@ -1,15 +1,15 @@
-<div title="接口列表" class="easyui-panel">
+<div title="同步地址" class="easyui-panel">
     <div fit="true">
         <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
         <!--高级查询部分-->
-        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <table border="0" cellspacing="0" cellpadding="0" width="70%">
             <tr>
                 <th>通道：</th>
                 <td>
                     <select id="select_channel_list" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for channel in channels %}
-                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                        <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
                         {%endfor%}
                     </select>
                 </td>
@@ -50,13 +50,13 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="id" width="15">ID</th>
-                        <th field="channel_name" width="50">通道名称</th>
-                        <th field="sync_type" width="30" data-options="formatter: channel_settings_manager.syncType">同步类型</th>
-                        <th field="url" width="40">同步地址</th>
-                        <th field="status_key" width="30">成功标识</th>
+                        <!--<th field="id" width="15">ID</th>-->
+                        <th field="channel_name" width="40">通道名称</th>
+                        <th field="sync_type" width="20" data-options="formatter: channel_settings_manager.syncType">同步类型</th>
+                        <th field="url" width="60">同步地址</th>
+                        <th field="status_key" width="20">成功标识</th>
                         <th field="is_rsync" width="40" data-options="formatter: channel_settings_manager.formatStatus">异步</th>
-                        <th field="is_show" width="40" data-options="formatter: channel_settings_manager.formatStatus">状态</th>
+                        <th field="is_show" width="20" data-options="formatter: channel_settings_manager.formatStatus">状态</th>
                     </tr>
                 </thead>
             </table>
@@ -81,7 +81,7 @@
                         <select name="channelid" class="easyui-combobox" id="">
                             <option selected="selected" value=''>--请选择--</option>
                             {% for channel in channels %}
-                            <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                            <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
                             {%endfor%}
                         </select>
                     </td>

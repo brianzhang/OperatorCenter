@@ -2,7 +2,7 @@
     <div fit="true">
         <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
         <!--高级查询部分-->
-        <table border="0" cellspacing="0" cellpadding="0" width="100%" id="tool_{{random_key}}">
+        <table border="0" cellspacing="0" cellpadding="0" width="90%" id="tool_{{random_key}}">
             <tr>
                 <th><label id="lab_txt_{{random_key}}">日段:</label></th>
                 <td nowrap="nowrap">
@@ -12,8 +12,8 @@
                     <label id="item_year_{{random_key}}" style="display:none">
                       <select class="easyui-combobox" id="combobox_year_{{random_key}}">
                           <option selected="selected" value=''>--年--</option>
-                          <option value='2013'>2013</option>
                           <option value='2014'>2014</option>
+                          <option value='2015'>2015</option>
                       </select>
                     </label>
                   </td>
@@ -21,7 +21,7 @@
                     <label id="item_month_{{random_key}}" style="display:none">
                       <select class="easyui-combobox" id="combobox_month_{{random_key}}">
                           <option selected="selected" value=''>--月--</option>
-                          {% for i in range(1, 12)%}
+                          {% for i in range(1, 13)%}
                           <option value='{{i}}'>{% if i<10 %}0{{i}}{%else%}{{i}}{%endif%}</option>
                           {% endfor%}
                       </select>
@@ -32,7 +32,7 @@
                     <select id="channel_id_{{random_key}}" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for channel in channels%}
-                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                        <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
                         {%endfor%}
                     </select>
                 </td>
@@ -89,13 +89,13 @@
                 url: '/operator/region/',
                 queryParams: {'order_type': 'day'},
                 columns:[[
-                    {field:'province',title: '省份',width:100},
-                    {field:'mo_all',title:'上行',width:100, align:'right'},
-                    {field:'t_customize',title:'T定制',width:100, align:'right', styler: this.rowStyler},
-                    {field:'t_conversion_rate',title:'T转换率',width:100, align:'right', styler: this.rowStyler},
-                    {field:'conversion_rate',title:'转化率',width:100,align:'right', styler: this.rowStyler},
-                    {field:'into_rate',title:'分成比',width:100,align:'right', styler: this.rowStyler},
-                    {field:'arpu',title:'Arpu值',width:100,align:'right', styler: this.rowStyler}
+                    {field:'province',title: '省份',width:50},
+                    {field:'mo_all',title:'上行',width:50, align:'right'},
+                    {field:'t_customize',title:'T定制',width:50, align:'right', styler: this.rowStyler},
+                    {field:'t_conversion_rate',title:'T转换率',width:50, align:'right', styler: this.rowStyler},
+                    {field:'conversion_rate',title:'转化率',width:50,align:'right', styler: this.rowStyler},
+                    {field:'into_rate',title:'分成比',width:50,align:'right', styler: this.rowStyler},
+                    {field:'arpu',title:'ARPU值',width:50,align:'right', styler: this.rowStyler}
                 ]]
             });
         },

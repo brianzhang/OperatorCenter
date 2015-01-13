@@ -2,14 +2,14 @@
     <div fit="true">
         <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
         <!--高级查询部分-->
-        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <table border="0" cellspacing="0" cellpadding="0" width="90%">
             <tr>
                 <th>接口:</th>
                 <td>
                     <select id="channel_id" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for channel in channels%}
-                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                        <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
                         {%endfor%}
                     </select>
                 </td>
@@ -27,7 +27,7 @@
                     <select id="product_id" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for product in products%}
-                        <option value="{{product.id}}">{{product.proname}}</option>
+                        <option value="{{product.id}}">[{{product.id}}]{{product.proname}}</option>
                         {% endfor%}
                     </select>
                 </td>
@@ -46,14 +46,24 @@
                     <select id="busi_type" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for busi in busi_list%}
-                        <option value="{{busi.id}}">{{busi.name}}</option>
+                        <option value="{{busi.id}}">[{{busi.id}}]{{busi.name}}</option>
                         {%endfor%}
                     </select>
                 </td>
-                <th>端口地区:</th>
+                <th>状态:</th>
+                <td>
+                    <select name="status" id="allocated_status" class="easyui-combobox">
+                        <option selected="selected" value=''>--请选择--</option>
+                        <option value="1">正常</option>
+                        <option value="0">停止</option>
+                    </select>
+                </td>
+                <th></th>
                 <td>
                     <select id="area" class="easyui-combobox">
-                        <option selected="selected" value=''>--请选择--</option>
+                        <option selected="selected" value="SPNumber">端口</option>
+                        <option value="Province">省份</option>
+                        <option value="City">城市</option>
                     </select>
                     <input class="easyui-textbox"/>
                 </td>
@@ -75,29 +85,29 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="id" width="15">ID</th>
-                        <th field="channel_name" width="50">通道名称</th>
-                        <th field="operator_info" width="40">运营商</th>
-                        <th field="product_info" width="40">产品类型</th>
-                        <th field="busi_info" width="30">业务类型</th>
-                        <th field="sx" width="50">上行指令</th>
-                        <th field="spnumber" width="50">通道长号码</th>
-                        <th field="sx_type" width="40" data-options="formatter: channel_manager.formatCommand">指令模式</th>
-                        <th field="price" width="30">通道资费</th>
-                        <th field="costprice" width="30">接入单价</th>
-                        <th field="fcpric" width="30">分成单价</th>
-                        <th field="bl" width="30">扣量比例</th>
-                        <th field="daymax" width="30">日限</th>
-                        <th field="monmax" width="30">月限</th>
-                        <th field="is_show" width="20" data-options="formatter: channel_manager.formatStatus">状态</th>
-                        <th field="create_time" width="80" data-options="formatter: channel_manager.formatterDate">操作时间</th>
+                        <th field="id" width="10">ID</th>
+                        <th field="channel_name" width="40">通道名称</th>
+                        <th field="operator_info" width="30">运营商</th>
+                        <th field="product_info" width="10">产品</th>
+                        <th field="busi_info" width="15">业务</th>
+                        <th field="sx" width="60">上行指令</th>
+                        <th field="spnumber" width="40">通道长号码</th>
+                        <th field="sx_type" width="15" data-options="formatter: channel_manager.formatCommand">模式</th>
+                        <th field="price" width="15">资费</th>
+                        <th field="costprice" width="15">单价</th>
+                        <th field="fcpric" width="15">分成</th>
+                        <th field="bl" width="10">扣比</th>
+                        <th field="daymax" width="15">日限</th>
+                        <th field="monmax" width="15">月限</th>
+                        <th field="is_show" width="10" data-options="formatter: channel_manager.formatStatus">状态</th>
+                        <!--<th field="create_time" width="80" data-options="formatter: channel_manager.formatterDate">操作时间</th>-->
                     </tr>
                 </thead>
             </table>
             <div id="channel_list_toolbar">
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="channel_manager.addChannel()">添加</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="channel_manager.editChannel()">修改</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_manager.channelConfige()">通道配置</a>
+                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="channel_manager.channelConfige()">分配</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-redo" plain="true" onclick="channel_manager.setChannelStatus(1)">开通</a>
                 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="channel_manager.setChannelStatus(0)">暂停</a>
             </div>
@@ -124,10 +134,10 @@ var channel_manager = {
         var row = $('#channel_list_dg').datagrid('getSelected');
         if (row){
             this.url = '/channel/confige/'+row.id+'/';
-            addTab('通道配置', this.url, 'icon-remove');
+            addTab('分配', this.url, 'icon-remove');
         }else{
             this.url = '/channel/confige/';
-            addTab('通道配置', this.url, 'icon-remove');
+            addTab('分配', this.url, 'icon-remove');
         }
     },
     reloadData: function() {
@@ -171,7 +181,7 @@ var channel_manager = {
             case 1:
                 return '模糊';
             case 2:
-                return '双精确';
+                return '双精';
         }
     },
     queryData: function() {

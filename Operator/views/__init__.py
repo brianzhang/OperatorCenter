@@ -170,6 +170,8 @@ def get_channel_count(channelid=None, cp_id=None, province=None, kill_data=-1):
             #print counts
             #print '======================='
             return counts[0].count
+        else:
+            return 0
     return 0
 
 

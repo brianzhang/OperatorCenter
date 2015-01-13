@@ -2,14 +2,14 @@
     <div fit="true">
         <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
         <!--高级查询部分-->
-        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <table border="0" cellspacing="0" cellpadding="0" width="70%">
             <tr>
                 <th>运营商：</th>
                 <td>
                     <select id="select_spid_list" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {% for sp in spinfo_list %}
-                        <option value="{{sp.id}}">{{sp.name}}</option>
+                        <option value="{{sp.id}}">[{{sp.id}}]{{sp.name}}</option>
                         {%endfor%}
                     </select>
                 </td>
@@ -48,12 +48,12 @@
                     pageSize="20">
                 <thead>
                     <tr>
-                        <th field="id" width="15">ID</th>
-                        <th field="channel_name" width="50">通道名称</th>
-                        <th field="sp_name" width="50">运营商</th>
-                        <th field="sync_type" width="30" data-options="formatter: channel_sync_manager.syncType">同步类型</th>
-                        <th field="url" width="40" data-options="formatter: channel_sync_manager.formatSyncURL">同步地址</th>
-                        <th field="status_key" width="30">成功标识</th>
+                        <!--<th field="id" width="15">ID</th>-->
+                        <th field="channel_name" width="40">通道名称</th>
+                        <th field="sp_name" width="40">运营商</th>
+                        <th field="sync_type" width="20" data-options="formatter: channel_sync_manager.syncType">同步类型</th>
+                        <th field="url" width="60" data-options="formatter: channel_sync_manager.formatSyncURL">同步地址</th>
+                        <th field="status_key" width="20">成功标识</th>
                         <th field="is_show" width="20" data-options="formatter: channel_sync_manager.formatStatus">状态</th>
                     </tr>
                 </thead>
@@ -124,7 +124,7 @@
                 </tr>
                 <tr>
                     <td>当前状态：</td>
-                    <td colspan="3"><label><input type="radio" value="1" name="is_show"/>开通</label><label><input type="radio" value="0" name="is_show"/>停止</label></td>
+                    <td colspan="3"><label><input type="radio" value="1" name="is_show" checked="true"/>开通</label><label><input type="radio" value="0" name="is_show"/>停止</label></td>
                 </tr>
             </table>
             <div style="text-align:center;padding:5px">

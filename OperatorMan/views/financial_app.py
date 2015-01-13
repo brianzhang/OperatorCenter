@@ -222,10 +222,12 @@ def financial_cooperate_detail():
 
         sp_operate_list = sp_operate_list[start:(numperpage+start)]
         if total_query:
+            _all_count  = total_query[0].all_count if total_query[0].all_count else 0
+            _totalprice_count = total_query[0].totalprice_count if total_query[0].totalprice_count else 0
             footers.append({
                 'id': u'汇总',
-                'count':  total_query[0].all_count,
-                'total': total_query[0].totalprice_count,
+                'count':  _all_count,
+                'total': '%.2f' % _totalprice_count,
                 'status': 'footer'
             })
         if sp_operate_list:
@@ -247,7 +249,7 @@ def financial_cooperate_detail():
 
             return jsonify({'rows': sp_operate_data, 'total': total, 'footer': footers})
 
-        return jsonify({'rows': [], 'total': 0})
+        return jsonify({'rows': [], 'total': 0, 'footer': {'id': u'汇总', 'count': 0, 'total': 0, 'status': 'footer'}})
 
 
 @financial_view.route("/channel/detail/", methods=['GET', 'POST'])
@@ -307,9 +309,9 @@ def financial_channel_detail():
         sp_operate_list = sp_operate_list[start:(numperpage+start)]
         if total_query:
             footers.append({
-                'id': u'汇总',
+                'regdate': u'总计',
                 'count':  total_query[0].all_count,
-                'total': total_query[0].totalprice_count,
+                'total': '%.2f' % total_query[0].totalprice_count,
                 'status': 'footer'
             })
 
@@ -325,7 +327,7 @@ def financial_channel_detail():
                                         'price': item.price,
                                         'fcprice': item.fcprice,
                                         'count': item.count,
-                                        'total': float('%.2f' % item.totalprice),
+                                        'total': item.totalprice,
                                         'status': item.js_state,
                                         'charges_total': float('%.2f' % (item.count*item.price))
                                         })

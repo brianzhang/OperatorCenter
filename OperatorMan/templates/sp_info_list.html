@@ -8,14 +8,14 @@
         pageSize="20">
     <thead>
         <tr>
-            <th field="id" width="50">id</th>
+            <th field="id" width="10">id</th>
             <th field="name" width="50">运营商名称</th>
-            <th field="link_name" width="50">联系人</th>
-            <th field="link_phone" width="50">电话号码</th>
-            <th field="link_qq" width="50">QQ</th>
+            <th field="link_name" width="30">联系人</th>
+            <th field="link_phone" width="30">电话号码</th>
+            <th field="link_qq" width="25">QQ</th>
             <!--<th field="link_email" width="50">Email</th>
             <th field="link_address" width="50">地址</th>-->
-            <th field="is_show" data-options="formatter: operator_list.formatStatus" width="50">合作状态</th>
+            <th field="is_show" data-options="formatter: operator_list.formatStatus" width="20">合作状态</th>
             <!--<th field="content" width="50">备注</th>-->
         </tr>
     </thead>
@@ -39,7 +39,7 @@
                     <td>
                         <select class="easyui-combobox" name="adminid">
                         {%for admin in admins%}
-                            <option value="{{admin.id}}">{{admin.realname}}</option>
+                            <option value="{{admin.id}}">[{{admin.id}}]{{admin.realname}}</option>
                         {%endfor%}
                         </select>
                     </td>

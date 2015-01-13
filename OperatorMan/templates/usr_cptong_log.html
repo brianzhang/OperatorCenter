@@ -4,20 +4,20 @@
         rownumbers="true"
         fitColumns="true"
         singleSelect="true"
-        pageSize="20">
+        pageSize="50">
     <thead>
         <tr>
-            <th field="id" width="20">id</th>
-            <th field="channelid" width="40">通道名</th>
-            <th field="cpid" width="40">渠道名</th>
-            <th field="mobile" width="50">电话号码</th>
-            <th field="spnumber" width="50">长号码</th>
-            <th field="momsg" width="50">下行内容</th>
+            <!--<th field="id" width="20">id</th>-->
+            <th field="channelid" width="40">通道</th>
+            <th field="cpid" width="40">渠道商</th>
+            <th field="mobile" width="30">电话号码</th>
+            <th field="spnumber" width="40">长号码</th>
+            <th field="momsg" width="60">上行内容</th>
             <th field="linkid" width="70">LINKID</th>
-            <th field="tongurl" width="30"  data-options="formatter: usr_cptonglog_manange.formatSynUrl">日志</th>
-            <th field="backmsg" width="50">回执消息</th>
-            <th field="tongdate" width="50">同步时间</th>
-            <th field="statsmsg" width="30" data-options="formatter: usr_cptonglog_manange.formatCommand">同步状态</th>
+            <th field="tongurl" width="20"  data-options="formatter: usr_cptonglog_manange.formatSynUrl">日志</th>
+            <th field="backmsg" width="20">返回值</th>
+            <!--<th field="tongdate" width="50">同步时间</th>-->
+            <th field="statsmsg" width="20" data-options="formatter: usr_cptonglog_manange.formatCommand">状态</th>
             <th field="create_time" width="50" data-options="formatter: usr_cptonglog_manange.formatterDate">操作时间</th>
         </tr>
     </thead>

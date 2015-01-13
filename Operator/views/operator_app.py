@@ -13,7 +13,7 @@ import math
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-from sqlalchemy import or_, desc, func
+from sqlalchemy import or_, desc, func, and_
 from sqlalchemy.orm import subqueryload
 from datetime import timedelta
 from flask import request, render_template, jsonify, g, Blueprint, Response, redirect, session, url_for
@@ -173,15 +173,15 @@ def sp_mr(spid=None):
             time_type = parameters.time_type
             status_name = req.get(parameters.status_name, None)
             status_value = parameters.status_value
-
             if mobile:
                 mobile_info = get_mobile_attribution(mobile)
             else:
                 return 'OK'
         else:
             return 'ERROR'
+
         channel_info = g.session.query(UsrSPSync).filter(UsrSPSync.sync_type==2)
-        _or = or_()
+        _or = and_()
         if spnumber:
             _or.append(UsrSPSync.spnumber==spnumber)
         if msg:
@@ -191,7 +191,7 @@ def sp_mr(spid=None):
 
         channel_info = channel_info.filter(_or)
         channel_info = channel_info.first()
-
+        
         if channel_info:
             channel_id = channel_info.channelid
             return_data = channel_info.sync_result
@@ -228,6 +228,7 @@ def sp_mr(spid=None):
             #cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).filter(UsrChannel.is_show == True).all()
             cp_channel = g.session.query(UsrProvince).filter(UsrProvince.channelid==channel_id).\
                                     filter(UsrProvince.province==mobile_info.province).first()
+
             if cp_channel:
                 cp_list = g.session.query(UsrChannel).filter(UsrChannel.channelid== channel_id).filter(UsrChannel.cpid==cp_channel.cpid).first()
             else:
@@ -235,9 +236,15 @@ def sp_mr(spid=None):
                             filter(UsrChannel.spnumber==spnumber).\
                             filter(UsrChannel.momsg==msg).\
                             filter(UsrChannel.is_show == True).first()
-
             _kill_bl = 0 #扣量比列
             kill_val = 0 #扣量代码： 0不扣量，1计算比列扣量， 2省份屏蔽扣量， 3 黑名单扣量
+            channel_all_count = 0 
+            channel_province_day_max = 0 
+            channel_province_all_count = 0
+            channel_province_kill_count = 0
+            channel_province_no_kill_count = 0
+            channel_province_black_province_count = 0 
+            channel_province_black_mobile_count = 0
             if cp_list:
                 cp = cp_list
                 channel_all_count = get_channel_count(cp.id, cp.cpid) #Query Channel day All Count.
@@ -536,7 +543,6 @@ def sp_ivr(spid=None):
             data_mr = g.session.query(DataMr).filter(DataMr.channelid == channel_id).filter(DataMr.linkid==linkid).first()
 
             if  data_mr:
-                print data_mr
                 if data_mr.state:
                     return return_data
             else:
@@ -774,7 +780,6 @@ def sp_ivr(spid=None):
                 g.session.close()
                 return return_data
             except Exception, e:
-                print e
                 g.session.rollback()
                 return "SYS ERROR"
             # query mobile attribution

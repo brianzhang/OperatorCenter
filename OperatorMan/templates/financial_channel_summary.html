@@ -2,7 +2,7 @@
     <div fit="true">
         <div data-options="region:'north',split:false" style="height: 30px;padding:6px;" border="false">
         <!--高级查询部分-->
-        <table border="0" cellspacing="0" cellpadding="0" width="100%">
+        <table border="0" cellspacing="0" cellpadding="0" width="80%">
             <tr>
                 <th>开始时间:</th>
                 <td>
@@ -18,7 +18,7 @@
                     <select id="channel{{random_key}}" class="easyui-combobox">
                         <option selected="selected" value=''>--请选择--</option>
                         {%for channel in channels%}
-                        <option value="{{channel.id}}">{{channel.cha_name}}</option>
+                        <option value="{{channel.id}}">[{{channel.id}}]{{channel.cha_name}}</option>
                         {%endfor%}
                     </select>
                 </td>
@@ -38,7 +38,7 @@
         </table>
         </div>
         <div data-options="region:'center',split:false"  border="false">
-            <table id="financial_channel_summary_list_dg" class="easyui-datagrid" style="width:100;height:100;position: absolute"
+            <table id="financial_channel_summary_list_dg" class="easyui-datagrid" style="width:80;height:100;position: absolute"
                     url="/financial/channel/summary/"
                     pagination="true"
                     rownumbers="true"
@@ -49,9 +49,9 @@
                 <thead>
                     <tr>
                         <th field="cp" width="15">渠道商（CP）</th>
-                        <th field="count" width="40">条数</th>
-                        <th field="total" width="50">金额</th>
-                        <th field="date_time" width="50" data-options="formatter: financial_channel_summary_manager.formatterDate">时间周期</th>
+                        <th field="count" width="30">条数</th>
+                        <th field="total" width="30">金额</th>
+                        <th field="date_time" width="50" data-options="formatter: financial_channel_summary_manager.formatterDate">统计周期</th>
                     </tr>
                 </thead>
             </table>

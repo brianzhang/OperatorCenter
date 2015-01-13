@@ -21,12 +21,12 @@
                         {%for sp_info in sp_list%}
                             {% if channel_info %}
                                 {% if sp_info.id == channel_info.sp_info.id %}
-                                    <option value="{{sp_info.id}}" selected="selected">[{{sp_info.id}}]-{{sp_info.name}}</option>
+                                    <option value="{{sp_info.id}}" selected="selected">[{{sp_info.id}}]{{sp_info.name}}</option>
                                 {% else %}
-                                    <option value="{{sp_info.id}}">[{{sp_info.id}}]-{{sp_info.name}}</option>
+                                    <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
                                 {%endif%}
                             {% else %}
-                                <option value="{{sp_info.id}}">[{{sp_info.id}}]-{{sp_info.name}}</option>
+                                <option value="{{sp_info.id}}">[{{sp_info.id}}]{{sp_info.name}}</option>
                             {% endif %}
 
                         {%endfor%}
@@ -40,12 +40,12 @@
                         {% for busi in busi_list %}
                           {% if channel_info %}
                             {% if channel_info.busi_info.id == busi.id %}
-                            <option value="{{busi.id}}" selected="selected">[{{busi.id}}]-{{busi.name}}</option>
+                            <option value="{{busi.id}}" selected="selected">[{{busi.id}}]{{busi.name}}</option>
                             {% else %}
-                            <option value="{{busi.id}}">[{{busi.id}}]-{{busi.name}}</option>
+                            <option value="{{busi.id}}">[{{busi.id}}]{{busi.name}}</option>
                             {% endif %}
                           {% else %}
-                            <option value="{{busi.id}}">[{{busi.id}}]-{{busi.name}}</option>
+                            <option value="{{busi.id}}">[{{busi.id}}]{{busi.name}}</option>
                           {% endif%}
                         {% endfor %}
                         </select>
