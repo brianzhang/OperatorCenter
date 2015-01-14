@@ -99,7 +99,7 @@ def set_password():
 @login_required
 def sp_info_list():
     admins = g.session.query(SysAdmin).filter(SysAdmin.is_show==True).all()
-    return render_template("sp_info_list.html", admins=admins)
+    return render_template("sp_info_list.html", admins=admins, user = g.user)
 
 @base_view.route("/cooperate/operator/add/", methods=['POST'])
 @base_view.route("/cooperate/operator/edit/<sp_id>/", methods=['POST'])
@@ -144,7 +144,7 @@ def operator_add(sp_id=None):
 @login_required
 def operator_log():
     if request.method == 'GET':
-        return render_template('usr_sptong_log.html')
+        return render_template('usr_sptong_log.html', user = g.user)
     else:
         req_args = request.args if request.method == 'GET' else request.form
         
@@ -265,7 +265,7 @@ def get_cooperate_channel_list():
 @login_required
 def cp_info_list():
     admins = g.session.query(SysAdmin).all()
-    return render_template("cp_info_list.html", admins=admins)
+    return render_template("cp_info_list.html", admins=admins, user = g.user)
 
 @base_view.route("/cooperate/cpinfo/add/", methods=['POST'])
 @base_view.route("/cooperate/cpinfo/edit/<cp_id>/", methods=['POST'])
@@ -405,7 +405,7 @@ def cpinfo_get(cp_id=None):
 @login_required
 def channel_log():
     if request.method == 'GET':
-        return render_template('usr_cptong_log.html')
+        return render_template('usr_cptong_log.html', user = g.user)
     else:
         req_args = request.args if request.method == 'GET' else request.form
         currentpage = int(req_args.get('page', 1))
@@ -443,7 +443,7 @@ def channel_log():
 @login_required
 def sys_account():
     roles = g.session.query(SysRole).all()
-    return render_template("sys_account.html", roles=roles)
+    return render_template("sys/sys_account.html", roles=roles, user = g.user)
 
 @base_view.route("/sys/account/list/", methods=['GET', 'POST'])
 @login_required
@@ -532,13 +532,13 @@ def sys_account_set():
 def sys_user():
     roles = g.session.query(SysRole).all()
     user_info = g.session.query(SysAdmin).filter(SysAdmin.id==g.user.id).first()
-    return render_template("sys_account_info.html", roles=roles, user=user_info)
+    return render_template("sys_account_info.html", roles=roles, user_info=user_info, user = g.user)
 
 @base_view.route("/sys/log/", methods=['GET', 'POST'])
 @login_required
 def sys_log():
     if request.method == 'GET':
-        return render_template('sys_log.html')
+        return render_template('sys_log.html', user = g.user)
     else:
         req_args = request.args if request.method == 'GET' else request.form
         currentpage = int(req_args.get('page', 1))
@@ -568,7 +568,7 @@ def sys_balck():
     if request.method == 'GET':
         provinces = g.session.query(PubProvince).all()
         citys = None
-        return render_template('pub_black_phone.html', provinces=provinces, citys=None)
+        return render_template('pub_black_phone.html', provinces=provinces, citys=None, user = g.user)
     else:
         req_args = request.args if request.method == 'GET' else request.form
 

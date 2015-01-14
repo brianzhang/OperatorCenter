@@ -11,9 +11,17 @@ SECRET_KEY = '96e2b3699a852ade9d4d2fd408c93612'
 
 COOKIES_DOMAIN = '127.0.0.1' # cookies 域
 HOME_DOMAIN = '127.0.0.1' # 主域
-
+SYS_EMAIL = '372114189@qq.com'
+SYS_EMAIL_PASS = 'zhangfan@qvod123'
+SMTP_SERVER = 'smtp.qq.com'
 P_LOGIN_URI = '/permission/login/'
 P_QUERY_SESSION_URI = '/permission/session/query/'
+
+SERVER_NAME = 'http://120.31.131.109'
+
+PROJECT_PATH = os.path.dirname(os.path.abspath(__file__)) + os.sep + '..'
+FILE_PATH = os.path.join(PROJECT_PATH, 'applications/')
+TEMPLATE_FOLDER = os.path.join(PROJECT_PATH, 'templates/administrator')
 
 def P_LOGOUT_URI(session_id):
     return '/permission/logout/%s/' % session_id

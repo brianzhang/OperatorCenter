@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+ <section class="content-header">
+    <h1>帐号管理<small>你可以在此添加帐号,编辑帐号信息</small></h1>
+    <ol class="breadcrumb">
+        <li><a href="javascript:;"><i class="fa fa-dashboard"></i> 系统配置</a></li>
+        <li class="active">帐号管理</li>
+    </ol>
+</section>
+<section class="content">
+    <div class="row">
+        <div class="panel panel-default">
+          <!-- Default panel contents -->
+          <div class="panel-heading">帐号列表</div>
+          <!-- Table -->
+          <div class="table-responsive">
+              <table  class="table table-bordered table-hover">
+                <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名 </th>
+                            <th>昵称 </th>
+                            <th>权限组</th>
+                            <th>电话号码</th>
+                            <th>QQ</th>
+                            <th>Email</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+              </table>
+          </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
