@@ -35,6 +35,7 @@ financial_view = Blueprint('financial_view', __name__, url_prefix='/financial')
 @login_required
 def financial_channel_explort():
     req = request.args if request.method == 'GET' else request.form
+    print '-------------------------------------'
     today = datetime.datetime.today()
     _month = today.month if today.month > 10 else '0%s' % today.month
     _day = today.day if today.day > 10 else '0%s' % today.day
@@ -69,7 +70,7 @@ def financial_channel_explort():
     sp_operate_list = query.all()
     total_query = total_query.all()
 
-    sp_name = u"合作方："
+    sp_name = u"渠道商："
     sp_operate_data = []
     if sp_operate_list:        
         sp_name = sp_name + " "+ sp_operate_list[0].cp_info.name
@@ -90,14 +91,14 @@ def financial_channel_explort():
                                     })
 
     file_name =  execl_import(data=sp_operate_data, 
-                                      title=u"合作方结算对账单",
+                                      title=u"渠道商结算对账单",
                                       sp_name=sp_name, 
                                       tab_name=tab_name, 
                                       account_name= '', 
                                       bank_name='', 
                                       account='',
                                       summerize_data=explort_data)
-    
+    print file_name
     return send_from_directory(settings.FILE_PATH, file_name, as_attachment=True)
 
 

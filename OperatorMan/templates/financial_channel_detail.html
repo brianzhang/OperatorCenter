@@ -141,12 +141,44 @@ var financial_channel_manager = {
         end_time: $("#end_time{{random_key}}").datetimebox("getValue"),
         channel: $("#channels{{random_key}}").combobox("getValue"),
         cp: $("#cpinfo{{random_key}}").combobox("getValue")
-      }
-      $.fileDownload('/financial/channel/explort/', {
-        'httpMethod': 'POST',
-        'data': req_data,
-        'contentType': "application/json"
-      }).fail(function () { alert("Error during export") });
+      };
+
+      var _from = document.createElement("form");
+      var _iframe = document.createElement("iframe");
+      var _start_time = document.createElement("input");
+      var _end_time = document.createElement("input");
+      var _channel = document.createElement("input");
+      var _sp = document.createElement("input");
+      _from.method = 'POST';
+      _from.target="_iframe";
+      _from.action = "/financial/channel/explort/";
+      _iframe.id="_iframe";
+      _iframe.name = "_iframe";
+      _iframe.style.cssText="display:none";
+      _start_time.name="start_time";
+      _start_time.type="hidden";
+      _start_time.value = $("#start_time{{random_key}}").datetimebox("getValue");
+      _end_time.name="end_time";
+      _end_time.type="hidden";
+      _end_time.value = $("#end_time{{random_key}}").datetimebox("getValue");
+      _channel.name="channel";
+      _channel.type="hidden";
+      _channel.value=$("#channels{{random_key}}").combobox("getValue");
+      _sp.name="cp";
+      _sp.type="hidden";
+      _sp.value = $("#cpinfo{{random_key}}").combobox("getValue");
+
+      _from.appendChild(_start_time);
+      _from.appendChild(_end_time);
+      _from.appendChild(_channel);
+      _from.appendChild(_sp);
+      document.body.appendChild(_from);
+      document.body.appendChild(_iframe);
+      _from.submit();
+      setTimeout(function() {
+        document.body.removeChild(_from);
+        document.body.removeChild(_iframe);
+      }, 2000);
       
     },
     submitForm: function() {
