@@ -183,10 +183,13 @@ def sp_mr(spid=None):
         channel_info = g.session.query(UsrSPSync).filter(UsrSPSync.sync_type==2)
         _or = and_()
         if spnumber:
+            spnumber = spnumber.strip()
             _or.append(UsrSPSync.spnumber==spnumber)
         if msg:
+            msg = msg.strip()
             _or.append(UsrSPSync.extmsg==msg)
         if feeprice:
+            feeprice = feeprice.strip()
             _or.append(UsrSPSync.feeprice==feeprice)
 
         channel_info = channel_info.filter(_or)

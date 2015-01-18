@@ -4,23 +4,26 @@ import time
 
 def req_url():
 
-    mb   = 15915420000
-    mb1 = 18823370000
-    mb2 = 15019200000
-    mb3 = 15815810000
-    mb4 = 18211010000
-    mb5 = 13006660000
-    mb6 = 13166850000
-    lkid = 226000000
+    mb   = 13464000000
+    mb1 = 13464560000
+    mb2 = 13503600000
+    mb3 = 13503650000
+    mb4 = 13482190000
+    mb5 = 13482260000
+    mb6 = 13470860000
+    mb7 = 13400810000
+    mb8 = 13406190000
+    mb9 = 13409390000
+    lkid = 402939929392991
     #url = 'http://127.0.0.1:8802/MR/3/3/'
     true_count = 0
     error_count = 0
-    url = "http://127.0.0.1:8802/MR/100/1/"
+    url = "http://127.0.0.1:8802/mr/100/"
     #url = 'http://netmad.me/opt/MR/1/8/'
-    for i in range(0, 10000):
-      _mb = random.sample([mb, mb2, mb3, mb6], 1)
-      values = {'msg' : '10065487',
-          'spnumber' : '8502',
+    for i in range(0, 1000000):
+      _mb = random.sample([mb, mb1, mb2, mb3, mb4, mb5, mb6, mb7, mb8, mb9], 1)
+      values = {'msg' : 'cwems444:44:d',
+          'spnumber' : '1065889919',
           'mobile': '%s' % _mb[0],
           'linkid': '%s' % lkid,
           'status': 'OK'
@@ -40,11 +43,14 @@ def req_url():
           error_count += 1
       lkid += 1
       mb += 1
-      #mb1 += 1
+      mb1 += 1
       mb2 += 1
       mb3 += 1
-      #mb5 += 1
+      mb5 += 1
       mb6 += 1
+      mb7 += 1
+      mb8 += 1
+      mb9 += 1
       time.sleep(0.1)
     print '=======info list========'
     print '======Success: %s=======' % true_count

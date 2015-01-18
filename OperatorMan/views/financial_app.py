@@ -43,6 +43,7 @@ def financial_channel_explort():
     start_time = req.get('start_time', None)
     end_time = req.get('end_time', None)
     channel = req.get('channel', None)
+    explort_data = "%s-%s" % (start_time, end_time)
     cp = req.get('cp', None)
 
     query = g.session.query(AccountCP).order_by(desc(AccountCP.js_date))
@@ -95,8 +96,9 @@ def financial_channel_explort():
                                       account_name= '', 
                                       bank_name='', 
                                       account='',
-                                      summerize_data=tab_name)
-    return send_from_directory(settings.FILE_PATH, file_name)
+                                      summerize_data=explort_data)
+    
+    return send_from_directory(settings.FILE_PATH, file_name, as_attachment=True)
 
 
 @financial_view.route("/cooperate/explort/", methods=['GET', 'POST'])
@@ -110,6 +112,7 @@ def financial_cooperate_explort():
     tab_name = "%s%s%s" % (today.year, _month, _day)
     start_time = req.get('start_time', None)
     end_time = req.get('end_time', None)
+    explort_data = "%s-%s" % (start_time, end_time)
     channel = req.get('channel', None)
     sp = req.get('sp', None)
 
@@ -163,8 +166,8 @@ def financial_cooperate_explort():
                                       account_name= '', 
                                       bank_name='', 
                                       account='',
-                                      summerize_data=tab_name)
-    return send_from_directory(settings.FILE_PATH, file_name)
+                                      summerize_data=explort_data)
+    return send_from_directory(settings.FILE_PATH, file_name, as_attachment=True)
 
 @financial_view.route("/cooperate/detail/", methods=['GET', 'POST'])
 @login_required
